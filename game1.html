@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跑車賽道小遊戲</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        
+        .game-container {
+            position: relative;
+            margin: 0 auto 30px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+        
+        #gameCanvas {
+            background-color: #0f3460;
+            display: block;
+            width: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .control-panel h2 {
+            color: #4FC3F7;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .key-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        
+        .key {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #4FC3F7;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            user-select: none;
+            transition: all 0.1s;
+        }
+        
+        .key.active {
+            background: #4FC3F7;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px #4FC3F7;
+        }
+        
+        .key-up {
+            grid-column: 2;
+            grid-row: 1;
+        }
+        
+        .key-left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .key-down {
+            grid-column: 2;
+            grid-row: 2;
+        }
+        
+        .key-right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px 25px;
+            min-width: 180px;
+            margin: 10px;
+        }
+        
+        .info-title {
+            color: #FFD700;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .buttons {
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #FF416C, #FF4B2B);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+            max-width: 800px;
+        }
+        
+        .instructions h2 {
+            color: #4FC3F7;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .instructions p {
+            color: #aaa;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            display: none;
+        }
+        
+        .game-over h2 {
+            font-size: 3.5rem;
+            color: #FF416C;
+            margin-bottom: 20px;
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .status-effects {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .status-effect {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-effect-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .shield-icon { background-color: #4CAF50; }
+        .slow-icon { background-color: #FFC107; }
+        .double-icon { background-color: #9C27B0; }
+        .magnet-icon { background-color: #2196F3; }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .control-panel {
+                margin: 10px 0;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .status-effects {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>極速賽道</h1>
+            <p class="subtitle">使用方向鍵控制跑車，避免撞上其他車輛！</p>
+        </header>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div class="game-over" id="gameOverScreen">
+                <h2>遊戲結束！</h2>
+                <p>你的分數：<span id="finalScore">0</span></p>
+                <button id="restartButton">重新開始</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-panel">
+                <h2>控制鍵</h2>
+                <div class="key-controls">
+                    <div class="key key-up" id="keyUp">↑</div>
+                    <div class="key key-left" id="keyLeft">←</div>
+                    <div class="key key-down" id="keyDown">↓</div>
+                    <div class="key key-right" id="keyRight">→</div>
+                </div>
+            </div>
+            
+            <div class="control-panel">
+                <h2>遊戲狀態</h2>
+                <div class="game-info">
+                    <div class="info-box">
+                        <div class="info-title">分數</div>
+                        <div class="info-value" id="score">0</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-title">速度</div>
+                        <div class="info-value" id="speed">0 km/h</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-title">生命值</div>
+                        <div class="info-value" id="lives">3</div>
+                    </div>
+                </div>
+                
+                <div class="status-effects" id="statusEffects">
+                    <!-- 狀態效果將在這裡動態生成 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="startButton">開始遊戲</button>
+            <button id="pauseButton">暫停遊戲</button>
+        </div>
+        
+        <div class="instructions">
+            <h2>遊戲說明</h2>
+            <ul>
+                <li>使用 <strong>↑ 下鍵</strong> 加速/減速</li>
+                <li>使用 <strong>← → 鍵</strong> 在賽道間移動</li>
+                <li>避開其他車輛，撞到會損失生命值</li>
+                <li><strong>新道具系統：</strong></li>
+                <li style="margin-left: 20px;">🟢 <strong>護盾</strong>：綠色圓圈，3秒無敵</li>
+                <li style="margin-left: 20px;">🟡 <strong>減速</strong>：黃色圓圈，5秒內所有敵車減速</li>
+                <li style="margin-left: 20px;">🟣 <strong>分數加倍</strong>：紫色星星，30秒內分數加倍</li>
+                <li style="margin-left: 20px;">🔵 <strong>磁鐵</strong>：藍色磁鐵，自動吸引附近道具</li>
+                <li>每安全行駛一段距離可以獲得積分</li>
+                <li>遊戲目標：獲得最高分數！</li>
+            </ul>
+            <p>注意：車速越快，控制越困難！</p>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲變數
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const speedElement = document.getElementById('speed');
+        const livesElement = document.getElementById('lives');
+        const startButton = document.getElementById('startButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const restartButton = document.getElementById('restartButton');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreElement = document.getElementById('finalScore');
+        const statusEffectsElement = document.getElementById('statusEffects');
+        
+        // 控制鍵元素
+        const keyUp = document.getElementById('keyUp');
+        const keyDown = document.getElementById('keyDown');
+        const keyLeft = document.getElementById('keyLeft');
+        const keyRight = document.getElementById('keyRight');
+        
+        // 遊戲狀態
+        let gameRunning = false;
+        let gamePaused = false;
+        let score = 0;
+        let lives = 3;
+        let speed = 0;
+        let maxSpeed = 15;
+        let acceleration = 0.2;
+        let deceleration = 0.1;
+        
+        // 道具類型定義
+        const POWERUP_TYPES = {
+            SHIELD: { 
+                id: 'shield',
+                name: '護盾', 
+                color: '#4CAF50', 
+                duration: 3000,
+                icon: '🛡️',
+                drawFunction: drawShieldPowerUp
+            },
+            SLOW_ENEMY: { 
+                id: 'slow',
+                name: '減速', 
+                color: '#FFC107', 
+                duration: 5000,
+                icon: '🐢',
+                drawFunction: drawSlowPowerUp
+            },
+            DOUBLE_SCORE: { 
+                id: 'double',
+                name: '分數加倍', 
+                color: '#9C27B0', 
+                duration: 30000,
+                icon: '⭐',
+                drawFunction: drawDoubleScorePowerUp
+            },
+            MAGNET: { 
+                id: 'magnet',
+                name: '磁鐵', 
+                color: '#2196F3', 
+                duration: 10000,
+                icon: '🧲',
+                drawFunction: drawMagnetPowerUp
+            },
+            SPEED_BOOST: { 
+                id: 'speed',
+                name: '加速', 
+                color: '#FFD700', 
+                duration: 3000,
+                icon: '⚡',
+                drawFunction: drawSpeedPowerUp
+            }
+        };
+        
+        // 玩家狀態效果
+        let playerEffects = {
+            shield: { active: false, endTime: 0 },
+            slowEnemy: { active: false, endTime: 0 },
+            doubleScore: { active: false, endTime: 0 },
+            magnet: { active: false, endTime: 0, range: 200 },
+            speedBoost: { active: false, endTime: 0 }
+        };
+        
+        // 賽道設定
+        const trackCount = 3;
+        const trackWidth = canvas.width / trackCount;
+        const trackColors = ['#2E8B57', '#228B22', '#006400'];
+        const laneMarkings = [];
+        
+        // 初始化車道標記
+        for (let i = 1; i < trackCount; i++) {
+            laneMarkings.push({
+                x: i * trackWidth,
+                y: 0,
+                width: 10,
+                height: 40,
+                gap: 20
+            });
+        }
+        
+        // 玩家車輛
+        const playerCar = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 120,
+            width: 50,
+            height: 100,
+            color: '#FF416C',
+            track: 1, // 0, 1, 2
+            speed: 0,
+            maxSpeed: maxSpeed,
+            acceleration: acceleration,
+            deceleration: deceleration,
+            isInvulnerable: false
+        };
+        
+        // 敵方車輛陣列
+        let enemyCars = [];
+        
+        // 道具陣列
+        let powerUps = [];
+        
+        // 控制狀態
+        const keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false
+        };
+        
+        // 初始化遊戲
+        function initGame() {
+            score = 0;
+            lives = 3;
+            speed = 0;
+            playerCar.x = canvas.width / 2 - 25;
+            playerCar.y = canvas.height - 120;
+            playerCar.track = 1;
+            playerCar.speed = 0;
+            playerCar.isInvulnerable = false;
+            enemyCars = [];
+            powerUps = [];
+            
+            // 重置所有效果
+            for (let effect in playerEffects) {
+                playerEffects[effect].active = false;
+                playerEffects[effect].endTime = 0;
+            }
+            
+            gameOverScreen.style.display = 'none';
+            updateUI();
+            updateStatusEffects();
+        }
+        
+        // 繪製賽道
+        function drawTracks() {
+            // 繪製賽道背景
+            for (let i = 0; i < trackCount; i++) {
+                ctx.fillStyle = trackColors[i];
+                ctx.fillRect(i * trackWidth, 0, trackWidth, canvas.height);
+                
+                // 賽道邊緣
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(i * trackWidth, 0, 5, canvas.height);
+                ctx.fillRect((i + 1) * trackWidth - 5, 0, 5, canvas.height);
+            }
+            
+            // 繪製車道標記
+            laneMarkings.forEach(marking => {
+                for (let y = 0; y < canvas.height; y += marking.height + marking.gap) {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(marking.x - marking.width/2, y, marking.width, marking.height);
+                }
+            });
+            
+            // 繪製背景遠山
+            drawBackground();
+        }
+        
+        // 繪製背景
+        function drawBackground() {
+            // 遠處山脈
+            ctx.fillStyle = 'rgba(15, 52, 96, 0.7)';
+            ctx.beginPath();
+            ctx.moveTo(0, 100);
+            ctx.lineTo(150, 50);
+            ctx.lineTo(300, 120);
+            ctx.lineTo(500, 80);
+            ctx.lineTo(700, 130);
+            ctx.lineTo(800, 90);
+            ctx.lineTo(800, 0);
+            ctx.lineTo(0, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 雲朵
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            drawCloud(100, 60, 40);
+            drawCloud(400, 40, 30);
+            drawCloud(600, 80, 50);
+        }
+        
+        // 繪製雲朵
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y - size * 0.3, size * 0.7, 0, Math.PI * 2);
+            ctx.arc(x + size * 1.5, y, size * 0.8, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y + size * 0.3, size * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // 繪製玩家車輛
+        function drawPlayerCar() {
+            // 如果有護盾效果，繪製護盾
+            if (playerEffects.shield.active) {
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(
+                    playerCar.x + playerCar.width/2,
+                    playerCar.y + playerCar.height/2,
+                    Math.max(playerCar.width, playerCar.height)/2 + 15,
+                    0, Math.PI * 2
+                );
+                ctx.stroke();
+                
+                // 護盾脈衝效果
+                const pulse = (Date.now() % 1000) / 1000;
+                ctx.globalAlpha = 0.3 + 0.2 * Math.sin(pulse * Math.PI * 2);
+                ctx.fillStyle = '#4CAF50';
+                ctx.beginPath();
+                ctx.arc(
+                    playerCar.x + playerCar.width/2,
+                    playerCar.y + playerCar.height/2,
+                    Math.max(playerCar.width, playerCar.height)/2 + 10,
+                    0, Math.PI * 2
+                );
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+            
+            // 車身
+            ctx.fillStyle = playerCar.color;
+            ctx.fillRect(playerCar.x, playerCar.y, playerCar.width, playerCar.height);
+            
+            // 如果有磁鐵效果，繪製磁力範圍
+            if (playerEffects.magnet.active) {
+                ctx.strokeStyle = '#2196F3';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(
+                    playerCar.x + playerCar.width/2,
+                    playerCar.y + playerCar.height/2,
+                    playerEffects.magnet.range,
+                    0, Math.PI * 2
+                );
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            // 車窗
+            ctx.fillStyle = '#4FC3F7';
+            ctx.fillRect(playerCar.x + 5, playerCar.y + 10, playerCar.width - 10, 30);
+            
+            // 車燈
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(playerCar.x + 5, playerCar.y + playerCar.height - 15, 10, 10);
+            ctx.fillRect(playerCar.x + playerCar.width - 15, playerCar.y + playerCar.height - 15, 10, 10);
+            
+            // 輪胎
+            ctx.fillStyle = '#222';
+            ctx.fillRect(playerCar.x - 5, playerCar.y + 15, 5, 25);
+            ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + 15, 5, 25);
+            ctx.fillRect(playerCar.x - 5, playerCar.y + playerCar.height - 40, 5, 25);
+            ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + playerCar.height - 40, 5, 25);
+        }
+        
+        // 繪製敵方車輛
+        function drawEnemyCars() {
+            enemyCars.forEach(car => {
+                // 如果有減速效果，改變車輛顏色
+                if (playerEffects.slowEnemy.active) {
+                    ctx.fillStyle = '#666'; // 變灰表示減速
+                } else {
+                    ctx.fillStyle = car.color;
+                }
+                
+                ctx.fillRect(car.x, car.y, car.width, car.height);
+                
+                // 車窗
+                ctx.fillStyle = '#999';
+                ctx.fillRect(car.x + 5, car.y + 10, car.width - 10, 20);
+                
+                // 輪胎
+                ctx.fillStyle = '#222';
+                ctx.fillRect(car.x - 5, car.y + 15, 5, 20);
+                ctx.fillRect(car.x + car.width, car.y + 15, 5, 20);
+                ctx.fillRect(car.x - 5, car.y + car.height - 35, 5, 20);
+                ctx.fillRect(car.x + car.width, car.y + car.height - 35, 5, 20);
+            });
+        }
+        
+        // 繪製護盾道具
+        function drawShieldPowerUp(x, y, size) {
+            // 外圈
+            ctx.strokeStyle = '#4CAF50';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 內圈
+            ctx.fillStyle = '#4CAF50';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 護盾圖標
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            // 繪製簡單的盾牌形狀
+            ctx.moveTo(x + size/2, y + size/4);
+            ctx.lineTo(x + size/4, y + size/2);
+            ctx.lineTo(x + size/2, y + size*3/4);
+            ctx.lineTo(x + size*3/4, y + size/2);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // 繪製減速道具
+        function drawSlowPowerUp(x, y, size) {
+            // 黃色圓圈
+            ctx.fillStyle = '#FFC107';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 烏龜圖標
+            ctx.fillStyle = '#795548';
+            // 烏龜身體
+            ctx.beginPath();
+            ctx.ellipse(x + size/2, y + size/2, size/3, size/4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 烏龜頭
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/3, size/8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // 繪製分數加倍道具
+        function drawDoubleScorePowerUp(x, y, size) {
+            // 紫色星星背景
+            ctx.fillStyle = '#9C27B0';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 星星
+            ctx.fillStyle = '#FFFFFF';
+            drawStar(ctx, x + size/2, y + size/2, 5, size/4, size/8);
+        }
+        
+        // 繪製磁鐵道具
+        function drawMagnetPowerUp(x, y, size) {
+            // 藍色背景
+            ctx.fillStyle = '#2196F3';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 磁鐵圖標
+            ctx.fillStyle = '#FFFFFF';
+            // 磁鐵的U形
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 0.25, Math.PI * 0.75);
+            ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 1.25, Math.PI * 1.75);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // 繪製加速道具（原有的）
+        function drawSpeedPowerUp(x, y, size) {
+            // 道具外框
+            ctx.fillStyle = '#4FC3F7';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2 + 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 道具內部
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x + size/2, y + size/2, size/2 - 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 閃電圖標
+            ctx.fillStyle = '#4FC3F7';
+            ctx.beginPath();
+            ctx.moveTo(x + size/2, y + size/3);
+            ctx.lineTo(x + size/3, y + size/2);
+            ctx.lineTo(x + size/2, y + size/2);
+            ctx.lineTo(x + size/1.5, y + size/1.5);
+            ctx.lineTo(x + size/2, y + size/1.5);
+            ctx.lineTo(x + size/1.5, y + size/3);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // 繪製星星的輔助函數
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+            
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+                
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        // 繪製所有道具
+        function drawPowerUps() {
+            powerUps.forEach(powerUp => {
+                const powerUpType = POWERUP_TYPES[powerUp.type];
+                if (powerUpType && powerUpType.drawFunction) {
+                    powerUpType.drawFunction(powerUp.x, powerUp.y, powerUp.size);
+                }
+            });
+        }
+        
+        // 生成敵方車輛
+        function generateEnemyCar() {
+            const track = Math.floor(Math.random() * trackCount);
+            const x = track * trackWidth + (trackWidth - 50) / 2;
+            const y = -100;
+            const colors = ['#FF9800', '#9C27B0', '#2196F3', '#F44336'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            let enemySpeed = 3 + Math.random() * 5;
+            
+            // 如果有減速效果，降低敵車速度
+            if (playerEffects.slowEnemy.active) {
+                enemySpeed *= 0.5; // 減半速度
+            }
+            
+            enemyCars.push({
+                x: x,
+                y: y,
+                width: 50,
+                height: 100,
+                color: color,
+                track: track,
+                speed: enemySpeed
+            });
+        }
+        
+        // 生成道具
+        function generatePowerUp() {
+            if (Math.random() < 0.015) { // 1.5% 機率生成道具
+                const track = Math.floor(Math.random() * trackCount);
+                const x = track * trackWidth + (trackWidth - 30) / 2;
+                const y = -30;
+                
+                // 隨機選擇道具類型
+                const powerUpTypes = Object.keys(POWERUP_TYPES);
+                const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+                
+                powerUps.push({
+                    x: x,
+                    y: y,
+                    size: 30,
+                    track: track,
+                    type: randomType
+                });
+            }
+        }
+        
+        // 更新敵方車輛位置
+        function updateEnemyCars() {
+            for (let i = enemyCars.length - 1; i >= 0; i--) {
+                enemyCars[i].y += enemyCars[i].speed;
+                
+                // 移除超出畫布的車輛
+                if (enemyCars[i].y > canvas.height) {
+                    enemyCars.splice(i, 1);
+                    // 基礎分數
+                    let points = 10;
+                    // 如果有分數加倍效果
+                    if (playerEffects.doubleScore.active) {
+                        points *= 2;
+                    }
+                    score += points;
+                }
+            }
+        }
+        
+        // 更新道具位置
+        function updatePowerUps() {
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                const powerUp = powerUps[i];
+                
+                // 如果有磁鐵效果且道具在範圍內，向玩家移動
+                if (playerEffects.magnet.active) {
+                    const dx = (playerCar.x + playerCar.width/2) - (powerUp.x + powerUp.size/2);
+                    const dy = (playerCar.y + playerCar.height/2) - (powerUp.y + powerUp.size/2);
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < playerEffects.magnet.range) {
+                        // 向玩家移動
+                        const speed = 8;
+                        powerUp.x += (dx / distance) * speed;
+                        powerUp.y += (dy / distance) * speed;
+                    } else {
+                        powerUp.y += 5;
+                    }
+                } else {
+                    powerUp.y += 5;
+                }
+                
+                // 移除超出畫布的道具
+                if (powerUp.y > canvas.height) {
+                    powerUps.splice(i, 1);
+                }
+            }
+        }
+        
+        // 檢測碰撞
+        function checkCollisions() {
+            // 檢測與敵方車輛的碰撞
+            for (let i = enemyCars.length - 1; i >= 0; i--) {
+                const car = enemyCars[i];
+                if (
+                    playerCar.x < car.x + car.width &&
+                    playerCar.x + playerCar.width > car.x &&
+                    playerCar.y < car.y + car.height &&
+                    playerCar.y + playerCar.height > car.y
+                ) {
+                    // 如果有護盾效果，不損失生命值
+                    if (playerEffects.shield.active) {
+                        enemyCars.splice(i, 1);
+                        score += 20; // 摧毀敵車獎勵
+                    } else {
+                        // 碰撞發生
+                        enemyCars.splice(i, 1);
+                        lives--;
+                        updateUI();
+                        
+                        // 如果生命值耗盡，遊戲結束
+                        if (lives <= 0) {
+                            endGame();
+                        }
+                    }
+                    return;
+                }
+            }
+            
+            // 檢測與道具的碰撞
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                const powerUp = powerUps[i];
+                if (
+                    playerCar.x < powerUp.x + powerUp.size &&
+                    playerCar.x + playerCar.width > powerUp.x &&
+                    playerCar.y < powerUp.y + powerUp.size &&
+                    playerCar.y + playerCar.height > powerUp.y
+                ) {
+                    // 收集道具
+                    const powerUpType = POWERUP_TYPES[powerUp.type];
+                    powerUps.splice(i, 1);
+                    
+                    // 根據道具類型應用效果
+                    applyPowerUpEffect(powerUpType);
+                    updateUI();
+                }
+            }
+        }
+        
+        // 應用道具效果
+        function applyPowerUpEffect(powerUpType) {
+            if (!powerUpType) return;
+            
+            const now = Date.now();
+            const endTime = now + powerUpType.duration;
+            
+            // 根據道具類型設置效果
+            switch(powerUpType.id) {
+                case 'shield':
+                    playerEffects.shield.active = true;
+                    playerEffects.shield.endTime = endTime;
+                    playerCar.isInvulnerable = true;
+                    break;
+                    
+                case 'slow':
+                    playerEffects.slowEnemy.active = true;
+                    playerEffects.slowEnemy.endTime = endTime;
+                    break;
+                    
+                case 'double':
+                    playerEffects.doubleScore.active = true;
+                    playerEffects.doubleScore.endTime = endTime;
+                    break;
+                    
+                case 'magnet':
+                    playerEffects.magnet.active = true;
+                    playerEffects.magnet.endTime = endTime;
+                    break;
+                    
+                case 'speed':
+                    playerEffects.speedBoost.active = true;
+                    playerEffects.speedBoost.endTime = endTime;
+                    playerCar.maxSpeed = 20;
+                    break;
+            }
+            
+            // 更新狀態效果顯示
+            updateStatusEffects();
+            
+            // 設置定時器移除效果
+            setTimeout(() => {
+                removePowerUpEffect(powerUpType.id);
+            }, powerUpType.duration);
+        }
+        
+        // 移除道具效果
+        function removePowerUpEffect(effectId) {
+            switch(effectId) {
+                case 'shield':
+                    playerEffects.shield.active = false;
+                    playerCar.isInvulnerable = false;
+                    break;
+                    
+                case 'slow':
+                    playerEffects.slowEnemy.active = false;
+                    break;
+                    
+                case 'double':
+                    playerEffects.doubleScore.active = false;
+                    break;
+                    
+                case 'magnet':
+                    playerEffects.magnet.active = false;
+                    break;
+                    
+                case 'speed':
+                    playerEffects.speedBoost.active = false;
+                    playerCar.maxSpeed = maxSpeed;
+                    break;
+            }
+            
+            updateStatusEffects();
+        }
+        
+        // 檢查效果是否過期
+        function checkEffectsExpiry() {
+            const now = Date.now();
+            
+            for (let effect in playerEffects) {
+                if (playerEffects[effect].active && now > playerEffects[effect].endTime) {
+                    removePowerUpEffect(effect);
+                }
+            }
+        }
+        
+        // 更新玩家車輛位置 - 修正車道切換錯誤
+        function updatePlayerCar() {
+            // 加速/減速
+            if (keys.ArrowUp && playerCar.speed < playerCar.maxSpeed) {
+                playerCar.speed += playerCar.acceleration;
+            } else if (keys.ArrowDown && playerCar.speed > 0) {
+                playerCar.speed -= playerCar.deceleration * 2;
+            } else if (playerCar.speed > 0) {
+                playerCar.speed -= playerCar.deceleration;
+            } else if (playerCar.speed < 0) {
+                playerCar.speed = 0;
+            }
+            
+            // 修正：允許在任何車道之間切換
+            // 按左鍵且不在最左車道時，向左移動
+            if (keys.ArrowLeft && playerCar.track > 0) {
+                playerCar.track--;
+                playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+                keys.ArrowLeft = false; // 防止連續切換
+            }
+            // 按右鍵且不在最右車道時，向右移動
+            else if (keys.ArrowRight && playerCar.track < trackCount - 1) {
+                playerCar.track++;
+                playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+                keys.ArrowRight = false; // 防止連續切換
+            }
+            
+            // 更新速度顯示
+            speed = Math.round(playerCar.speed * 10);
+        }
+        
+        // 更新UI
+        function updateUI() {
+            scoreElement.textContent = score;
+            speedElement.textContent = speed + ' km/h';
+            livesElement.textContent = lives;
+        }
+        
+        // 更新狀態效果顯示
+        function updateStatusEffects() {
+            statusEffectsElement.innerHTML = '';
+            
+            for (let effectKey in playerEffects) {
+                const effect = playerEffects[effectKey];
+                if (effect.active && POWERUP_TYPES[effectKey]) {
+                    const powerUpType = POWERUP_TYPES[effectKey];
+                    const timeLeft = Math.max(0, Math.ceil((effect.endTime - Date.now()) / 1000));
+                    
+                    const effectElement = document.createElement('div');
+                    effectElement.className = 'status-effect';
+                    effectElement.innerHTML = `
+                        <div class="status-effect-icon ${effectKey}-icon"></div>
+                        <span>${powerUpType.icon} ${powerUpType.name}: ${timeLeft}s</span>
+                    `;
+                    statusEffectsElement.appendChild(effectElement);
+                }
+            }
+        }
+        
+        // 結束遊戲
+        function endGame() {
+            gameRunning = false;
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // 遊戲主循環
+        function gameLoop() {
+            if (!gameRunning || gamePaused) return;
+            
+            // 清除畫布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 繪製賽道
+            drawTracks();
+            
+            // 檢查效果是否過期
+            checkEffectsExpiry();
+            
+            // 更新和繪製敵方車輛
+            updateEnemyCars();
+            drawEnemyCars();
+            
+            // 更新和繪製道具
+            updatePowerUps();
+            drawPowerUps();
+            
+            // 更新玩家車輛
+            updatePlayerCar();
+            drawPlayerCar();
+            
+            // 檢測碰撞
+            checkCollisions();
+            
+            // 隨機生成敵方車輛
+            if (Math.random() < 0.03) {
+                generateEnemyCar();
+            }
+            
+            // 隨機生成道具
+            generatePowerUp();
+            
+            // 更新UI
+            updateUI();
+            
+            // 定期更新狀態效果顯示（每秒更新一次）
+            if (Date.now() % 1000 < 16) { // 大約每秒更新一次
+                updateStatusEffects();
+            }
+            
+            // 請求下一幀
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 事件監聽
+        document.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = true;
+                
+                // 高亮顯示按下的鍵
+                switch(e.key) {
+                    case 'ArrowUp':
+                        keyUp.classList.add('active');
+                        break;
+                    case 'ArrowDown':
+                        keyDown.classList.add('active');
+                        break;
+                    case 'ArrowLeft':
+                        keyLeft.classList.add('active');
+                        break;
+                    case 'ArrowRight':
+                        keyRight.classList.add('active');
+                        break;
+                }
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+                
+                // 移除高亮
+                switch(e.key) {
+                    case 'ArrowUp':
+                        keyUp.classList.remove('active');
+                        break;
+                    case 'ArrowDown':
+                        keyDown.classList.remove('active');
+                        break;
+                    case 'ArrowLeft':
+                        keyLeft.classList.remove('active');
+                        break;
+                    case 'ArrowRight':
+                        keyRight.classList.remove('active');
+                        break;
+                }
+            }
+        });
+        
+        // 觸控控制（用於移動設備）
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let lastLaneChangeTime = 0;
+        const laneChangeCooldown = 200; // 200毫秒冷卻時間防止連續切換
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!gameRunning || gamePaused) return;
+            
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const deltaX = touchX - touchStartX;
+            const deltaY = touchY - touchStartY;
+            
+            const now = Date.now();
+            
+            // 水平移動 - 修正車道切換
+            if (Math.abs(deltaX) > 30 && now - lastLaneChangeTime > laneChangeCooldown) {
+                if (deltaX > 0 && playerCar.track < trackCount - 1) {
+                    playerCar.track++;
+                    playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+                    touchStartX = touchX;
+                    lastLaneChangeTime = now;
+                } else if (deltaX < 0 && playerCar.track > 0) {
+                    playerCar.track--;
+                    playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+                    touchStartX = touchX;
+                    lastLaneChangeTime = now;
+                }
+            }
+            
+            // 垂直移動（加速/減速）
+            if (Math.abs(deltaY) > 20) {
+                if (deltaY > 0 && playerCar.speed > 0) {
+                    playerCar.speed -= playerCar.deceleration * 3;
+                    touchStartY = touchY;
+                } else if (deltaY < 0 && playerCar.speed < playerCar.maxSpeed) {
+                    playerCar.speed += playerCar.acceleration * 2;
+                    touchStartY = touchY;
+                }
+            }
+            
+            e.preventDefault();
+        });
+        
+        // 按鈕事件
+        startButton.addEventListener('click', () => {
+            if (!gameRunning) {
+                initGame();
+                gameRunning = true;
+                gamePaused = false;
+                gameLoop();
+                startButton.textContent = '重新開始';
+            } else {
+                initGame();
+                gameRunning = true;
+                gamePaused = false;
+                gameLoop();
+            }
+        });
+        
+        pauseButton.addEventListener('click', () => {
+            if (gameRunning) {
+                gamePaused = !gamePaused;
+                pauseButton.textContent = gamePaused ? '繼續遊戲' : '暫停遊戲';
+                
+                if (!gamePaused) {
+                    gameLoop();
+                }
+            }
+        });
+        
+        restartButton.addEventListener('click', () => {
+            initGame();
+            gameRunning = true;
+            gamePaused = false;
+            gameLoop();
+            gameOverScreen.style.display = 'none';
+        });
+        
+        // 初始繪製
+        drawTracks();
+        drawPlayerCar();
+        updateUI();
+        updateStatusEffects();
+    </script>
+</body>
+</html>

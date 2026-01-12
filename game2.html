@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TWICE 節奏手勢遊戲</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden; 
+            background: #000;
+            color: #fff;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 20, 147, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(147, 20, 255, 0.15) 0%, transparent 50%);
+        }
+        
+        #gameCanvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        #ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+        
+        .score-panel {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 300px;
+        }
+        
+        .song-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .song-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff1493, #9314ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .artist {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff1493, #9314ff);
+            width: 0%;
+            transition: width 0.1s;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff1493;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+        
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: 900;
+            color: #ff1493;
+            text-shadow: 0 0 30px rgba(255, 20, 147, 0.5);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 50;
+            pointer-events: none;
+        }
+        
+        .hit-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--x) var(--y), 
+                      rgba(255, 20, 147, 0.3) 0%, 
+                      transparent 50%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .note-lane {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            z-index: 10;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 50px;
+        }
+        
+        .lane {
+            width: 100px;
+            height: 100%;
+            position: relative;
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+            border-right: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .lane-hit-area {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 20, 147, 0.2);
+            border-radius: 10px;
+            border: 2px solid rgba(255, 20, 147, 0.5);
+            pointer-events: none;
+        }
+        
+        .note {
+            position: absolute;
+            width: 80px;
+            height: 30px;
+            background: linear-gradient(90deg, var(--color1), var(--color2));
+            border-radius: 15px;
+            left: 10px;
+            transform-origin: center;
+            transition: transform 0.1s;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+            pointer-events: none;
+        }
+        
+        .hand-indicator {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ff1493;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 20;
+            pointer-events: none;
+        }
+        
+        #leftHand {
+            border-color: #ff1493;
+        }
+        
+        #rightHand {
+            border-color: #9314ff;
+        }
+        
+        .warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 59, 48, 0.9);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 500px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .game-start {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        .start-button {
+            background: linear-gradient(90deg, #ff1493, #9314ff);
+            border: none;
+            color: white;
+            padding: 20px 60px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 30px;
+            font-weight: 700;
+            transition: transform 0.3s;
+        }
+        
+        .start-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .difficulty-select {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .difficulty-btn {
+            padding: 10px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-btn.active {
+            background: rgba(255, 20, 147, 0.2);
+            border-color: #ff1493;
+        }
+        
+        .accuracy-display {
+            position: fixed;
+            bottom: 220px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: 700;
+            color: #ff1493;
+            text-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+            z-index: 11;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui">
+        <div class="score-panel">
+            <div class="song-info">
+                <div class="song-title">LIKEY</div>
+                <div class="artist">TWICE</div>
+                <div class="progress-bar">
+                    <div class="progress" id="songProgress"></div>
+                </div>
+                <div id="timeDisplay">0:00 / 3:15</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">分數</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="combo">0</div>
+                    <div class="stat-label">COMBO</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">100%</div>
+                    <div class="stat-label">準確率</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="score-panel" style="width: 250px;">
+            <div style="font-size: 16px; margin-bottom: 15px; color: #ff1493;">🎮 控制說明</div>
+            <div style="font-size: 12px; line-height: 1.6; color: rgba(255, 255, 255, 0.7);">
+                <div style="margin-bottom: 8px;">👋 張開手掌：準備擊打</div>
+                <div style="margin-bottom: 8px;">✊ 握拳：擊打音符</div>
+                <div style="margin-bottom: 8px;">👉 移動手：切換軌道</div>
+                <div>🎵 節拍對準發光區域</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="combo-display" id="comboDisplay"></div>
+    <div class="accuracy-display" id="accuracyDisplay"></div>
+    <div class="hit-effect" id="hitEffect"></div>
+    
+    <div class="note-lane">
+        <div class="lane" data-index="0">
+            <div class="lane-hit-area"></div>
+        </div>
+        <div class="lane" data-index="1">
+            <div class="lane-hit-area"></div>
+        </div>
+        <div class="lane" data-index="2">
+            <div class="lane-hit-area"></div>
+        </div>
+        <div class="lane" data-index="3">
+            <div class="lane-hit-area"></div>
+        </div>
+    </div>
+    
+    <div class="hand-indicator" id="leftHand">👈</div>
+    <div class="hand-indicator" id="rightHand">👉</div>
+    
+    <div class="game-start" id="gameStart">
+        <h1 style="font-size: 48px; margin-bottom: 20px; background: linear-gradient(90deg, #ff1493, #9314ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TWICE 節奏遊戲</h1>
+        <p style="font-size: 18px; margin-bottom: 30px; color: rgba(255, 255, 255, 0.8);">用手勢遊玩 TWICE 熱門歌曲</p>
+        
+        <div class="difficulty-select">
+            <button class="difficulty-btn active" data-difficulty="easy">簡單</button>
+            <button class="difficulty-btn" data-difficulty="normal">普通</button>
+            <button class="difficulty-btn" data-difficulty="hard">困難</button>
+        </div>
+        
+        <button class="start-button" id="startButton">開始遊戲</button>
+        
+        <p style="margin-top: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.6);">需要攝影機權限 | 建議使用 Chrome</p>
+    </div>
+    
+    <div id="permissionWarning" class="warning">
+        <h3>需要攝影機權限</h3>
+        <p>請允許攝影機存取以使用手勢控制功能</p>
+        <p style="margin-top:20px; font-size:14px; opacity:0.8;">刷新頁面後重新授權</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.min.js"></script>
+    
+    <script>
+        // ==================== 遊戲設定 ====================
+        const GAME_CONFIG = {
+            // 歌曲設定
+            songs: {
+                'LIKEY': {
+                    bpm: 128,
+                    duration: 195, // 秒
+                    color1: '#ff1493',
+                    color2: '#9314ff'
+                },
+                'FANCY': {
+                    bpm: 120,
+                    duration: 200,
+                    color1: '#FFD700',
+                    color2: '#FF69B4'
+                },
+                'What is Love?': {
+                    bpm: 122,
+                    duration: 210,
+                    color1: '#9370DB',
+                    color2: '#00BFFF'
+                }
+            },
+            
+            // 難度設定
+            difficulties: {
+                easy: { speed: 1.0, noteDensity: 0.3, lifeRecovery: 0.2 },
+                normal: { speed: 1.5, noteDensity: 0.6, lifeRecovery: 0.1 },
+                hard: { speed: 2.0, noteDensity: 0.9, lifeRecovery: 0.05 }
+            },
+            
+            // 遊戲規則
+            rules: {
+                PERFECT: { threshold: 50, score: 1000, color: '#FFD700' },
+                GREAT: { threshold: 100, score: 800, color: '#ff1493' },
+                GOOD: { threshold: 150, score: 500, color: '#9370DB' },
+                MISS: { score: 0, color: '#666' }
+            },
+            
+            // 手勢映射
+            gestures: {
+                HAND_OPEN: 'lane_select',
+                HAND_CLOSED: 'hit_note',
+                HAND_MOVING: 'move_indicator',
+                PINCH: 'special_action'
+            }
+        };
+
+        // ==================== 遊戲主類別 ====================
+        class RhythmGame {
+            constructor() {
+                this.gameState = {
+                    score: 0,
+                    combo: 0,
+                    maxCombo: 0,
+                    accuracy: 100,
+                    totalNotes: 0,
+                    hitNotes: 0,
+                    life: 100,
+                    isPlaying: false,
+                    songTime: 0,
+                    difficulty: 'normal',
+                    currentSong: 'LIKEY'
+                };
+                
+                this.noteQueue = [];
+                this.activeNotes = [];
+                this.lanes = [0, 1, 2, 3];
+                this.handPositions = { left: null, right: null };
+                this.handStates = { left: 'open', right: 'open' };
+                
+                this.initThreeJS();
+                this.initNoteSystem();
+                this.initMediaPipe();
+                this.initUI();
+                this.generateBeatMap();
+            }
+            
+            initThreeJS() {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.z = 15;
+                
+                this.renderer = new THREE.WebGLRenderer({ 
+                    canvas: document.getElementById('gameCanvas'),
+                    antialias: true,
+                    alpha: true 
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                
+                // 背景特效
+                this.createBackground();
+                
+                // 粒子系統
+                this.createParticleSystem();
+                
+                this.clock = new THREE.Clock();
+            }
+            
+            createBackground() {
+                // 動態網格背景
+                const gridGeometry = new THREE.BufferGeometry();
+                const gridSize = 50;
+                const gridDivisions = 50;
+                const vertices = [];
+                
+                for (let i = 0; i <= gridDivisions; i++) {
+                    const x = (i / gridDivisions - 0.5) * gridSize;
+                    
+                    vertices.push(x, -gridSize/2, 0);
+                    vertices.push(x, gridSize/2, 0);
+                    
+                    const y = (i / gridDivisions - 0.5) * gridSize;
+                    vertices.push(-gridSize/2, y, 0);
+                    vertices.push(gridSize/2, y, 0);
+                }
+                
+                gridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                
+                const gridMaterial = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.05
+                });
+                
+                const grid = new THREE.LineSegments(gridGeometry, gridMaterial);
+                this.scene.add(grid);
+                this.grid = grid;
+                
+                // 視覺效果燈光
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                this.scene.add(ambientLight);
+                
+                const pointLight = new THREE.PointLight(0xff1493, 1, 100);
+                pointLight.position.set(10, 10, 10);
+                this.scene.add(pointLight);
+                
+                const pointLight2 = new THREE.PointLight(0x9314ff, 1, 100);
+                pointLight2.position.set(-10, -10, 10);
+                this.scene.add(pointLight2);
+            }
+            
+            createParticleSystem() {
+                const particleCount = 5000;
+                const particles = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const i3 = i * 3;
+                    positions[i3] = (Math.random() - 0.5) * 100;
+                    positions[i3 + 1] = (Math.random() - 0.5) * 100;
+                    positions[i3 + 2] = (Math.random() - 0.5) * 50;
+                    
+                    colors[i3] = Math.random() * 0.5 + 0.5;
+                    colors[i3 + 1] = Math.random() * 0.3 + 0.3;
+                    colors[i3 + 2] = Math.random() * 0.5 + 0.5;
+                }
+                
+                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 0.1,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.5,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                this.particleSystem = new THREE.Points(particles, particleMaterial);
+                this.scene.add(this.particleSystem);
+            }
+            
+            initNoteSystem() {
+                this.notePool = [];
+                this.noteContainer = document.querySelector('.note-lane');
+                
+                // 創建音符池
+                for (let i = 0; i < 100; i++) {
+                    const note = document.createElement('div');
+                    note.className = 'note';
+                    note.style.display = 'none';
+                    note.style.setProperty('--color1', GAME_CONFIG.songs[this.gameState.currentSong].color1);
+                    note.style.setProperty('--color2', GAME_CONFIG.songs[this.gameState.currentSong].color2);
+                    this.noteContainer.appendChild(note);
+                    this.notePool.push(note);
+                }
+            }
+            
+            initMediaPipe() {
+                this.hands = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`
+                });
+                
+                this.hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.5
+                });
+                
+                this.hands.onResults(this.onHandResults.bind(this));
+                
+                this.camera = new Camera(document.createElement('video'), {
+                    onFrame: async () => {
+                        if (this.gameState.isPlaying) {
+                            await this.hands.send({image: this.camera.video});
+                        }
+                    },
+                    width: 640,
+                    height: 480
+                });
+                
+                this.cameraStartPromise = this.camera.start();
+                this.cameraStartPromise.catch((error) => {
+                    console.error('Camera error:', error);
+                    document.getElementById('permissionWarning').style.display = 'block';
+                });
+            }
+            
+            initUI() {
+                // 開始按鈕
+                document.getElementById('startButton').addEventListener('click', () => {
+                    this.startGame();
+                    document.getElementById('gameStart').style.display = 'none';
+                });
+                
+                // 難度選擇
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.gameState.difficulty = e.target.dataset.difficulty;
+                    });
+                });
+                
+                // 視窗大小調整
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+            
+            generateBeatMap() {
+                const song = GAME_CONFIG.songs[this.gameState.currentSong];
+                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
+                const totalBeats = Math.floor((song.duration * song.bpm) / 60);
+                
+                this.noteQueue = [];
+                
+                // 生成節拍圖
+                for (let i = 0; i < totalBeats; i++) {
+                    if (Math.random() < difficulty.noteDensity) {
+                        const note = {
+                            beat: i,
+                            lane: Math.floor(Math.random() * 4),
+                            time: (i * 60 / song.bpm) * 1000, // 毫秒
+                            type: Math.random() > 0.8 ? 'long' : 'normal',
+                            hit: false,
+                            element: null
+                        };
+                        
+                        this.noteQueue.push(note);
+                        this.gameState.totalNotes++;
+                    }
+                }
+                
+                // 更新總音符數顯示
+                document.getElementById('accuracy').textContent = '100%';
+            }
+            
+            onHandResults(results) {
+                if (!results.multiHandLandmarks || !this.gameState.isPlaying) return;
+                
+                // 重置手部位置
+                this.handPositions = { left: null, right: null };
+                
+                results.multiHandLandmarks.forEach((landmarks, index) => {
+                    const handedness = results.multiHandedness[index].label;
+                    const hand = handedness === 'Left' ? 'right' : 'left';
+                    
+                    // 計算手掌中心位置
+                    const palmX = landmarks[0].x * window.innerWidth;
+                    const palmY = (1 - landmarks[0].y) * window.innerHeight;
+                    
+                    this.handPositions[hand] = { x: palmX, y: palmY };
+                    
+                    // 更新手部指示器
+                    const indicator = document.getElementById(`${hand}Hand`);
+                    indicator.style.left = `${palmX - 30}px`;
+                    indicator.style.top = `${palmY - 30}px`;
+                    indicator.style.display = 'block';
+                    
+                    // 計算手勢狀態
+                    const openness = this.calculateHandOpenness(landmarks);
+                    const state = openness > 0.6 ? 'open' : 'closed';
+                    this.handStates[hand] = state;
+                    
+                    // 更新指示器樣式
+                    indicator.style.background = state === 'open' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'rgba(255, 20, 147, 0.3)';
+                    
+                    // 檢查擊打
+                    if (state === 'closed') {
+                        this.checkHit(hand, palmX);
+                    }
+                });
+                
+                // 隱藏未偵測到的手
+                if (!this.handPositions.left) {
+                    document.getElementById('leftHand').style.display = 'none';
+                }
+                if (!this.handPositions.right) {
+                    document.getElementById('rightHand').style.display = 'none';
+                }
+            }
+            
+            calculateHandOpenness(landmarks) {
+                // 計算指尖到掌心的平均距離
+                const palmX = landmarks[0].x;
+                const palmY = landmarks[0].y;
+                
+                const fingerTips = [4, 8, 12, 16, 20];
+                let totalDistance = 0;
+                
+                fingerTips.forEach(index => {
+                    const dx = landmarks[index].x - palmX;
+                    const dy = landmarks[index].y - palmY;
+                    totalDistance += Math.sqrt(dx * dx + dy * dy);
+                });
+                
+                return Math.min(totalDistance / 0.5, 1);
+            }
+            
+            checkHit(hand, xPosition) {
+                const laneWidth = window.innerWidth / 4;
+                const laneIndex = Math.floor(xPosition / laneWidth);
+                
+                if (laneIndex < 0 || laneIndex > 3) return;
+                
+                const now = this.gameState.songTime * 1000;
+                const hitWindow = 200; // 毫秒
+                
+                for (const note of this.activeNotes) {
+                    if (note.lane === laneIndex && !note.hit) {
+                        const timeDiff = Math.abs(note.time - now);
+                        
+                        if (timeDiff <= hitWindow) {
+                            this.hitNote(note, timeDiff);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            hitNote(note, timeDiff) {
+                note.hit = true;
+                
+                // 計算精準度
+                let accuracy;
+                if (timeDiff <= 50) {
+                    accuracy = 'PERFECT';
+                    this.showHitEffect('#FFD700');
+                } else if (timeDiff <= 100) {
+                    accuracy = 'GREAT';
+                    this.showHitEffect('#ff1493');
+                } else {
+                    accuracy = 'GOOD';
+                    this.showHitEffect('#9370DB');
+                }
+                
+                const rule = GAME_CONFIG.rules[accuracy];
+                
+                // 更新分數
+                this.gameState.combo++;
+                this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
+                this.gameState.score += rule.score * (1 + this.gameState.combo / 50);
+                this.gameState.hitNotes++;
+                
+                // 更新準確率
+                this.gameState.accuracy = (this.gameState.hitNotes / this.gameState.totalNotes) * 100;
+                
+                // 恢復生命值
+                this.gameState.life = Math.min(100, this.gameState.life + 10);
+                
+                // 顯示連擊效果
+                if (this.gameState.combo >= 5) {
+                    this.showCombo();
+                }
+                
+                // 顯示準確度
+                this.showAccuracy(accuracy);
+                
+                // 移除音符
+                if (note.element) {
+                    note.element.style.display = 'none';
+                    this.notePool.push(note.element);
+                }
+                
+                this.updateUI();
+            }
+            
+            showHitEffect(color) {
+                const effect = document.getElementById('hitEffect');
+                effect.style.setProperty('--x', `${this.handPositions.left?.x || window.innerWidth/2}px`);
+                effect.style.setProperty('--y', `${this.handPositions.left?.y || window.innerHeight/2}px`);
+                effect.style.background = `radial-gradient(circle at var(--x) var(--y), 
+                    ${color}33 0%, transparent 50%)`;
+                
+                effect.style.opacity = '1';
+                setTimeout(() => {
+                    effect.style.opacity = '0';
+                }, 300);
+            }
+            
+            showCombo() {
+                const comboDisplay = document.getElementById('comboDisplay');
+                comboDisplay.textContent = `${this.gameState.combo} COMBO!`;
+                comboDisplay.style.opacity = '1';
+                comboDisplay.style.transform = 'translate(-50%, -50%) scale(1)';
+                
+                setTimeout(() => {
+                    comboDisplay.style.opacity = '0';
+                    comboDisplay.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                }, 1000);
+            }
+            
+            showAccuracy(accuracy) {
+                const display = document.getElementById('accuracyDisplay');
+                display.textContent = accuracy;
+                display.style.color = GAME_CONFIG.rules[accuracy].color;
+                display.style.opacity = '1';
+                display.style.bottom = '250px';
+                
+                setTimeout(() => {
+                    display.style.opacity = '0';
+                    display.style.bottom = '220px';
+                }, 500);
+            }
+            
+            updateUI() {
+                document.getElementById('score').textContent = Math.floor(this.gameState.score);
+                document.getElementById('combo').textContent = this.gameState.combo;
+                document.getElementById('accuracy').textContent = `${this.gameState.accuracy.toFixed(1)}%`;
+                
+                // 更新進度條
+                const song = GAME_CONFIG.songs[this.gameState.currentSong];
+                const progress = (this.gameState.songTime / song.duration) * 100;
+                document.getElementById('songProgress').style.width = `${progress}%`;
+                
+                // 更新時間顯示
+                const currentTime = Math.floor(this.gameState.songTime);
+                const totalTime = song.duration;
+                document.getElementById('timeDisplay').textContent = 
+                    `${Math.floor(currentTime/60)}:${(currentTime%60).toString().padStart(2, '0')} / 
+                     ${Math.floor(totalTime/60)}:${(totalTime%60).toString().padStart(2, '0')}`;
+            }
+            
+            spawnNote(noteData) {
+                if (this.notePool.length === 0) return;
+                
+                const noteElement = this.notePool.pop();
+                const lane = document.querySelector(`.lane[data-index="${noteData.lane}"]`);
+                
+                noteElement.style.display = 'block';
+                noteElement.style.bottom = '0px';
+                lane.appendChild(noteElement);
+                
+                noteData.element = noteElement;
+                this.activeNotes.push(noteData);
+            }
+            
+            updateNotes() {
+                const now = this.gameState.songTime * 1000;
+                const song = GAME_CONFIG.songs[this.gameState.currentSong];
+                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
+                
+                // 生成新音符
+                while (this.noteQueue.length > 0 && this.noteQueue[0].time <= now + 2000) {
+                    const note = this.noteQueue.shift();
+                    this.spawnNote(note);
+                }
+                
+                // 更新音符位置
+                const speed = difficulty.speed * 0.2;
+                
+                for (let i = this.activeNotes.length - 1; i >= 0; i--) {
+                    const note = this.activeNotes[i];
+                    const timeLeft = note.time - now;
+                    const position = Math.max(0, (timeLeft / 2000) * 200);
+                    
+                    if (note.element) {
+                        note.element.style.bottom = `${position}px`;
+                        note.element.style.opacity = Math.min(1, timeLeft / 1000);
+                    }
+                    
+                    // 檢查錯過的音符
+                    if (timeLeft < -200 && !note.hit) {
+                        this.missNote(note);
+                    }
+                    
+                    // 移除已擊中或超出範圍的音符
+                    if (timeLeft < -300 || note.hit) {
+                        if (note.element) {
+                            note.element.style.display = 'none';
+                            this.notePool.push(note.element);
+                        }
+                        this.activeNotes.splice(i, 1);
+                    }
+                }
+            }
+            
+            missNote(note) {
+                note.hit = true;
+                this.gameState.combo = 0;
+                this.gameState.life -= 20;
+                
+                if (this.gameState.life <= 0) {
+                    this.gameOver();
+                }
+                
+                this.updateUI();
+            }
+            
+            startGame() {
+                this.gameState.isPlaying = true;
+                this.gameState.songTime = 0;
+                this.gameState.score = 0;
+                this.gameState.combo = 0;
+                this.gameState.life = 100;
+                this.gameState.hitNotes = 0;
+                this.gameState.totalNotes = 0;
+                
+                this.generateBeatMap();
+                this.updateUI();
+                this.animate();
+            }
+            
+            gameOver() {
+                this.gameState.isPlaying = false;
+                
+                alert(`遊戲結束！\n分數：${Math.floor(this.gameState.score)}\n最高連擊：${this.gameState.maxCombo}\n準確率：${this.gameState.accuracy.toFixed(1)}%`);
+                
+                document.getElementById('gameStart').style.display = 'flex';
+            }
+            
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                if (!this.gameState.isPlaying) return;
+                
+                const delta = this.clock.getDelta();
+                this.gameState.songTime += delta;
+                
+                // 更新音符
+                this.updateNotes();
+                
+                // 更新背景特效
+                if (this.grid) {
+                    this.grid.rotation.x += delta * 0.1;
+                    this.grid.rotation.y += delta * 0.05;
+                }
+                
+                if (this.particleSystem) {
+                    this.particleSystem.rotation.y += delta * 0.02;
+                }
+                
+                // 檢查歌曲結束
+                const song = GAME_CONFIG.songs[this.gameState.currentSong];
+                if (this.gameState.songTime >= song.duration) {
+                    this.gameOver();
+                }
+                
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+        
+        // 初始化遊戲
+        window.addEventListener('load', () => {
+            const game = new RhythmGame();
+        });
+    </script>
+</body>
+</html>
