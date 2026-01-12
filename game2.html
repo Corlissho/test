@@ -9,9 +9,8 @@
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif;
             overflow: hidden; 
-            background: #000;
+            background: linear-gradient(135deg, #87CEEB 0%, #6495ED 50%, #4169E1 100%);
             color: #fff;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
         
         #gameCanvas {
@@ -40,7 +39,7 @@
             font-size: 32px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
         }
         
         .score-label {
@@ -49,13 +48,14 @@
             color: #ff6b9d;
             margin-bottom: 5px;
             letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .score-value {
             font-size: 48px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px #ff6b9d;
+            text-shadow: 0 0 15px #ff6b9d, 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
         .combo-board {
@@ -71,13 +71,14 @@
             color: #ff6b9d;
             margin-bottom: 5px;
             letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .combo-value {
             font-size: 48px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px #ff6b9d;
+            text-shadow: 0 0 15px #ff6b9d, 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
         .life-board {
@@ -92,15 +93,17 @@
             color: #ff6b9d;
             margin-bottom: 10px;
             letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .life-bar {
             width: 300px;
             height: 20px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
         }
         
         .life-fill {
@@ -108,6 +111,7 @@
             background: linear-gradient(90deg, #ff6b9d, #ff9a3d);
             width: 100%;
             transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
         }
         
         .life-value {
@@ -117,18 +121,20 @@
             font-size: 20px;
             font-weight: 700;
             color: #fff;
-            text-shadow: 0 0 5px #ff6b9d;
+            text-shadow: 0 0 5px #ff6b9d, 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .skill-board {
             position: absolute;
             top: 200px;
             left: 30px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 15px 20px;
             border: 2px solid rgba(255, 107, 157, 0.5);
             min-width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         .skill-label {
@@ -137,12 +143,13 @@
             color: #ff9a3d;
             margin-bottom: 5px;
             letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .skill-desc {
             font-size: 16px;
             color: #fff;
-            opacity: 0.8;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .judgment-display {
@@ -153,7 +160,7 @@
             font-size: 48px;
             font-weight: 900;
             color: #ff6b9d;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7);
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7), 2px 2px 4px rgba(0, 0, 0, 0.5);
             opacity: 0;
             pointer-events: none;
             z-index: 50;
@@ -177,9 +184,9 @@
             width: 140px;
             height: 100%;
             position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
             overflow: hidden;
         }
         
@@ -189,11 +196,11 @@
             left: 0;
             width: 100%;
             height: 70px;
-            background: rgba(255, 107, 157, 0.2);
-            border-top: 4px solid rgba(255, 107, 157, 0.8);
+            background: rgba(255, 107, 157, 0.25);
+            border-top: 4px solid rgba(255, 107, 157, 0.9);
             pointer-events: none;
             z-index: 12;
-            box-shadow: 0 -5px 20px rgba(255, 107, 157, 0.3);
+            box-shadow: 0 -5px 20px rgba(255, 107, 157, 0.4);
         }
         
         .note {
@@ -208,17 +215,19 @@
             z-index: 11;
             display: none;
             transform-origin: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .note.perfect-zone {
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
+            border: 2px solid rgba(255, 215, 0, 0.8);
         }
         
         .hand-indicator {
             position: fixed;
             width: 80px;
             height: 80px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             border: 3px solid #ff6b9d;
             border-radius: 50%;
             display: none;
@@ -228,7 +237,8 @@
             z-index: 20;
             pointer-events: none;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.6);
+            backdrop-filter: blur(5px);
         }
         
         #leftHand {
@@ -246,7 +256,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.95) 0%, rgba(100, 149, 237, 0.95) 50%, rgba(65, 105, 225, 0.95) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -271,7 +281,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.95) 0%, rgba(100, 149, 237, 0.95) 50%, rgba(65, 105, 225, 0.95) 100%);
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -283,7 +293,7 @@
             font-weight: 700;
             color: #fff;
             margin-bottom: 40px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .song-grid {
@@ -296,24 +306,26 @@
         .song-card {
             width: 300px;
             height: 180px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid transparent;
             position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
         .song-card:hover {
             transform: translateY(-10px);
             border-color: #ff6b9d;
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+            box-shadow: 0 15px 30px rgba(255, 107, 157, 0.4);
         }
         
         .song-card.active {
             border-color: #ff6b9d;
-            box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.7);
         }
         
         .song-image {
@@ -331,11 +343,13 @@
             font-weight: 700;
             color: #fff;
             margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .song-artist {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .difficulty-select {
@@ -346,7 +360,7 @@
         
         .difficulty-btn {
             padding: 12px 30px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             border: 2px solid transparent;
             border-radius: 25px;
             color: white;
@@ -354,16 +368,18 @@
             transition: all 0.3s;
             font-size: 16px;
             font-weight: 600;
+            backdrop-filter: blur(5px);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .difficulty-btn:hover {
-            background: rgba(255, 107, 157, 0.2);
+            background: rgba(255, 107, 157, 0.3);
         }
         
         .difficulty-btn.active {
-            background: rgba(255, 107, 157, 0.3);
+            background: rgba(255, 107, 157, 0.4);
             border-color: #ff6b9d;
-            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.6);
         }
         
         .start-game-btn {
@@ -376,11 +392,13 @@
             cursor: pointer;
             font-weight: 700;
             transition: transform 0.3s;
+            box-shadow: 0 10px 20px rgba(255, 107, 157, 0.4);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .start-game-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+            box-shadow: 0 15px 30px rgba(255, 107, 157, 0.6);
         }
         
         /* 倒數計時 */
@@ -390,7 +408,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             display: none;
             align-items: center;
             justify-content: center;
@@ -402,7 +420,7 @@
             font-size: 120px;
             font-weight: 900;
             color: #ff6b9d;
-            text-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.9), 0 0 60px rgba(255, 107, 157, 0.5);
             margin-bottom: 20px;
         }
         
@@ -410,6 +428,7 @@
             font-size: 36px;
             color: #fff;
             font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
         /* 遊戲結束畫面 */
@@ -419,7 +438,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             display: none;
             align-items: center;
             justify-content: center;
@@ -432,15 +451,18 @@
             font-weight: 900;
             color: #ff6b9d;
             margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.8);
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.9), 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
         .gameover-stats {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
             min-width: 400px;
             margin-bottom: 40px;
+            border: 2px solid rgba(255, 107, 157, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
         .gameover-stat {
@@ -451,12 +473,14 @@
         }
         
         .gameover-label {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .gameover-value {
             color: #fff;
             font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .restart-btn {
@@ -469,13 +493,15 @@
             cursor: pointer;
             font-weight: 700;
             transition: transform 0.3s;
+            box-shadow: 0 10px 20px rgba(77, 150, 255, 0.4);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .restart-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(77, 150, 255, 0.6);
         }
         
-        /* 手勢狀態指示 */
         .gesture-status {
             position: fixed;
             bottom: 30px;
@@ -486,6 +512,8 @@
             font-size: 14px;
             color: #fff;
             z-index: 100;
+            backdrop-filter: blur(5px);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .camera-feed {
@@ -499,6 +527,7 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             z-index: 100;
             display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .camera-feed video {
@@ -519,6 +548,9 @@
             max-width: 500px;
             z-index: 1000;
             display: none;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
         .warning h3 {
@@ -539,6 +571,37 @@
             border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .music-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            pointer-events: auto;
+        }
+        
+        .music-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            pointer-events: auto;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .music-btn:hover {
+            background: rgba(255, 107, 157, 0.3);
+            border-color: #ff6b9d;
         }
     </style>
 </head>
@@ -644,7 +707,7 @@
         </div>
         
         <button class="start-game-btn" id="startGameButton">開始遊戲</button>
-        <button class="restart-btn" id="backToStartButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">返回</button>
+        <button class="restart-btn" id="backToStartButton" style="margin-top: 20px; background: rgba(255,255,255,0.15);">返回</button>
     </div>
     
     <!-- 倒數計時畫面 -->
@@ -675,7 +738,14 @@
             </div>
         </div>
         <button class="restart-btn" id="restartButton">再玩一次</button>
-        <button class="restart-btn" id="backToSongSelectButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">選擇歌曲</button>
+        <button class="restart-btn" id="backToSongSelectButton" style="margin-top: 20px; background: rgba(255,255,255,0.15);">選擇歌曲</button>
+    </div>
+    
+    <!-- 音樂控制 -->
+    <div class="music-controls">
+        <button class="music-btn" id="playMusic">播放音樂</button>
+        <button class="music-btn" id="pauseMusic">暫停音樂</button>
+        <button class="music-btn" id="cameraToggle">顯示鏡頭</button>
     </div>
     
     <!-- 鏡頭畫面 -->
@@ -691,9 +761,15 @@
     </div>
 
     <!-- 音效 -->
-    <audio id="hitSound" src="https://assets.mixkit.co/active_storage/sfx/258/258-preview.mp3" preload="auto"></audio>
-    <audio id="missSound" src="https://assets.mixkit.co/active_storage/sfx/255/255-preview.mp3" preload="auto"></audio>
-    <audio id="perfectSound" src="https://assets.mixkit.co/active_storage/sfx/257/257-preview.mp3" preload="auto"></audio>
+    <audio id="hitSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mp3">
+    </audio>
+    <audio id="missSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3" type="audio/mp3">
+    </audio>
+    <audio id="perfectSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mp3">
+    </audio>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
@@ -796,7 +872,8 @@
                     difficulty: 'normal',
                     currentSong: 'likey',
                     musicPlaying: false,
-                    gameStarted: false
+                    gameStarted: false,
+                    audioContextStarted: false
                 };
                 
                 this.noteQueue = [];
@@ -822,6 +899,8 @@
             
             initThreeJS() {
                 this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x87CEEB); // 天空藍色背景
+                
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 this.camera.position.z = 15;
                 
@@ -838,41 +917,108 @@
             }
             
             createBackground() {
-                // 創建網格背景
-                const gridSize = 50;
-                const gridDivisions = 50;
-                const gridGeometry = new THREE.BufferGeometry();
-                const vertices = [];
+                // 創建雲朵
+                this.createClouds();
                 
-                for (let i = 0; i <= gridDivisions; i++) {
-                    const x = (i / gridDivisions - 0.5) * gridSize;
-                    vertices.push(x, -gridSize/2, 0);
-                    vertices.push(x, gridSize/2, 0);
-                    
-                    const y = (i / gridDivisions - 0.5) * gridSize;
-                    vertices.push(-gridSize/2, y, 0);
-                    vertices.push(gridSize/2, y, 0);
-                }
-                
-                gridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                
-                const gridMaterial = new THREE.LineBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.05
-                });
-                
-                this.grid = new THREE.LineSegments(gridGeometry, gridMaterial);
-                this.scene.add(this.grid);
+                // 創建太陽
+                this.createSun();
                 
                 // 添加環境光
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
                 this.scene.add(ambientLight);
                 
-                // 添加點光源
-                const pointLight = new THREE.PointLight(0xff6b9d, 1, 100);
-                pointLight.position.set(10, 10, 10);
-                this.scene.add(pointLight);
+                // 添加方向光模擬陽光
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 10, 7);
+                this.scene.add(directionalLight);
+            }
+            
+            createClouds() {
+                this.clouds = [];
+                const cloudGeometry = new THREE.SphereGeometry(1, 8, 8);
+                const cloudMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                // 創建多個雲朵
+                for (let i = 0; i < 10; i++) {
+                    const cloud = new THREE.Group();
+                    
+                    // 每個雲朵由多個球體組成
+                    for (let j = 0; j < 5; j++) {
+                        const sphere = new THREE.Mesh(cloudGeometry, cloudMaterial);
+                        sphere.position.x = (Math.random() - 0.5) * 3;
+                        sphere.position.y = (Math.random() - 0.5) * 1.5;
+                        sphere.position.z = (Math.random() - 0.5) * 3;
+                        sphere.scale.setScalar(Math.random() * 1.5 + 1);
+                        cloud.add(sphere);
+                    }
+                    
+                    // 設置雲朵的隨機位置
+                    cloud.position.x = (Math.random() - 0.5) * 100;
+                    cloud.position.y = Math.random() * 10 + 5;
+                    cloud.position.z = -10 - Math.random() * 20;
+                    
+                    // 設置隨機大小
+                    const scale = Math.random() * 3 + 1;
+                    cloud.scale.set(scale, scale, scale);
+                    
+                    // 設置隨機速度
+                    cloud.userData = {
+                        speed: Math.random() * 0.02 + 0.01,
+                        originalX: cloud.position.x
+                    };
+                    
+                    this.scene.add(cloud);
+                    this.clouds.push(cloud);
+                }
+            }
+            
+            createSun() {
+                const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
+                const sunMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xFFD700,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                this.sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                this.sun.position.set(20, 15, -30);
+                this.scene.add(this.sun);
+                
+                // 添加太陽光暈
+                const sunGlowGeometry = new THREE.SphereGeometry(4, 32, 32);
+                const sunGlowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xFFA500,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                
+                this.sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
+                this.sun.position.add(this.sunGlow.position);
+                this.sun.add(this.sunGlow);
+            }
+            
+            updateBackground() {
+                // 更新雲朵位置
+                this.clouds.forEach(cloud => {
+                    cloud.position.x += cloud.userData.speed;
+                    
+                    // 如果雲朵移動到邊界，重新設置位置
+                    if (cloud.position.x > 60) {
+                        cloud.position.x = -60;
+                    }
+                    
+                    // 輕微上下浮動
+                    cloud.position.y = cloud.position.y + Math.sin(Date.now() * 0.001 + cloud.userData.originalX) * 0.02;
+                });
+                
+                // 更新太陽旋轉
+                if (this.sun) {
+                    this.sun.rotation.y += 0.005;
+                }
             }
             
             initNoteSystem() {
@@ -974,11 +1120,31 @@
                     this.showSongSelectScreen();
                 });
                 
+                // 音樂控制按鈕
+                document.getElementById('playMusic').addEventListener('click', () => {
+                    this.playMusic();
+                });
+                
+                document.getElementById('pauseMusic').addEventListener('click', () => {
+                    this.pauseMusic();
+                });
+                
+                // 鏡頭切換按鈕
+                document.getElementById('cameraToggle').addEventListener('click', () => {
+                    const feed = document.getElementById('cameraFeed');
+                    feed.style.display = feed.style.display === 'block' ? 'none' : 'block';
+                });
+                
                 // 視窗大小調整
                 window.addEventListener('resize', () => {
                     this.camera.aspect = window.innerWidth / window.innerHeight;
                     this.camera.updateProjectionMatrix();
                     this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+                
+                // 點擊遊戲結束畫面外部不會關閉
+                document.getElementById('gameoverScreen').addEventListener('click', (e) => {
+                    e.stopPropagation();
                 });
             }
             
@@ -990,15 +1156,34 @@
                 this.hitSound = document.getElementById('hitSound');
                 this.missSound = document.getElementById('missSound');
                 this.perfectSound = document.getElementById('perfectSound');
+                
+                // 確保音頻可以播放
+                this.audio.muted = false;
+                this.audio.volume = 0.7;
+                
+                // 添加用戶互動後解鎖音頻的處理
+                document.addEventListener('click', () => {
+                    if (!this.gameState.audioContextStarted) {
+                        this.audio.play().then(() => {
+                            this.audio.pause();
+                            this.audio.currentTime = 0;
+                            this.gameState.audioContextStarted = true;
+                        }).catch(e => {
+                            console.log('Audio context initialization failed:', e);
+                        });
+                    }
+                }, { once: true });
             }
             
             playMusic() {
-                if (!this.gameState.musicPlaying) {
+                if (!this.gameState.musicPlaying && this.gameState.isPlaying) {
                     const song = GAME_CONFIG.songs[this.gameState.currentSong];
                     this.audio.src = song.audioUrl;
+                    this.audio.volume = 0.7;
                     
                     this.audio.play().then(() => {
                         this.gameState.musicPlaying = true;
+                        console.log('Music started playing');
                     }).catch(e => {
                         console.log('Audio play failed:', e);
                         // 如果自動播放失敗，我們仍然繼續遊戲，只是沒有音樂
@@ -1059,13 +1244,13 @@
                     if (hand === 'left') {
                         indicator.style.borderColor = state === 'open' ? '#ff6b9d' : '#FFD700';
                         indicator.style.boxShadow = state === 'open' 
-                            ? '0 0 20px rgba(255, 107, 157, 0.5)' 
-                            : '0 0 30px rgba(255, 215, 0, 0.8)';
+                            ? '0 0 20px rgba(255, 107, 157, 0.6)' 
+                            : '0 0 30px rgba(255, 215, 0, 0.9)';
                     } else {
                         indicator.style.borderColor = state === 'open' ? '#4d96ff' : '#FFD700';
                         indicator.style.boxShadow = state === 'open' 
-                            ? '0 0 20px rgba(77, 150, 255, 0.5)' 
-                            : '0 0 30px rgba(255, 215, 0, 0.8)';
+                            ? '0 0 20px rgba(77, 150, 255, 0.6)' 
+                            : '0 0 30px rgba(255, 215, 0, 0.9)';
                     }
                     
                     // 檢查擊打
@@ -1194,9 +1379,11 @@
             showCombo() {
                 const comboDisplay = document.getElementById('combo');
                 comboDisplay.style.transform = 'scale(1.2)';
+                comboDisplay.style.color = '#FFD700';
                 
                 setTimeout(() => {
                     comboDisplay.style.transform = 'scale(1)';
+                    comboDisplay.style.color = '#fff';
                 }, 200);
             }
             
@@ -1206,16 +1393,16 @@
                 
                 if (this.gameState.combo >= 20) {
                     skillDesc.textContent = 'スコアアップ Lv.3';
-                    skillBoard.style.borderColor = 'rgba(255, 215, 0, 0.8)';
-                    skillBoard.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+                    skillBoard.style.borderColor = 'rgba(255, 215, 0, 0.9)';
+                    skillBoard.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.6)';
                 } else if (this.gameState.combo >= 10) {
                     skillDesc.textContent = 'スコアアップ Lv.2';
-                    skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.8)';
-                    skillBoard.style.boxShadow = '0 0 15px rgba(255, 107, 157, 0.5)';
+                    skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.9)';
+                    skillBoard.style.boxShadow = '0 0 15px rgba(255, 107, 157, 0.6)';
                 } else if (this.gameState.combo >= 5) {
                     skillDesc.textContent = 'ライフ回復 Lv.1';
-                    skillBoard.style.borderColor = 'rgba(77, 150, 255, 0.8)';
-                    skillBoard.style.boxShadow = '0 0 10px rgba(77, 150, 255, 0.5)';
+                    skillBoard.style.borderColor = 'rgba(77, 150, 255, 0.9)';
+                    skillBoard.style.boxShadow = '0 0 10px rgba(77, 150, 255, 0.6)';
                 }
             }
             
@@ -1277,8 +1464,8 @@
                     
                     if (note.element) {
                         const position = Math.max(hitPosition, laneHeight - fallDistance);
-                        note.element.style.top = `${position}px`;
-                        note.element.style.opacity = Math.min(1, (timeLeft + 500) / 1000);
+                        noteElement.style.top = `${position}px`;
+                        noteElement.style.opacity = Math.min(1, (timeLeft + 500) / 1000);
                         
                         // 如果是完美區域，更新樣式
                         if (timeLeft <= difficulty.perfectWindow + 50 && timeLeft >= -50) {
@@ -1361,6 +1548,7 @@
                 this.countdownTime = 3;
                 countdownNumber.textContent = this.countdownTime;
                 
+                // 開始倒數計時
                 this.countdownInterval = setInterval(() => {
                     this.countdownTime--;
                     countdownNumber.textContent = this.countdownTime;
@@ -1377,23 +1565,38 @@
                 this.gameState.isCountingDown = false;
                 this.gameState.isPlaying = true;
                 this.gameState.gameStarted = true;
+                
+                // 開始播放音樂
                 this.playMusic();
+                
+                // 開始遊戲動畫循環
                 this.animate();
             }
             
             startGame() {
+                // 重置遊戲狀態
                 this.resetGameState();
+                
+                // 生成音符地圖
                 this.generateBeatMap();
+                
+                // 隱藏歌曲選擇畫面
                 document.getElementById('songSelectScreen').style.display = 'none';
+                
+                // 開始3秒倒數計時
                 this.startCountdown();
             }
             
             restartGame() {
+                // 完全重置遊戲
                 this.resetGame();
+                
+                // 重新開始遊戲
                 this.startGame();
             }
             
             resetGame() {
+                // 停止遊戲
                 this.gameState.isPlaying = false;
                 this.gameState.gameStarted = false;
                 
@@ -1408,7 +1611,7 @@
                 this.activeNotes = [];
                 this.noteQueue = [];
                 
-                // 停止動畫
+                // 停止動畫循環
                 if (this.animationId) {
                     cancelAnimationFrame(this.animationId);
                     this.animationId = null;
@@ -1421,10 +1624,16 @@
                 
                 // 停止音樂
                 this.pauseMusic();
-                this.audio.currentTime = 0;
+                if (this.audio) {
+                    this.audio.currentTime = 0;
+                }
                 
                 // 隱藏遊戲結束畫面
                 document.getElementById('gameoverScreen').style.display = 'none';
+                
+                // 重置手部指示器
+                document.getElementById('leftHand').style.display = 'none';
+                document.getElementById('rightHand').style.display = 'none';
             }
             
             resetGameState() {
@@ -1446,17 +1655,30 @@
                     difficulty: this.gameState.difficulty,
                     currentSong: this.gameState.currentSong,
                     musicPlaying: false,
-                    gameStarted: false
+                    gameStarted: false,
+                    audioContextStarted: this.gameState.audioContextStarted
                 };
                 
+                // 更新UI
                 this.updateUI();
+                
+                // 重置技能顯示
+                const skillBoard = document.getElementById('skillBoard');
+                const skillDesc = document.getElementById('skillDesc');
+                skillDesc.textContent = 'ライフ回復 Lv.1';
+                skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.5)';
+                skillBoard.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
             }
             
             gameOver() {
+                // 停止遊戲
                 this.gameState.isPlaying = false;
                 this.gameState.gameStarted = false;
+                
+                // 停止音樂
                 this.pauseMusic();
                 
+                // 停止動畫循環
                 if (this.animationId) {
                     cancelAnimationFrame(this.animationId);
                     this.animationId = null;
@@ -1468,20 +1690,26 @@
                 document.getElementById('finalAccuracy').textContent = `${this.gameState.accuracy.toFixed(1)}%`;
                 document.getElementById('finalSong').textContent = GAME_CONFIG.songs[this.gameState.currentSong].name;
                 
-                // 顯示遊戲結束畫面
+                // 顯示遊戲結束畫面（不使用alert）
                 document.getElementById('gameoverScreen').style.display = 'flex';
+                
+                // 隱藏手部指示器
+                document.getElementById('leftHand').style.display = 'none';
+                document.getElementById('rightHand').style.display = 'none';
             }
             
             showStartScreen() {
                 document.getElementById('startScreen').style.display = 'flex';
                 document.getElementById('songSelectScreen').style.display = 'none';
                 document.getElementById('gameoverScreen').style.display = 'none';
+                document.getElementById('countdownScreen').style.display = 'none';
             }
             
             showSongSelectScreen() {
                 document.getElementById('startScreen').style.display = 'none';
                 document.getElementById('songSelectScreen').style.display = 'flex';
                 document.getElementById('gameoverScreen').style.display = 'none';
+                document.getElementById('countdownScreen').style.display = 'none';
             }
             
             animate() {
@@ -1492,13 +1720,11 @@
                 const delta = this.clock.getDelta();
                 this.gameState.songTime += delta;
                 
+                // 更新音符
                 this.updateNotes();
                 
                 // 更新背景
-                if (this.grid) {
-                    this.grid.rotation.x += delta * 0.05;
-                    this.grid.rotation.y += delta * 0.03;
-                }
+                this.updateBackground();
                 
                 // 檢查歌曲結束
                 const song = GAME_CONFIG.songs[this.gameState.currentSong];
@@ -1506,6 +1732,7 @@
                     this.gameOver();
                 }
                 
+                // 渲染場景
                 this.renderer.render(this.scene, this.camera);
             }
         }
