@@ -9,7 +9,7 @@
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif;
             overflow: hidden; 
-            background: linear-gradient(135deg, #87CEEB 0%, #6495ED 50%, #4169E1 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
         }
         
@@ -21,7 +21,7 @@
             z-index: 1;
         }
         
-        /* 遊戲介面 - 參考圖片樣式 */
+        /* 遊戲介面 - 世界計畫風格 */
         .game-ui {
             position: fixed;
             top: 0;
@@ -39,7 +39,7 @@
             font-size: 32px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
         }
         
         .score-label {
@@ -48,14 +48,13 @@
             color: #ff6b9d;
             margin-bottom: 5px;
             letter-spacing: 2px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .score-value {
             font-size: 48px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px #ff6b9d, 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 15px #ff6b9d;
         }
         
         .combo-board {
@@ -71,14 +70,13 @@
             color: #ff6b9d;
             margin-bottom: 5px;
             letter-spacing: 2px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .combo-value {
             font-size: 48px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px #ff6b9d, 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 15px #ff6b9d;
         }
         
         .life-board {
@@ -93,17 +91,15 @@
             color: #ff6b9d;
             margin-bottom: 10px;
             letter-spacing: 2px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .life-bar {
             width: 300px;
             height: 20px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
         .life-fill {
@@ -111,7 +107,6 @@
             background: linear-gradient(90deg, #ff6b9d, #ff9a3d);
             width: 100%;
             transition: width 0.3s;
-            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
         }
         
         .life-value {
@@ -121,20 +116,18 @@
             font-size: 20px;
             font-weight: 700;
             color: #fff;
-            text-shadow: 0 0 5px #ff6b9d, 1px 1px 2px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 5px #ff6b9d;
         }
         
         .skill-board {
             position: absolute;
             top: 200px;
             left: 30px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 15px;
             padding: 15px 20px;
             border: 2px solid rgba(255, 107, 157, 0.5);
             min-width: 250px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         .skill-label {
@@ -143,13 +136,12 @@
             color: #ff9a3d;
             margin-bottom: 5px;
             letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .skill-desc {
             font-size: 16px;
             color: #fff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            opacity: 0.8;
         }
         
         .judgment-display {
@@ -160,7 +152,7 @@
             font-size: 48px;
             font-weight: 900;
             color: #ff6b9d;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7), 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7);
             opacity: 0;
             pointer-events: none;
             z-index: 50;
@@ -173,6 +165,7 @@
             left: 0;
             width: 100%;
             height: 500px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
             z-index: 10;
             display: flex;
             justify-content: center;
@@ -184,9 +177,9 @@
             width: 140px;
             height: 100%;
             position: relative;
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 1px solid rgba(255, 255, 255, 0.15);
-            border-right: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
         
@@ -196,11 +189,11 @@
             left: 0;
             width: 100%;
             height: 70px;
-            background: rgba(255, 107, 157, 0.25);
-            border-top: 4px solid rgba(255, 107, 157, 0.9);
+            background: rgba(255, 107, 157, 0.2);
+            border-top: 4px solid rgba(255, 107, 157, 0.8);
             pointer-events: none;
             z-index: 12;
-            box-shadow: 0 -5px 20px rgba(255, 107, 157, 0.4);
+            box-shadow: 0 -5px 20px rgba(255, 107, 157, 0.3);
         }
         
         .note {
@@ -215,19 +208,17 @@
             z-index: 11;
             display: none;
             transform-origin: center;
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .note.perfect-zone {
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
-            border: 2px solid rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
         }
         
         .hand-indicator {
             position: fixed;
             width: 80px;
             height: 80px;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             border: 3px solid #ff6b9d;
             border-radius: 50%;
             display: none;
@@ -237,8 +228,7 @@
             z-index: 20;
             pointer-events: none;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px rgba(255, 107, 157, 0.6);
-            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
         }
         
         #leftHand {
@@ -256,7 +246,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(135, 206, 235, 0.95) 0%, rgba(100, 149, 237, 0.95) 50%, rgba(65, 105, 225, 0.95) 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -281,7 +271,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(135, 206, 235, 0.95) 0%, rgba(100, 149, 237, 0.95) 50%, rgba(65, 105, 225, 0.95) 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -293,7 +283,7 @@
             font-weight: 700;
             color: #fff;
             margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
         .song-grid {
@@ -306,26 +296,24 @@
         .song-card {
             width: 300px;
             height: 180px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid transparent;
             position: relative;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
         .song-card:hover {
             transform: translateY(-10px);
             border-color: #ff6b9d;
-            box-shadow: 0 15px 30px rgba(255, 107, 157, 0.4);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
         }
         
         .song-card.active {
             border-color: #ff6b9d;
-            box-shadow: 0 0 30px rgba(255, 107, 157, 0.7);
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
         }
         
         .song-image {
@@ -343,13 +331,11 @@
             font-weight: 700;
             color: #fff;
             margin-bottom: 5px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .song-artist {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.7);
         }
         
         .difficulty-select {
@@ -360,7 +346,7 @@
         
         .difficulty-btn {
             padding: 12px 30px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border: 2px solid transparent;
             border-radius: 25px;
             color: white;
@@ -368,18 +354,16 @@
             transition: all 0.3s;
             font-size: 16px;
             font-weight: 600;
-            backdrop-filter: blur(5px);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .difficulty-btn:hover {
-            background: rgba(255, 107, 157, 0.3);
+            background: rgba(255, 107, 157, 0.2);
         }
         
         .difficulty-btn.active {
-            background: rgba(255, 107, 157, 0.4);
+            background: rgba(255, 107, 157, 0.3);
             border-color: #ff6b9d;
-            box-shadow: 0 0 15px rgba(255, 107, 157, 0.6);
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
         }
         
         .start-game-btn {
@@ -392,13 +376,11 @@
             cursor: pointer;
             font-weight: 700;
             transition: transform 0.3s;
-            box-shadow: 0 10px 20px rgba(255, 107, 157, 0.4);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .start-game-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(255, 107, 157, 0.6);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
         }
         
         /* 倒數計時 */
@@ -408,7 +390,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             display: none;
             align-items: center;
             justify-content: center;
@@ -420,7 +402,7 @@
             font-size: 120px;
             font-weight: 900;
             color: #ff6b9d;
-            text-shadow: 0 0 30px rgba(255, 107, 157, 0.9), 0 0 60px rgba(255, 107, 157, 0.5);
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
             margin-bottom: 20px;
         }
         
@@ -428,7 +410,6 @@
             font-size: 36px;
             color: #fff;
             font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
         /* 遊戲結束畫面 */
@@ -438,7 +419,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             align-items: center;
             justify-content: center;
@@ -451,18 +432,15 @@
             font-weight: 900;
             color: #ff6b9d;
             margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.9), 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.8);
         }
         
         .gameover-stats {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 30px;
             min-width: 400px;
             margin-bottom: 40px;
-            border: 2px solid rgba(255, 107, 157, 0.5);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
         .gameover-stat {
@@ -473,14 +451,12 @@
         }
         
         .gameover-label {
-            color: rgba(255, 255, 255, 0.8);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.7);
         }
         
         .gameover-value {
             color: #fff;
             font-weight: 700;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .restart-btn {
@@ -493,15 +469,13 @@
             cursor: pointer;
             font-weight: 700;
             transition: transform 0.3s;
-            box-shadow: 0 10px 20px rgba(77, 150, 255, 0.4);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .restart-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(77, 150, 255, 0.6);
         }
         
+        /* 手勢狀態指示 */
         .gesture-status {
             position: fixed;
             bottom: 30px;
@@ -512,8 +486,6 @@
             font-size: 14px;
             color: #fff;
             z-index: 100;
-            backdrop-filter: blur(5px);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         .camera-feed {
@@ -527,7 +499,6 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             z-index: 100;
             display: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .camera-feed video {
@@ -548,9 +519,6 @@
             max-width: 500px;
             z-index: 1000;
             display: none;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
         .warning h3 {
@@ -571,56 +539,24 @@
             border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
-        .music-controls {
+        /* 天空藍色背景覆蓋 */
+        .sky-background {
             position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 100;
-            pointer-events: auto;
-        }
-        
-        .music-btn {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(5px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-            pointer-events: auto;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        
-        .music-btn:hover {
-            background: rgba(255, 107, 157, 0.3);
-            border-color: #ff6b9d;
-        }
-        
-        .audio-test-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 107, 157, 0.3);
-            border: 2px solid #ff6b9d;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 1001;
-            display: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #87CEEB 0%, #6495ED 50%, #4169E1 100%);
+            z-index: -1;
         }
     </style>
 </head>
 <body>
+    <!-- 天空藍色背景 -->
+    <div class="sky-background"></div>
+    
     <canvas id="gameCanvas"></canvas>
     
     <!-- 遊戲介面 -->
@@ -722,7 +658,7 @@
         </div>
         
         <button class="start-game-btn" id="startGameButton">開始遊戲</button>
-        <button class="restart-btn" id="backToStartButton" style="margin-top: 20px; background: rgba(255,255,255,0.15);">返回</button>
+        <button class="restart-btn" id="backToStartButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">返回</button>
     </div>
     
     <!-- 倒數計時畫面 -->
@@ -753,23 +689,12 @@
             </div>
         </div>
         <button class="restart-btn" id="restartButton">再玩一次</button>
-        <button class="restart-btn" id="backToSongSelectButton" style="margin-top: 20px; background: rgba(255,255,255,0.15);">選擇歌曲</button>
+        <button class="restart-btn" id="backToSongSelectButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">選擇歌曲</button>
     </div>
-    
-    <!-- 音樂控制 -->
-    <div class="music-controls">
-        <button class="music-btn" id="playMusic">播放音樂</button>
-        <button class="music-btn" id="pauseMusic">暫停音樂</button>
-        <button class="music-btn" id="cameraToggle">顯示鏡頭</button>
-        <button class="music-btn" id="testAudio">測試音效</button>
-    </div>
-    
-    <!-- 音頻測試按鈕 -->
-    <button class="audio-test-btn" id="audioTestBtn">測試音樂播放</button>
     
     <!-- 鏡頭畫面 -->
     <div class="camera-feed" id="cameraFeed">
-        <video id="input_video" autoplay></video>
+        <video id="input_video" autoplay muted></video>
     </div>
     
     <!-- 權限警告 -->
@@ -779,6 +704,18 @@
         <button onclick="location.reload()">重新載入</button>
     </div>
 
+    <!-- 音頻元素 -->
+    <audio id="gameMusic" preload="auto"></audio>
+    <audio id="hitSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="missSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="perfectSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.min.js"></script>
@@ -786,12 +723,12 @@
     <script>
         // ==================== 遊戲設定 ====================
         const GAME_CONFIG = {
-            // 歌曲設定 - 使用可訪問的音頻URL
+            // 歌曲設定 - 使用可訪問的音樂
             songs: {
                 'likey': {
                     name: 'LIKEY',
                     bpm: 128,
-                    duration: 60, // 縮短為60秒以便測試
+                    duration: 60, // 測試用60秒
                     color1: '#ff6b9d',
                     color2: '#ff9a3d',
                     audioUrl: 'https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3'
@@ -826,7 +763,7 @@
             difficulties: {
                 easy: { 
                     speed: 1.0, 
-                    noteDensity: 0.4, 
+                    noteDensity: 0.3, 
                     lifeRecovery: 0.2, 
                     spawnDelay: 2000,
                     perfectWindow: 150,
@@ -834,7 +771,7 @@
                 },
                 normal: { 
                     speed: 1.5, 
-                    noteDensity: 0.6, 
+                    noteDensity: 0.5, 
                     lifeRecovery: 0.1, 
                     spawnDelay: 1500,
                     perfectWindow: 120,
@@ -842,7 +779,7 @@
                 },
                 hard: { 
                     speed: 2.0, 
-                    noteDensity: 0.8, 
+                    noteDensity: 0.7, 
                     lifeRecovery: 0.05, 
                     spawnDelay: 1000,
                     perfectWindow: 100,
@@ -881,7 +818,7 @@
                     currentSong: 'likey',
                     musicPlaying: false,
                     gameStarted: false,
-                    audioContextStarted: false
+                    audioEnabled: false
                 };
                 
                 this.noteQueue = [];
@@ -907,8 +844,6 @@
             
             initThreeJS() {
                 this.scene = new THREE.Scene();
-                this.scene.background = new THREE.Color(0x87CEEB); // 天空藍色背景
-                
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 this.camera.position.z = 15;
                 
@@ -925,108 +860,41 @@
             }
             
             createBackground() {
-                // 創建雲朵
-                this.createClouds();
+                // 創建網格背景
+                const gridSize = 50;
+                const gridDivisions = 50;
+                const gridGeometry = new THREE.BufferGeometry();
+                const vertices = [];
                 
-                // 創建太陽
-                this.createSun();
+                for (let i = 0; i <= gridDivisions; i++) {
+                    const x = (i / gridDivisions - 0.5) * gridSize;
+                    vertices.push(x, -gridSize/2, 0);
+                    vertices.push(x, gridSize/2, 0);
+                    
+                    const y = (i / gridDivisions - 0.5) * gridSize;
+                    vertices.push(-gridSize/2, y, 0);
+                    vertices.push(gridSize/2, y, 0);
+                }
                 
-                // 添加環境光
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-                this.scene.add(ambientLight);
+                gridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
                 
-                // 添加方向光模擬陽光
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(5, 10, 7);
-                this.scene.add(directionalLight);
-            }
-            
-            createClouds() {
-                this.clouds = [];
-                const cloudGeometry = new THREE.SphereGeometry(1, 8, 8);
-                const cloudMaterial = new THREE.MeshPhongMaterial({
+                const gridMaterial = new THREE.LineBasicMaterial({
                     color: 0xffffff,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.05
                 });
                 
-                // 創建多個雲朵
-                for (let i = 0; i < 10; i++) {
-                    const cloud = new THREE.Group();
-                    
-                    // 每個雲朵由多個球體組成
-                    for (let j = 0; j < 5; j++) {
-                        const sphere = new THREE.Mesh(cloudGeometry, cloudMaterial);
-                        sphere.position.x = (Math.random() - 0.5) * 3;
-                        sphere.position.y = (Math.random() - 0.5) * 1.5;
-                        sphere.position.z = (Math.random() - 0.5) * 3;
-                        sphere.scale.setScalar(Math.random() * 1.5 + 1);
-                        cloud.add(sphere);
-                    }
-                    
-                    // 設置雲朵的隨機位置
-                    cloud.position.x = (Math.random() - 0.5) * 100;
-                    cloud.position.y = Math.random() * 10 + 5;
-                    cloud.position.z = -10 - Math.random() * 20;
-                    
-                    // 設置隨機大小
-                    const scale = Math.random() * 3 + 1;
-                    cloud.scale.set(scale, scale, scale);
-                    
-                    // 設置隨機速度
-                    cloud.userData = {
-                        speed: Math.random() * 0.02 + 0.01,
-                        originalX: cloud.position.x
-                    };
-                    
-                    this.scene.add(cloud);
-                    this.clouds.push(cloud);
-                }
-            }
-            
-            createSun() {
-                const sunGeometry = new THREE.SphereGeometry(3, 32, 32);
-                const sunMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xFFD700,
-                    transparent: true,
-                    opacity: 0.9
-                });
+                this.grid = new THREE.LineSegments(gridGeometry, gridMaterial);
+                this.scene.add(this.grid);
                 
-                this.sun = new THREE.Mesh(sunGeometry, sunMaterial);
-                this.sun.position.set(20, 15, -30);
-                this.scene.add(this.sun);
+                // 添加環境光
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+                this.scene.add(ambientLight);
                 
-                // 添加太陽光暈
-                const sunGlowGeometry = new THREE.SphereGeometry(4, 32, 32);
-                const sunGlowMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xFFA500,
-                    transparent: true,
-                    opacity: 0.3
-                });
-                
-                this.sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
-                this.sun.position.add(this.sunGlow.position);
-                this.sun.add(this.sunGlow);
-            }
-            
-            updateBackground() {
-                // 更新雲朵位置
-                this.clouds.forEach(cloud => {
-                    cloud.position.x += cloud.userData.speed;
-                    
-                    // 如果雲朵移動到邊界，重新設置位置
-                    if (cloud.position.x > 60) {
-                        cloud.position.x = -60;
-                    }
-                    
-                    // 輕微上下浮動
-                    cloud.position.y = cloud.position.y + Math.sin(Date.now() * 0.001 + cloud.userData.originalX) * 0.02;
-                });
-                
-                // 更新太陽旋轉
-                if (this.sun) {
-                    this.sun.rotation.y += 0.005;
-                }
+                // 添加點光源
+                const pointLight = new THREE.PointLight(0xff6b9d, 1, 100);
+                pointLight.position.set(10, 10, 10);
+                this.scene.add(pointLight);
             }
             
             initNoteSystem() {
@@ -1128,31 +996,6 @@
                     this.showSongSelectScreen();
                 });
                 
-                // 音樂控制按鈕
-                document.getElementById('playMusic').addEventListener('click', () => {
-                    this.playMusic();
-                });
-                
-                document.getElementById('pauseMusic').addEventListener('click', () => {
-                    this.pauseMusic();
-                });
-                
-                // 測試音效按鈕
-                document.getElementById('testAudio').addEventListener('click', () => {
-                    this.testAudio();
-                });
-                
-                // 測試音樂播放按鈕
-                document.getElementById('audioTestBtn').addEventListener('click', () => {
-                    this.testAudioPlayback();
-                });
-                
-                // 鏡頭切換按鈕
-                document.getElementById('cameraToggle').addEventListener('click', () => {
-                    const feed = document.getElementById('cameraFeed');
-                    feed.style.display = feed.style.display === 'block' ? 'none' : 'block';
-                });
-                
                 // 視窗大小調整
                 window.addEventListener('resize', () => {
                     this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -1160,38 +1003,27 @@
                     this.renderer.setSize(window.innerWidth, window.innerHeight);
                 });
                 
-                // 點擊遊戲結束畫面外部不會關閉
-                document.getElementById('gameoverScreen').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-                
-                // 在頁面點擊時激活音頻上下文
+                // 點擊頁面激活音頻
                 document.addEventListener('click', () => {
-                    this.activateAudioContext();
+                    this.activateAudio();
                 }, { once: true });
             }
             
             initAudio() {
-                // 創建遊戲主音樂音頻對象
-                this.audio = new Audio();
-                this.audio.loop = false;
-                this.audio.preload = 'auto';
+                this.audio = document.getElementById('gameMusic');
                 this.audio.volume = 0.7;
                 
-                // 創建音效
-                this.hitSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3');
-                this.missSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3');
-                this.perfectSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3');
+                this.hitSound = document.getElementById('hitSound');
+                this.missSound = document.getElementById('missSound');
+                this.perfectSound = document.getElementById('perfectSound');
                 
                 // 設置音效音量
                 this.hitSound.volume = 0.5;
                 this.missSound.volume = 0.5;
                 this.perfectSound.volume = 0.7;
-                
-                console.log('音頻初始化完成');
             }
             
-            activateAudioContext() {
+            activateAudio() {
                 // 創建一個無聲音頻來激活音頻上下文
                 const silentAudio = new Audio();
                 silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
@@ -1199,87 +1031,25 @@
                 
                 silentAudio.play().then(() => {
                     console.log('音頻上下文已激活');
-                    this.gameState.audioContextStarted = true;
+                    this.gameState.audioEnabled = true;
                     silentAudio.pause();
-                    silentAudio.remove();
-                    
-                    // 顯示測試按鈕
-                    document.getElementById('audioTestBtn').style.display = 'block';
                 }).catch((error) => {
                     console.error('音頻上下文激活失敗:', error);
                 });
             }
             
-            testAudioPlayback() {
-                console.log('測試音樂播放...');
-                
-                // 測試音效播放
-                this.perfectSound.play().then(() => {
-                    console.log('音效播放成功');
-                }).catch((error) => {
-                    console.error('音效播放失敗:', error);
-                });
-                
-                // 測試音樂播放
-                const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                const testAudio = new Audio(song.audioUrl);
-                testAudio.volume = 0.5;
-                testAudio.play().then(() => {
-                    console.log('音樂播放測試成功');
-                    setTimeout(() => {
-                        testAudio.pause();
-                    }, 2000);
-                }).catch((error) => {
-                    console.error('音樂播放測試失敗:', error);
-                    console.log('請點擊頁面任意處後再試');
-                });
-            }
-            
-            testAudio() {
-                // 測試所有音效
-                this.perfectSound.currentTime = 0;
-                this.perfectSound.play().catch(e => console.log('音效播放失敗:', e));
-                
-                setTimeout(() => {
-                    this.hitSound.currentTime = 0;
-                    this.hitSound.play().catch(e => console.log('音效播放失敗:', e));
-                }, 300);
-                
-                setTimeout(() => {
-                    this.missSound.currentTime = 0;
-                    this.missSound.play().catch(e => console.log('音效播放失敗:', e));
-                }, 600);
-            }
-            
             playMusic() {
                 if (!this.gameState.musicPlaying && this.gameState.isPlaying) {
                     const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                    
-                    // 確保音頻URL正確
                     this.audio.src = song.audioUrl;
-                    this.audio.volume = 0.7;
                     
-                    // 嘗試播放音樂
                     this.audio.play().then(() => {
                         console.log('音樂開始播放');
                         this.gameState.musicPlaying = true;
-                        
-                        // 音樂播放結束時處理
-                        this.audio.onended = () => {
-                            console.log('音樂播放結束');
-                            this.gameState.musicPlaying = false;
-                            if (this.gameState.isPlaying) {
-                                this.gameOver();
-                            }
-                        };
                     }).catch((error) => {
                         console.error('音樂播放失敗:', error);
-                        console.log('請點擊"測試音樂播放"按鈕激活音頻');
-                        
-                        // 如果自動播放失敗，顯示提示
-                        if (error.name === 'NotAllowedError') {
-                            alert('瀏覽器阻止了自動播放。請點擊"測試音樂播放"按鈕激活音頻，然後再開始遊戲。');
-                        }
+                        // 如果自動播放失敗，我們仍然繼續遊戲，只是沒有音樂
+                        this.gameState.musicPlaying = true;
                     });
                 }
             }
@@ -1288,7 +1058,6 @@
                 if (this.gameState.musicPlaying) {
                     this.audio.pause();
                     this.gameState.musicPlaying = false;
-                    console.log('音樂已暫停');
                 }
             }
             
@@ -1337,13 +1106,13 @@
                     if (hand === 'left') {
                         indicator.style.borderColor = state === 'open' ? '#ff6b9d' : '#FFD700';
                         indicator.style.boxShadow = state === 'open' 
-                            ? '0 0 20px rgba(255, 107, 157, 0.6)' 
-                            : '0 0 30px rgba(255, 215, 0, 0.9)';
+                            ? '0 0 20px rgba(255, 107, 157, 0.5)' 
+                            : '0 0 30px rgba(255, 215, 0, 0.8)';
                     } else {
                         indicator.style.borderColor = state === 'open' ? '#4d96ff' : '#FFD700';
                         indicator.style.boxShadow = state === 'open' 
-                            ? '0 0 20px rgba(77, 150, 255, 0.6)' 
-                            : '0 0 30px rgba(255, 215, 0, 0.9)';
+                            ? '0 0 20px rgba(77, 150, 255, 0.5)' 
+                            : '0 0 30px rgba(255, 215, 0, 0.8)';
                     }
                     
                     // 檢查擊打
@@ -1371,7 +1140,8 @@
                 fingerTips.forEach(index => {
                     const dx = landmarks[index].x - wrist.x;
                     const dy = landmarks[index].y - wrist.y;
-                    totalDistance += Math.sqrt(dx * dx + dy * dy);
+                    const dz = landmarks[index].z - wrist.z;
+                    totalDistance += Math.sqrt(dx * dx + dy * dy + dz * dz);
                 });
                 
                 return Math.min(totalDistance / 0.5, 1);
@@ -1486,16 +1256,16 @@
                 
                 if (this.gameState.combo >= 20) {
                     skillDesc.textContent = 'スコアアップ Lv.3';
-                    skillBoard.style.borderColor = 'rgba(255, 215, 0, 0.9)';
-                    skillBoard.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.6)';
+                    skillBoard.style.borderColor = 'rgba(255, 215, 0, 0.8)';
+                    skillBoard.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
                 } else if (this.gameState.combo >= 10) {
                     skillDesc.textContent = 'スコアアップ Lv.2';
-                    skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.9)';
-                    skillBoard.style.boxShadow = '0 0 15px rgba(255, 107, 157, 0.6)';
+                    skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.8)';
+                    skillBoard.style.boxShadow = '0 0 15px rgba(255, 107, 157, 0.5)';
                 } else if (this.gameState.combo >= 5) {
                     skillDesc.textContent = 'ライフ回復 Lv.1';
-                    skillBoard.style.borderColor = 'rgba(77, 150, 255, 0.9)';
-                    skillBoard.style.boxShadow = '0 0 10px rgba(77, 150, 255, 0.6)';
+                    skillBoard.style.borderColor = 'rgba(77, 150, 255, 0.8)';
+                    skillBoard.style.boxShadow = '0 0 10px rgba(77, 150, 255, 0.5)';
                 }
             }
             
@@ -1641,7 +1411,6 @@
                 this.countdownTime = 3;
                 countdownNumber.textContent = this.countdownTime;
                 
-                // 開始倒數計時
                 this.countdownInterval = setInterval(() => {
                     this.countdownTime--;
                     countdownNumber.textContent = this.countdownTime;
@@ -1658,38 +1427,23 @@
                 this.gameState.isCountingDown = false;
                 this.gameState.isPlaying = true;
                 this.gameState.gameStarted = true;
-                
-                // 開始播放音樂
                 this.playMusic();
-                
-                // 開始遊戲動畫循環
                 this.animate();
             }
             
             startGame() {
-                // 重置遊戲狀態
                 this.resetGameState();
-                
-                // 生成音符地圖
                 this.generateBeatMap();
-                
-                // 隱藏歌曲選擇畫面
                 document.getElementById('songSelectScreen').style.display = 'none';
-                
-                // 開始3秒倒數計時
                 this.startCountdown();
             }
             
             restartGame() {
-                // 完全重置遊戲
                 this.resetGame();
-                
-                // 重新開始遊戲
                 this.startGame();
             }
             
             resetGame() {
-                // 停止遊戲
                 this.gameState.isPlaying = false;
                 this.gameState.gameStarted = false;
                 
@@ -1704,7 +1458,7 @@
                 this.activeNotes = [];
                 this.noteQueue = [];
                 
-                // 停止動畫循環
+                // 停止動畫
                 if (this.animationId) {
                     cancelAnimationFrame(this.animationId);
                     this.animationId = null;
@@ -1717,16 +1471,13 @@
                 
                 // 停止音樂
                 this.pauseMusic();
-                if (this.audio) {
-                    this.audio.currentTime = 0;
-                }
+                this.audio.currentTime = 0;
                 
                 // 隱藏遊戲結束畫面
                 document.getElementById('gameoverScreen').style.display = 'none';
                 
-                // 重置手部指示器
-                document.getElementById('leftHand').style.display = 'none';
-                document.getElementById('rightHand').style.display = 'none';
+                // 顯示開始畫面
+                document.getElementById('gameStart').style.display = 'flex';
             }
             
             resetGameState() {
@@ -1749,29 +1500,17 @@
                     currentSong: this.gameState.currentSong,
                     musicPlaying: false,
                     gameStarted: false,
-                    audioContextStarted: this.gameState.audioContextStarted
+                    audioEnabled: this.gameState.audioEnabled
                 };
                 
-                // 更新UI
                 this.updateUI();
-                
-                // 重置技能顯示
-                const skillBoard = document.getElementById('skillBoard');
-                const skillDesc = document.getElementById('skillDesc');
-                skillDesc.textContent = 'ライフ回復 Lv.1';
-                skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.5)';
-                skillBoard.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
             }
             
             gameOver() {
-                // 停止遊戲
                 this.gameState.isPlaying = false;
                 this.gameState.gameStarted = false;
-                
-                // 停止音樂
                 this.pauseMusic();
                 
-                // 停止動畫循環
                 if (this.animationId) {
                     cancelAnimationFrame(this.animationId);
                     this.animationId = null;
@@ -1785,24 +1524,18 @@
                 
                 // 顯示遊戲結束畫面（不使用alert）
                 document.getElementById('gameoverScreen').style.display = 'flex';
-                
-                // 隱藏手部指示器
-                document.getElementById('leftHand').style.display = 'none';
-                document.getElementById('rightHand').style.display = 'none';
             }
             
             showStartScreen() {
                 document.getElementById('startScreen').style.display = 'flex';
                 document.getElementById('songSelectScreen').style.display = 'none';
                 document.getElementById('gameoverScreen').style.display = 'none';
-                document.getElementById('countdownScreen').style.display = 'none';
             }
             
             showSongSelectScreen() {
                 document.getElementById('startScreen').style.display = 'none';
                 document.getElementById('songSelectScreen').style.display = 'flex';
                 document.getElementById('gameoverScreen').style.display = 'none';
-                document.getElementById('countdownScreen').style.display = 'none';
             }
             
             animate() {
@@ -1813,11 +1546,13 @@
                 const delta = this.clock.getDelta();
                 this.gameState.songTime += delta;
                 
-                // 更新音符
                 this.updateNotes();
                 
                 // 更新背景
-                this.updateBackground();
+                if (this.grid) {
+                    this.grid.rotation.x += delta * 0.05;
+                    this.grid.rotation.y += delta * 0.03;
+                }
                 
                 // 檢查歌曲結束
                 const song = GAME_CONFIG.songs[this.gameState.currentSong];
@@ -1825,7 +1560,6 @@
                     this.gameOver();
                 }
                 
-                // 渲染場景
                 this.renderer.render(this.scene, this.camera);
             }
         }
