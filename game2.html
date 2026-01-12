@@ -11,9 +11,7 @@
             overflow: hidden; 
             background: #000;
             color: #fff;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255, 20, 147, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(147, 20, 255, 0.15) 0%, transparent 50%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         }
         
         #gameCanvas {
@@ -24,138 +22,164 @@
             z-index: 1;
         }
         
-        #ui {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            pointer-events: none;
-        }
-        
-        .score-panel {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            min-width: 300px;
-        }
-        
-        .song-info {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .song-title {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(90deg, #ff1493, #9314ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-        
-        .artist {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 10px;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin: 15px 0;
-            overflow: hidden;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, #ff1493, #9314ff);
-            width: 0%;
-            transition: width 0.1s;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-        
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #ff1493;
-            line-height: 1;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 5px;
-        }
-        
-        .combo-display {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 72px;
-            font-weight: 900;
-            color: #ff1493;
-            text-shadow: 0 0 30px rgba(255, 20, 147, 0.5);
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 50;
-            pointer-events: none;
-        }
-        
-        .hit-effect {
+        /* 遊戲介面 - 參考圖片樣式 */
+        .game-ui {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at var(--x) var(--y), 
-                      rgba(255, 20, 147, 0.3) 0%, 
-                      transparent 50%);
-            opacity: 0;
             pointer-events: none;
-            z-index: 2;
+            z-index: 100;
         }
         
+        .score-board {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+        
+        .score-label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        
+        .score-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 15px #ff6b9d;
+        }
+        
+        .combo-board {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            text-align: right;
+        }
+        
+        .combo-label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        
+        .combo-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 15px #ff6b9d;
+        }
+        
+        .life-board {
+            position: absolute;
+            top: 130px;
+            left: 30px;
+        }
+        
+        .life-label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b9d;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .life-bar {
+            width: 300px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .life-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #ff9a3d);
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        .life-value {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 5px #ff6b9d;
+        }
+        
+        .skill-board {
+            position: absolute;
+            top: 200px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 107, 157, 0.5);
+            min-width: 250px;
+        }
+        
+        .skill-label {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff9a3d;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+        
+        .skill-desc {
+            font-size: 16px;
+            color: #fff;
+            opacity: 0.8;
+        }
+        
+        .judgment-display {
+            position: absolute;
+            bottom: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: #ff6b9d;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        /* 音符軌道 */
         .note-lane {
             position: fixed;
             bottom: 100px;
             left: 0;
             width: 100%;
-            height: 600px;
+            height: 500px;
             z-index: 10;
             display: flex;
             justify-content: center;
-            gap: 10px;
-            padding: 0 50px;
+            gap: 5px;
+            padding: 0 20px;
         }
         
         .lane {
-            width: 120px;
+            width: 140px;
             height: 100%;
             position: relative;
-            border-left: 2px solid rgba(255, 255, 255, 0.1);
-            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
         
@@ -164,30 +188,30 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            background: rgba(255, 20, 147, 0.3);
-            border-top: 3px solid rgba(255, 20, 147, 0.8);
+            height: 70px;
+            background: rgba(255, 107, 157, 0.2);
+            border-top: 4px solid rgba(255, 107, 157, 0.8);
             pointer-events: none;
             z-index: 12;
+            box-shadow: 0 -5px 20px rgba(255, 107, 157, 0.3);
         }
         
         .note {
             position: absolute;
-            width: 100px;
+            width: 120px;
             height: 40px;
             background: linear-gradient(90deg, var(--color1), var(--color2));
             border-radius: 8px;
             left: 10px;
-            transform-origin: center;
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
             pointer-events: none;
             z-index: 11;
-            transition: transform 0.1s;
             display: none;
+            transform-origin: center;
         }
         
-        .long-note {
-            height: 120px;
+        .note.perfect-zone {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
         }
         
         .hand-indicator {
@@ -195,7 +219,7 @@
             width: 80px;
             height: 80px;
             background: rgba(255, 255, 255, 0.1);
-            border: 3px solid #ff1493;
+            border: 3px solid #ff6b9d;
             border-radius: 50%;
             display: none;
             align-items: center;
@@ -204,14 +228,283 @@
             z-index: 20;
             pointer-events: none;
             transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
         }
         
         #leftHand {
-            border-color: #ff1493;
+            border-color: #ff6b9d;
         }
         
         #rightHand {
-            border-color: #9314ff;
+            border-color: #4d96ff;
+        }
+        
+        /* 開始畫面 */
+        .start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        .game-title {
+            font-size: 64px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #ff6b9d, #ff9a3d, #4d96ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+        }
+        
+        .song-select-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 999;
+        }
+        
+        .song-select-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .song-card {
+            width: 300px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .song-card:hover {
+            transform: translateY(-10px);
+            border-color: #ff6b9d;
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+        }
+        
+        .song-card.active {
+            border-color: #ff6b9d;
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+        }
+        
+        .song-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .song-info {
+            padding: 15px;
+        }
+        
+        .song-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .song-artist {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .difficulty-select {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .difficulty-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .difficulty-btn:hover {
+            background: rgba(255, 107, 157, 0.2);
+        }
+        
+        .difficulty-btn.active {
+            background: rgba(255, 107, 157, 0.3);
+            border-color: #ff6b9d;
+            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+        }
+        
+        .start-game-btn {
+            background: linear-gradient(90deg, #ff6b9d, #ff9a3d);
+            border: none;
+            color: white;
+            padding: 20px 60px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.3s;
+        }
+        
+        .start-game-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        }
+        
+        /* 倒數計時 */
+        .countdown-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 998;
+        }
+        
+        .countdown-number {
+            font-size: 120px;
+            font-weight: 900;
+            color: #ff6b9d;
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
+            margin-bottom: 20px;
+        }
+        
+        .countdown-text {
+            font-size: 36px;
+            color: #fff;
+            font-weight: 700;
+        }
+        
+        /* 遊戲結束畫面 */
+        .gameover-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 997;
+        }
+        
+        .gameover-title {
+            font-size: 72px;
+            font-weight: 900;
+            color: #ff6b9d;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.8);
+        }
+        
+        .gameover-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            min-width: 400px;
+            margin-bottom: 40px;
+        }
+        
+        .gameover-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .gameover-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .gameover-value {
+            color: #fff;
+            font-weight: 700;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(90deg, #4d96ff, #6bc5ff);
+            border: none;
+            color: white;
+            padding: 20px 50px;
+            font-size: 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.3s;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 手勢狀態指示 */
+        .gesture-status {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #fff;
+            z-index: 100;
+        }
+        
+        .camera-feed {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 200px;
+            height: 150px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 100;
+            display: none;
+        }
+        
+        .camera-feed video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .warning {
@@ -228,192 +521,59 @@
             display: none;
         }
         
-        .game-start {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            z-index: 1000;
+        .warning h3 {
+            margin-bottom: 15px;
+            color: #fff;
         }
         
-        .start-button {
-            background: linear-gradient(90deg, #ff1493, #9314ff);
+        .warning p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+        
+        .warning button {
+            background: #fff;
+            color: #ff3b30;
             border: none;
-            color: white;
-            padding: 20px 60px;
-            font-size: 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 30px;
-            font-weight: 700;
-            transition: transform 0.3s;
-            pointer-events: auto;
-        }
-        
-        .start-button:hover {
-            transform: scale(1.05);
-        }
-        
-        .difficulty-select {
-            margin: 20px 0;
-            display: flex;
-            gap: 15px;
-            pointer-events: auto;
-        }
-        
-        .difficulty-btn {
-            padding: 10px 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid transparent;
+            padding: 10px 25px;
             border-radius: 25px;
-            color: white;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            pointer-events: auto;
-        }
-        
-        .difficulty-btn.active {
-            background: rgba(255, 20, 147, 0.2);
-            border-color: #ff1493;
-        }
-        
-        .accuracy-display {
-            position: fixed;
-            bottom: 180px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 36px;
-            font-weight: 700;
-            color: #ff1493;
-            text-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
-            z-index: 11;
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .life-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        
-        .life-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff1493, #9314ff);
-            width: 100%;
-            transition: width 0.3s;
-        }
-        
-        .music-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 100;
-            pointer-events: auto;
-        }
-        
-        .music-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        .music-btn:hover {
-            background: rgba(255, 20, 147, 0.2);
-            border-color: #ff1493;
-        }
-        
-        .camera-feed {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 200px;
-            height: 150px;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            z-index: 100;
-            display: none;
-        }
-        
-        .camera-feed video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        #cameraToggle {
-            position: fixed;
-            bottom: 20px;
-            right: 240px;
-            z-index: 100;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     
-    <div id="ui">
-        <div class="score-panel">
-            <div class="song-info">
-                <div class="song-title">LIKEY</div>
-                <div class="artist">TWICE</div>
-                <div class="progress-bar">
-                    <div class="progress" id="songProgress"></div>
-                </div>
-                <div id="timeDisplay">0:00 / 3:15</div>
-                <div class="life-bar">
-                    <div class="life-fill" id="lifeFill"></div>
-                </div>
-            </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-value" id="score">0</div>
-                    <div class="stat-label">分數</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="combo">0</div>
-                    <div class="stat-label">COMBO</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="accuracy">100%</div>
-                    <div class="stat-label">準確率</div>
-                </div>
-            </div>
+    <!-- 遊戲介面 -->
+    <div class="game-ui">
+        <div class="score-board">
+            <div class="score-label">SCORE</div>
+            <div class="score-value" id="score">00000000</div>
         </div>
         
-        <div class="score-panel" style="width: 250px;">
-            <div style="font-size: 16px; margin-bottom: 15px; color: #ff1493;">🎮 控制說明</div>
-            <div style="font-size: 12px; line-height: 1.6; color: rgba(255, 255, 255, 0.7);">
-                <div style="margin-bottom: 8px;">✋ 張開手掌：預備</div>
-                <div style="margin-bottom: 8px;">✊ 握拳：擊打音符</div>
-                <div style="margin-bottom: 8px;">👉 移動手：對應軌道</div>
-                <div>🎯 對準下方發光區域</div>
-            </div>
+        <div class="combo-board">
+            <div class="combo-label">COMBO</div>
+            <div class="combo-value" id="combo">0</div>
         </div>
+        
+        <div class="life-board">
+            <div class="life-label">LIFE</div>
+            <div class="life-bar">
+                <div class="life-fill" id="lifeFill"></div>
+            </div>
+            <div class="life-value" id="lifeValue">1520</div>
+        </div>
+        
+        <div class="skill-board" id="skillBoard">
+            <div class="skill-label">スキル発動</div>
+            <div class="skill-desc" id="skillDesc">ライフ回復 Lv.1</div>
+        </div>
+        
+        <div class="judgment-display" id="judgmentDisplay">PERFECT</div>
     </div>
     
-    <div class="combo-display" id="comboDisplay"></div>
-    <div class="accuracy-display" id="accuracyDisplay"></div>
-    <div class="hit-effect" id="hitEffect"></div>
-    
+    <!-- 音符軌道 -->
     <div class="note-lane">
         <div class="lane" data-index="0">
             <div class="lane-hit-area"></div>
@@ -429,40 +589,111 @@
         </div>
     </div>
     
-    <div class="hand-indicator" id="leftHand">👈</div>
-    <div class="hand-indicator" id="rightHand">👉</div>
+    <!-- 手部指示器 -->
+    <div class="hand-indicator" id="leftHand">✋</div>
+    <div class="hand-indicator" id="rightHand">✋</div>
     
-    <div class="music-controls">
-        <button class="music-btn" id="playMusic">播放音樂</button>
-        <button class="music-btn" id="pauseMusic">暫停音樂</button>
-        <button class="music-btn" id="restartGame">重新開始</button>
+    <!-- 開始畫面 -->
+    <div class="start-screen" id="startScreen">
+        <h1 class="game-title">TWICE RHYTHM GAME</h1>
+        <button class="start-game-btn" id="startButton">開始遊戲</button>
+        <div class="gesture-status" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: auto;">
+            🎮 使用手勢控制遊戲 | 需要攝影機權限
+        </div>
     </div>
     
-    <button class="music-btn" id="cameraToggle">顯示鏡頭</button>
-    <div class="camera-feed" id="cameraFeed">
-        <video id="input_video" autoplay></video>
-    </div>
-    
-    <div class="game-start" id="gameStart">
-        <h1 style="font-size: 48px; margin-bottom: 20px; background: linear-gradient(90deg, #ff1493, #9314ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TWICE 節奏遊戲</h1>
-        <p style="font-size: 18px; margin-bottom: 30px; color: rgba(255, 255, 255, 0.8);">用手勢遊玩 TWICE 熱門歌曲</p>
+    <!-- 歌曲選擇畫面 -->
+    <div class="song-select-screen" id="songSelectScreen">
+        <h2 class="song-select-title">選擇歌曲</h2>
+        <div class="song-grid">
+            <div class="song-card active" data-song="likey">
+                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
+                <div class="song-info">
+                    <div class="song-name">LIKEY</div>
+                    <div class="song-artist">TWICE</div>
+                </div>
+            </div>
+            <div class="song-card" data-song="fancy">
+                <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
+                <div class="song-info">
+                    <div class="song-name">FANCY</div>
+                    <div class="song-artist">TWICE</div>
+                </div>
+            </div>
+            <div class="song-card" data-song="whatislove">
+                <img src="https://images.unsplash.com/photo-1519281682544-5f37c4b14c47?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
+                <div class="song-info">
+                    <div class="song-name">What is Love?</div>
+                    <div class="song-artist">TWICE</div>
+                </div>
+            </div>
+            <div class="song-card" data-song="yesoryes">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
+                <div class="song-info">
+                    <div class="song-name">YES or YES</div>
+                    <div class="song-artist">TWICE</div>
+                </div>
+            </div>
+        </div>
         
+        <h2 class="song-select-title" style="margin-top: 20px;">選擇難度</h2>
         <div class="difficulty-select">
             <button class="difficulty-btn active" data-difficulty="easy">簡單</button>
             <button class="difficulty-btn" data-difficulty="normal">普通</button>
             <button class="difficulty-btn" data-difficulty="hard">困難</button>
         </div>
         
-        <button class="start-button" id="startButton">開始遊戲</button>
-        
-        <p style="margin-top: 30px; font-size: 14px; color: rgba(255, 255, 255, 0.6);">需要攝影機權限 | 建議使用 Chrome</p>
+        <button class="start-game-btn" id="startGameButton">開始遊戲</button>
+        <button class="restart-btn" id="backToStartButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">返回</button>
     </div>
     
+    <!-- 倒數計時畫面 -->
+    <div class="countdown-screen" id="countdownScreen">
+        <div class="countdown-number" id="countdownNumber">3</div>
+        <div class="countdown-text">準備開始</div>
+    </div>
+    
+    <!-- 遊戲結束畫面 -->
+    <div class="gameover-screen" id="gameoverScreen">
+        <h2 class="gameover-title">GAME OVER</h2>
+        <div class="gameover-stats">
+            <div class="gameover-stat">
+                <span class="gameover-label">最終分數</span>
+                <span class="gameover-value" id="finalScore">00000000</span>
+            </div>
+            <div class="gameover-stat">
+                <span class="gameover-label">最高連擊</span>
+                <span class="gameover-value" id="finalCombo">0</span>
+            </div>
+            <div class="gameover-stat">
+                <span class="gameover-label">準確率</span>
+                <span class="gameover-value" id="finalAccuracy">100%</span>
+            </div>
+            <div class="gameover-stat">
+                <span class="gameover-label">歌曲</span>
+                <span class="gameover-value" id="finalSong">LIKEY</span>
+            </div>
+        </div>
+        <button class="restart-btn" id="restartButton">再玩一次</button>
+        <button class="restart-btn" id="backToSongSelectButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">選擇歌曲</button>
+    </div>
+    
+    <!-- 鏡頭畫面 -->
+    <div class="camera-feed" id="cameraFeed">
+        <video id="input_video" autoplay></video>
+    </div>
+    
+    <!-- 權限警告 -->
     <div id="permissionWarning" class="warning">
         <h3>需要攝影機權限</h3>
         <p>請允許攝影機存取以使用手勢控制功能</p>
-        <button onclick="location.reload()" style="background:#ff1493; color:white; border:none; padding:10px 20px; border-radius:5px; margin-top:20px; cursor:pointer;">重新載入</button>
+        <button onclick="location.reload()">重新載入</button>
     </div>
+
+    <!-- 音效 -->
+    <audio id="hitSound" src="https://assets.mixkit.co/active_storage/sfx/258/258-preview.mp3" preload="auto"></audio>
+    <audio id="missSound" src="https://assets.mixkit.co/active_storage/sfx/255/255-preview.mp3" preload="auto"></audio>
+    <audio id="perfectSound" src="https://assets.mixkit.co/active_storage/sfx/257/257-preview.mp3" preload="auto"></audio>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
@@ -473,35 +704,74 @@
         const GAME_CONFIG = {
             // 歌曲設定
             songs: {
-                'LIKEY': {
+                'likey': {
+                    name: 'LIKEY',
                     bpm: 128,
-                    duration: 195, // 秒
-                    color1: '#ff1493',
-                    color2: '#9314ff',
-                    audioUrl: 'https://assets.codepen.io/your-username/twice-likey.mp3' // 請替換為實際音樂URL
+                    duration: 195,
+                    color1: '#ff6b9d',
+                    color2: '#ff9a3d',
+                    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_d1708bd66f.mp3?filename=upbeat-ukulele-153184.mp3'
+                },
+                'fancy': {
+                    name: 'FANCY',
+                    bpm: 120,
+                    duration: 200,
+                    color1: '#ff9a3d',
+                    color2: '#4d96ff',
+                    audioUrl: 'https://cdn.pixabay.com/download/audio/2021/10/25/audio_3705a1a9b9.mp3?filename=electronic-rock-king-around-here-15045.mp3'
+                },
+                'whatislove': {
+                    name: 'What is Love?',
+                    bpm: 122,
+                    duration: 210,
+                    color1: '#4d96ff',
+                    color2: '#6bc5ff',
+                    audioUrl: 'https://cdn.pixabay.com/download/audio/2021/10/25/audio_4b49c2e3a8.mp3?filename=action-cinematic-trailer-intro-10769.mp3'
+                },
+                'yesoryes': {
+                    name: 'YES or YES',
+                    bpm: 125,
+                    duration: 190,
+                    color1: '#6bc5ff',
+                    color2: '#ff6b9d',
+                    audioUrl: 'https://cdn.pixabay.com/download/audio/2021/11/02/audio_492b9c3c2e.mp3?filename=epic-cinematic-trailer-4725.mp3'
                 }
             },
             
             // 難度設定
             difficulties: {
-                easy: { speed: 1.0, noteDensity: 0.3, lifeRecovery: 0.2, spawnDelay: 2000 },
-                normal: { speed: 1.5, noteDensity: 0.6, lifeRecovery: 0.1, spawnDelay: 1500 },
-                hard: { speed: 2.0, noteDensity: 0.9, lifeRecovery: 0.05, spawnDelay: 1000 }
+                easy: { 
+                    speed: 1.0, 
+                    noteDensity: 0.4, 
+                    lifeRecovery: 0.2, 
+                    spawnDelay: 2000,
+                    perfectWindow: 150,
+                    greatWindow: 200
+                },
+                normal: { 
+                    speed: 1.5, 
+                    noteDensity: 0.6, 
+                    lifeRecovery: 0.1, 
+                    spawnDelay: 1500,
+                    perfectWindow: 120,
+                    greatWindow: 180
+                },
+                hard: { 
+                    speed: 2.0, 
+                    noteDensity: 0.8, 
+                    lifeRecovery: 0.05, 
+                    spawnDelay: 1000,
+                    perfectWindow: 100,
+                    greatWindow: 150
+                }
             },
             
             // 遊戲規則
             rules: {
-                PERFECT: { threshold: 80, score: 1000, color: '#FFD700' },
-                GREAT: { threshold: 150, score: 800, color: '#ff1493' },
-                GOOD: { threshold: 200, score: 500, color: '#9370DB' },
+                PERFECT: { threshold: 100, score: 1000, color: '#FFD700' },
+                GREAT: { threshold: 150, score: 800, color: '#ff6b9d' },
+                GOOD: { threshold: 200, score: 500, color: '#4d96ff' },
                 MISS: { score: 0, color: '#666' }
-            },
-            
-            // 手勢設定
-            handSettings: {
-                openThreshold: 0.6,
-                closedThreshold: 0.4,
-                smoothing: 0.3
             }
         };
 
@@ -515,12 +785,18 @@
                     accuracy: 100,
                     totalNotes: 0,
                     hitNotes: 0,
+                    perfectCount: 0,
+                    greatCount: 0,
+                    goodCount: 0,
+                    missCount: 0,
                     life: 100,
                     isPlaying: false,
+                    isCountingDown: false,
                     songTime: 0,
                     difficulty: 'normal',
-                    currentSong: 'LIKEY',
-                    musicPlaying: false
+                    currentSong: 'likey',
+                    musicPlaying: false,
+                    gameStarted: false
                 };
                 
                 this.noteQueue = [];
@@ -535,9 +811,13 @@
                 this.initMediaPipe();
                 this.initUI();
                 this.initAudio();
-                this.generateBeatMap();
                 
                 this.animationId = null;
+                this.countdownInterval = null;
+                this.countdownTime = 3;
+                
+                // 顯示開始畫面
+                this.showStartScreen();
             }
             
             initThreeJS() {
@@ -554,15 +834,14 @@
                 this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
                 
                 this.createBackground();
-                this.createParticleSystem();
-                
                 this.clock = new THREE.Clock();
             }
             
             createBackground() {
-                const gridGeometry = new THREE.BufferGeometry();
+                // 創建網格背景
                 const gridSize = 50;
                 const gridDivisions = 50;
+                const gridGeometry = new THREE.BufferGeometry();
                 const vertices = [];
                 
                 for (let i = 0; i <= gridDivisions; i++) {
@@ -586,50 +865,25 @@
                 this.grid = new THREE.LineSegments(gridGeometry, gridMaterial);
                 this.scene.add(this.grid);
                 
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                // 添加環境光
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
                 this.scene.add(ambientLight);
                 
-                const pointLight = new THREE.PointLight(0xff1493, 1, 100);
+                // 添加點光源
+                const pointLight = new THREE.PointLight(0xff6b9d, 1, 100);
                 pointLight.position.set(10, 10, 10);
                 this.scene.add(pointLight);
-            }
-            
-            createParticleSystem() {
-                const particleCount = 5000;
-                const particles = new THREE.BufferGeometry();
-                const positions = new Float32Array(particleCount * 3);
-                
-                for (let i = 0; i < particleCount; i++) {
-                    const i3 = i * 3;
-                    positions[i3] = (Math.random() - 0.5) * 100;
-                    positions[i3 + 1] = (Math.random() - 0.5) * 100;
-                    positions[i3 + 2] = (Math.random() - 0.5) * 50;
-                }
-                
-                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                
-                const particleMaterial = new THREE.PointsMaterial({
-                    size: 0.1,
-                    color: 0xff1493,
-                    transparent: true,
-                    opacity: 0.3,
-                    blending: THREE.AdditiveBlending
-                });
-                
-                this.particleSystem = new THREE.Points(particles, particleMaterial);
-                this.scene.add(this.particleSystem);
             }
             
             initNoteSystem() {
                 this.notePool = [];
                 this.noteContainer = document.querySelector('.note-lane');
                 
+                // 創建音符池
                 for (let i = 0; i < 200; i++) {
                     const note = document.createElement('div');
                     note.className = 'note';
                     note.style.display = 'none';
-                    note.style.setProperty('--color1', GAME_CONFIG.songs[this.gameState.currentSong].color1);
-                    note.style.setProperty('--color2', GAME_CONFIG.songs[this.gameState.currentSong].color2);
                     this.noteContainer.appendChild(note);
                     this.notePool.push(note);
                 }
@@ -654,7 +908,7 @@
                 
                 const camera = new Camera(this.videoElement, {
                     onFrame: async () => {
-                        if (this.gameState.isPlaying) {
+                        if (this.gameState.isPlaying || this.gameState.isCountingDown) {
                             await this.hands.send({image: this.videoElement});
                         }
                     },
@@ -663,18 +917,35 @@
                 });
                 
                 camera.start().then(() => {
-                    console.log('Camera started');
+                    console.log('Camera started successfully');
+                    this.showCameraFeed();
                 }).catch((error) => {
                     console.error('Camera error:', error);
                     document.getElementById('permissionWarning').style.display = 'block';
                 });
             }
             
+            showCameraFeed() {
+                const cameraFeed = document.getElementById('cameraFeed');
+                cameraFeed.style.display = 'block';
+            }
+            
             initUI() {
+                // 開始按鈕
                 document.getElementById('startButton').addEventListener('click', () => {
-                    this.startGame();
+                    this.showSongSelectScreen();
                 });
                 
+                // 歌曲選擇
+                document.querySelectorAll('.song-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        document.querySelectorAll('.song-card').forEach(c => c.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.gameState.currentSong = e.currentTarget.dataset.song;
+                    });
+                });
+                
+                // 難度選擇
                 document.querySelectorAll('.difficulty-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
@@ -683,23 +954,27 @@
                     });
                 });
                 
-                document.getElementById('playMusic').addEventListener('click', () => {
-                    this.playMusic();
+                // 開始遊戲按鈕
+                document.getElementById('startGameButton').addEventListener('click', () => {
+                    this.startGame();
                 });
                 
-                document.getElementById('pauseMusic').addEventListener('click', () => {
-                    this.pauseMusic();
+                // 返回按鈕
+                document.getElementById('backToStartButton').addEventListener('click', () => {
+                    this.showStartScreen();
                 });
                 
-                document.getElementById('restartGame').addEventListener('click', () => {
+                // 重新開始按鈕
+                document.getElementById('restartButton').addEventListener('click', () => {
                     this.restartGame();
                 });
                 
-                document.getElementById('cameraToggle').addEventListener('click', () => {
-                    const feed = document.getElementById('cameraFeed');
-                    feed.style.display = feed.style.display === 'block' ? 'none' : 'block';
+                // 返回選擇歌曲按鈕
+                document.getElementById('backToSongSelectButton').addEventListener('click', () => {
+                    this.showSongSelectScreen();
                 });
                 
+                // 視窗大小調整
                 window.addEventListener('resize', () => {
                     this.camera.aspect = window.innerWidth / window.innerHeight;
                     this.camera.updateProjectionMatrix();
@@ -709,23 +984,26 @@
             
             initAudio() {
                 this.audio = new Audio();
-                this.audio.src = GAME_CONFIG.songs[this.gameState.currentSong].audioUrl;
                 this.audio.loop = false;
                 this.audio.preload = 'auto';
                 
-                this.audio.addEventListener('ended', () => {
-                    this.gameOver();
-                });
+                this.hitSound = document.getElementById('hitSound');
+                this.missSound = document.getElementById('missSound');
+                this.perfectSound = document.getElementById('perfectSound');
             }
             
             playMusic() {
                 if (!this.gameState.musicPlaying) {
-                    this.audio.play().catch(e => {
+                    const song = GAME_CONFIG.songs[this.gameState.currentSong];
+                    this.audio.src = song.audioUrl;
+                    
+                    this.audio.play().then(() => {
+                        this.gameState.musicPlaying = true;
+                    }).catch(e => {
                         console.log('Audio play failed:', e);
-                        // 模擬音樂播放
+                        // 如果自動播放失敗，我們仍然繼續遊戲，只是沒有音樂
                         this.gameState.musicPlaying = true;
                     });
-                    this.gameState.musicPlaying = true;
                 }
             }
             
@@ -737,7 +1015,7 @@
             }
             
             onHandResults(results) {
-                if (!results.multiHandLandmarks || !this.gameState.isPlaying) return;
+                if (!results.multiHandLandmarks || !this.gameState.gameStarted) return;
                 
                 this.handPositions = { left: null, right: null };
                 
@@ -751,12 +1029,12 @@
                     
                     this.handPositions[hand] = { x: palmX, y: palmY };
                     
-                    // 更新手部指示器位置（固定在畫面下方）
+                    // 更新手部指示器位置
                     const indicator = document.getElementById(`${hand}Hand`);
                     const laneWidth = window.innerWidth / 4;
                     const laneIndex = Math.min(3, Math.max(0, Math.floor(palmX / laneWidth)));
                     const indicatorX = (laneIndex * laneWidth) + (laneWidth / 2);
-                    const indicatorY = window.innerHeight - 160; // 固定在下方
+                    const indicatorY = window.innerHeight - 160;
                     
                     indicator.style.left = `${indicatorX}px`;
                     indicator.style.top = `${indicatorY}px`;
@@ -764,12 +1042,12 @@
                     
                     // 計算手勢狀態
                     const openness = this.calculateHandOpenness(landmarks);
-                    this.smoothedOpenness[hand] += (openness - this.smoothedOpenness[hand]) * GAME_CONFIG.handSettings.smoothing;
+                    this.smoothedOpenness[hand] += (openness - this.smoothedOpenness[hand]) * 0.3;
                     
                     let state;
-                    if (this.smoothedOpenness[hand] > GAME_CONFIG.handSettings.openThreshold) {
+                    if (this.smoothedOpenness[hand] > 0.6) {
                         state = 'open';
-                    } else if (this.smoothedOpenness[hand] < GAME_CONFIG.handSettings.closedThreshold) {
+                    } else if (this.smoothedOpenness[hand] < 0.4) {
                         state = 'closed';
                     } else {
                         state = this.handStates[hand];
@@ -777,9 +1055,18 @@
                     
                     this.handStates[hand] = state;
                     
-                    indicator.style.background = state === 'open' 
-                        ? 'rgba(255, 255, 255, 0.1)' 
-                        : 'rgba(255, 20, 147, 0.3)';
+                    // 更新指示器樣式
+                    if (hand === 'left') {
+                        indicator.style.borderColor = state === 'open' ? '#ff6b9d' : '#FFD700';
+                        indicator.style.boxShadow = state === 'open' 
+                            ? '0 0 20px rgba(255, 107, 157, 0.5)' 
+                            : '0 0 30px rgba(255, 215, 0, 0.8)';
+                    } else {
+                        indicator.style.borderColor = state === 'open' ? '#4d96ff' : '#FFD700';
+                        indicator.style.boxShadow = state === 'open' 
+                            ? '0 0 20px rgba(77, 150, 255, 0.5)' 
+                            : '0 0 30px rgba(255, 215, 0, 0.8)';
+                    }
                     
                     // 檢查擊打
                     if (state === 'closed') {
@@ -787,6 +1074,7 @@
                     }
                 });
                 
+                // 隱藏未偵測到的手
                 if (!this.handPositions.left) {
                     document.getElementById('leftHand').style.display = 'none';
                 }
@@ -800,21 +1088,23 @@
                 
                 const fingerTips = [4, 8, 12, 16, 20];
                 const wrist = landmarks[0];
-                let maxDistance = 0;
+                let totalDistance = 0;
                 
                 fingerTips.forEach(index => {
                     const dx = landmarks[index].x - wrist.x;
                     const dy = landmarks[index].y - wrist.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    maxDistance = Math.max(maxDistance, distance);
+                    totalDistance += Math.sqrt(dx * dx + dy * dy);
                 });
                 
-                return Math.min(maxDistance / 0.3, 1);
+                return Math.min(totalDistance / 0.5, 1);
             }
             
             checkHit(hand, laneIndex) {
+                if (!this.gameState.isPlaying) return;
+                
                 const now = this.gameState.songTime * 1000;
-                const hitWindow = 200;
+                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
+                const hitWindow = difficulty.greatWindow;
                 
                 for (let i = this.activeNotes.length - 1; i >= 0; i--) {
                     const note = this.activeNotes[i];
@@ -832,36 +1122,54 @@
             hitNote(note, timeDiff) {
                 note.hit = true;
                 
-                let accuracy;
-                if (timeDiff <= 80) {
-                    accuracy = 'PERFECT';
-                    this.showHitEffect('#FFD700');
-                } else if (timeDiff <= 150) {
-                    accuracy = 'GREAT';
-                    this.showHitEffect('#ff1493');
+                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
+                let judgment;
+                
+                if (timeDiff <= difficulty.perfectWindow) {
+                    judgment = 'PERFECT';
+                    this.perfectSound.currentTime = 0;
+                    this.perfectSound.play().catch(e => console.log('Audio error:', e));
+                    this.gameState.perfectCount++;
+                } else if (timeDiff <= difficulty.greatWindow) {
+                    judgment = 'GREAT';
+                    this.hitSound.currentTime = 0;
+                    this.hitSound.play().catch(e => console.log('Audio error:', e));
+                    this.gameState.greatCount++;
                 } else {
-                    accuracy = 'GOOD';
-                    this.showHitEffect('#9370DB');
+                    judgment = 'GOOD';
+                    this.hitSound.currentTime = 0;
+                    this.hitSound.play().catch(e => console.log('Audio error:', e));
+                    this.gameState.goodCount++;
                 }
                 
-                const rule = GAME_CONFIG.rules[accuracy];
+                const rule = GAME_CONFIG.rules[judgment];
                 
+                // 更新遊戲狀態
                 this.gameState.combo++;
                 this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
                 this.gameState.score += rule.score * (1 + this.gameState.combo / 50);
                 this.gameState.hitNotes++;
                 
-                this.gameState.accuracy = this.gameState.hitNotes > 0 ? 
-                    (this.gameState.hitNotes / (this.gameState.hitNotes + (this.gameState.totalNotes - this.gameState.hitNotes))) * 100 : 100;
+                // 更新準確率
+                const totalHits = this.gameState.perfectCount + this.gameState.greatCount + this.gameState.goodCount + this.gameState.missCount;
+                this.gameState.accuracy = totalHits > 0 ? 
+                    ((this.gameState.perfectCount * 1 + this.gameState.greatCount * 0.8 + this.gameState.goodCount * 0.5) / totalHits) * 100 : 100;
                 
-                this.gameState.life = Math.min(100, this.gameState.life + 10);
+                // 恢復生命值
+                this.gameState.life = Math.min(100, this.gameState.life + 15);
                 
+                // 顯示判定
+                this.showJudgment(judgment);
+                
+                // 顯示連擊效果
                 if (this.gameState.combo >= 5) {
                     this.showCombo();
                 }
                 
-                this.showAccuracy(accuracy);
+                // 更新技能顯示
+                this.updateSkillDisplay();
                 
+                // 移除音符
                 if (note.element) {
                     note.element.style.display = 'none';
                     this.notePool.push(note.element);
@@ -870,70 +1178,71 @@
                 this.updateUI();
             }
             
-            showHitEffect(color) {
-                const effect = document.getElementById('hitEffect');
-                const laneWidth = window.innerWidth / 4;
-                const x = laneWidth * (Math.floor(Math.random() * 4) + 0.5);
-                const y = window.innerHeight - 160;
-                
-                effect.style.setProperty('--x', `${x}px`);
-                effect.style.setProperty('--y', `${y}px`);
-                effect.style.opacity = '1';
-                
-                setTimeout(() => {
-                    effect.style.opacity = '0';
-                }, 300);
-            }
-            
-            showCombo() {
-                const comboDisplay = document.getElementById('comboDisplay');
-                comboDisplay.textContent = `${this.gameState.combo} COMBO!`;
-                comboDisplay.style.opacity = '1';
-                comboDisplay.style.transform = 'translate(-50%, -50%) scale(1)';
-                
-                setTimeout(() => {
-                    comboDisplay.style.opacity = '0';
-                    comboDisplay.style.transform = 'translate(-50%, -50%) scale(0.5)';
-                }, 1000);
-            }
-            
-            showAccuracy(accuracy) {
-                const display = document.getElementById('accuracyDisplay');
-                display.textContent = accuracy;
-                display.style.color = GAME_CONFIG.rules[accuracy].color;
+            showJudgment(judgment) {
+                const display = document.getElementById('judgmentDisplay');
+                display.textContent = judgment;
+                display.style.color = GAME_CONFIG.rules[judgment].color;
                 display.style.opacity = '1';
-                display.style.bottom = '220px';
+                display.style.transform = 'translateX(-50%) scale(1.2)';
                 
                 setTimeout(() => {
                     display.style.opacity = '0';
-                    display.style.bottom = '180px';
+                    display.style.transform = 'translateX(-50%) scale(1)';
                 }, 500);
             }
             
+            showCombo() {
+                const comboDisplay = document.getElementById('combo');
+                comboDisplay.style.transform = 'scale(1.2)';
+                
+                setTimeout(() => {
+                    comboDisplay.style.transform = 'scale(1)';
+                }, 200);
+            }
+            
+            updateSkillDisplay() {
+                const skillBoard = document.getElementById('skillBoard');
+                const skillDesc = document.getElementById('skillDesc');
+                
+                if (this.gameState.combo >= 20) {
+                    skillDesc.textContent = 'スコアアップ Lv.3';
+                    skillBoard.style.borderColor = 'rgba(255, 215, 0, 0.8)';
+                    skillBoard.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+                } else if (this.gameState.combo >= 10) {
+                    skillDesc.textContent = 'スコアアップ Lv.2';
+                    skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.8)';
+                    skillBoard.style.boxShadow = '0 0 15px rgba(255, 107, 157, 0.5)';
+                } else if (this.gameState.combo >= 5) {
+                    skillDesc.textContent = 'ライフ回復 Lv.1';
+                    skillBoard.style.borderColor = 'rgba(77, 150, 255, 0.8)';
+                    skillBoard.style.boxShadow = '0 0 10px rgba(77, 150, 255, 0.5)';
+                }
+            }
+            
             updateUI() {
-                document.getElementById('score').textContent = Math.floor(this.gameState.score);
+                // 更新分數 (格式化為8位數)
+                document.getElementById('score').textContent = Math.floor(this.gameState.score).toString().padStart(8, '0');
                 document.getElementById('combo').textContent = this.gameState.combo;
-                document.getElementById('accuracy').textContent = `${this.gameState.accuracy.toFixed(1)}%`;
+                
+                // 更新生命值
                 document.getElementById('lifeFill').style.width = `${this.gameState.life}%`;
-                
-                const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                const progress = (this.gameState.songTime / song.duration) * 100;
-                document.getElementById('songProgress').style.width = `${progress}%`;
-                
-                const currentTime = Math.floor(this.gameState.songTime);
-                const totalTime = song.duration;
-                document.getElementById('timeDisplay').textContent = 
-                    `${Math.floor(currentTime/60)}:${(currentTime%60).toString().padStart(2, '0')} / 
-                     ${Math.floor(totalTime/60)}:${(totalTime%60).toString().padStart(2, '0')}`;
+                document.getElementById('lifeValue').textContent = Math.floor(this.gameState.life * 15.2);
             }
             
             spawnNote(noteData) {
                 if (this.notePool.length === 0) return;
                 
                 const noteElement = this.notePool.pop();
-                noteElement.className = noteData.type === 'long' ? 'note long-note' : 'note';
-                noteElement.style.setProperty('--color1', GAME_CONFIG.songs[this.gameState.currentSong].color1);
-                noteElement.style.setProperty('--color2', GAME_CONFIG.songs[this.gameState.currentSong].color2);
+                const song = GAME_CONFIG.songs[this.gameState.currentSong];
+                
+                noteElement.className = 'note';
+                noteElement.style.setProperty('--color1', song.color1);
+                noteElement.style.setProperty('--color2', song.color2);
+                
+                // 如果是完美區域的音符，添加特殊樣式
+                if (noteData.isPerfectZone) {
+                    noteElement.classList.add('perfect-zone');
+                }
                 
                 const lane = document.querySelector(`.lane[data-index="${noteData.lane}"]`);
                 noteElement.style.display = 'block';
@@ -958,8 +1267,8 @@
                 }
                 
                 // 更新音符位置（由上而下）
-                const laneHeight = 600;
-                const hitPosition = 0; // 底部位置
+                const laneHeight = 500;
+                const hitPosition = 0;
                 
                 for (let i = this.activeNotes.length - 1; i >= 0; i--) {
                     const note = this.activeNotes[i];
@@ -970,10 +1279,17 @@
                         const position = Math.max(hitPosition, laneHeight - fallDistance);
                         note.element.style.top = `${position}px`;
                         note.element.style.opacity = Math.min(1, (timeLeft + 500) / 1000);
+                        
+                        // 如果是完美區域，更新樣式
+                        if (timeLeft <= difficulty.perfectWindow + 50 && timeLeft >= -50) {
+                            note.element.classList.add('perfect-zone');
+                        } else {
+                            note.element.classList.remove('perfect-zone');
+                        }
                     }
                     
                     // 檢查錯過的音符
-                    if (timeLeft < -200 && !note.hit) {
+                    if (timeLeft < -difficulty.greatWindow && !note.hit) {
                         this.missNote(note);
                     }
                     
@@ -991,7 +1307,13 @@
             missNote(note) {
                 note.hit = true;
                 this.gameState.combo = 0;
-                this.gameState.life -= 20;
+                this.gameState.life -= 10;
+                this.gameState.missCount++;
+                this.missSound.currentTime = 0;
+                this.missSound.play().catch(e => console.log('Audio error:', e));
+                
+                // 更新技能顯示
+                this.updateSkillDisplay();
                 
                 if (this.gameState.life <= 0) {
                     this.gameOver();
@@ -1008,6 +1330,7 @@
                 this.noteQueue = [];
                 this.gameState.totalNotes = 0;
                 
+                // 生成音符
                 for (let i = 0; i < totalBeats; i++) {
                     if (Math.random() < difficulty.noteDensity) {
                         const note = {
@@ -1015,6 +1338,7 @@
                             lane: Math.floor(Math.random() * 4),
                             time: (i * 60 / song.bpm) * 1000,
                             type: Math.random() > 0.9 ? 'long' : 'normal',
+                            isPerfectZone: Math.random() > 0.7,
                             hit: false,
                             element: null
                         };
@@ -1023,14 +1347,45 @@
                         this.gameState.totalNotes++;
                     }
                 }
+                
+                // 按時間排序
+                this.noteQueue.sort((a, b) => a.time - b.time);
+            }
+            
+            startCountdown() {
+                this.gameState.isCountingDown = true;
+                const countdownScreen = document.getElementById('countdownScreen');
+                const countdownNumber = document.getElementById('countdownNumber');
+                
+                countdownScreen.style.display = 'flex';
+                this.countdownTime = 3;
+                countdownNumber.textContent = this.countdownTime;
+                
+                this.countdownInterval = setInterval(() => {
+                    this.countdownTime--;
+                    countdownNumber.textContent = this.countdownTime;
+                    
+                    if (this.countdownTime <= 0) {
+                        clearInterval(this.countdownInterval);
+                        countdownScreen.style.display = 'none';
+                        this.startGamePlay();
+                    }
+                }, 1000);
+            }
+            
+            startGamePlay() {
+                this.gameState.isCountingDown = false;
+                this.gameState.isPlaying = true;
+                this.gameState.gameStarted = true;
+                this.playMusic();
+                this.animate();
             }
             
             startGame() {
                 this.resetGameState();
-                this.gameState.isPlaying = true;
-                this.playMusic();
-                document.getElementById('gameStart').style.display = 'none';
-                this.animate();
+                this.generateBeatMap();
+                document.getElementById('songSelectScreen').style.display = 'none';
+                this.startCountdown();
             }
             
             restartGame() {
@@ -1040,6 +1395,7 @@
             
             resetGame() {
                 this.gameState.isPlaying = false;
+                this.gameState.gameStarted = false;
                 
                 // 清除所有音符
                 this.activeNotes.forEach(note => {
@@ -1058,16 +1414,17 @@
                     this.animationId = null;
                 }
                 
-                // 重置遊戲狀態
-                this.resetGameState();
-                this.generateBeatMap();
+                // 停止倒數計時
+                if (this.countdownInterval) {
+                    clearInterval(this.countdownInterval);
+                }
                 
                 // 停止音樂
                 this.pauseMusic();
                 this.audio.currentTime = 0;
                 
-                // 顯示開始畫面
-                document.getElementById('gameStart').style.display = 'flex';
+                // 隱藏遊戲結束畫面
+                document.getElementById('gameoverScreen').style.display = 'none';
             }
             
             resetGameState() {
@@ -1078,24 +1435,53 @@
                     accuracy: 100,
                     totalNotes: 0,
                     hitNotes: 0,
+                    perfectCount: 0,
+                    greatCount: 0,
+                    goodCount: 0,
+                    missCount: 0,
                     life: 100,
                     isPlaying: false,
+                    isCountingDown: false,
                     songTime: 0,
                     difficulty: this.gameState.difficulty,
-                    currentSong: 'LIKEY',
-                    musicPlaying: false
+                    currentSong: this.gameState.currentSong,
+                    musicPlaying: false,
+                    gameStarted: false
                 };
+                
+                this.updateUI();
             }
             
             gameOver() {
                 this.gameState.isPlaying = false;
+                this.gameState.gameStarted = false;
                 this.pauseMusic();
                 
-                alert(`遊戲結束！\n分數：${Math.floor(this.gameState.score)}\n最高連擊：${this.gameState.maxCombo}\n準確率：${this.gameState.accuracy.toFixed(1)}%`);
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
                 
-                setTimeout(() => {
-                    this.restartGame();
-                }, 2000);
+                // 更新遊戲結束畫面數據
+                document.getElementById('finalScore').textContent = Math.floor(this.gameState.score).toString().padStart(8, '0');
+                document.getElementById('finalCombo').textContent = this.gameState.maxCombo;
+                document.getElementById('finalAccuracy').textContent = `${this.gameState.accuracy.toFixed(1)}%`;
+                document.getElementById('finalSong').textContent = GAME_CONFIG.songs[this.gameState.currentSong].name;
+                
+                // 顯示遊戲結束畫面
+                document.getElementById('gameoverScreen').style.display = 'flex';
+            }
+            
+            showStartScreen() {
+                document.getElementById('startScreen').style.display = 'flex';
+                document.getElementById('songSelectScreen').style.display = 'none';
+                document.getElementById('gameoverScreen').style.display = 'none';
+            }
+            
+            showSongSelectScreen() {
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('songSelectScreen').style.display = 'flex';
+                document.getElementById('gameoverScreen').style.display = 'none';
             }
             
             animate() {
@@ -1108,22 +1494,19 @@
                 
                 this.updateNotes();
                 
+                // 更新背景
                 if (this.grid) {
-                    this.grid.rotation.x += delta * 0.1;
-                    this.grid.rotation.y += delta * 0.05;
+                    this.grid.rotation.x += delta * 0.05;
+                    this.grid.rotation.y += delta * 0.03;
                 }
                 
-                if (this.particleSystem) {
-                    this.particleSystem.rotation.y += delta * 0.02;
-                }
-                
+                // 檢查歌曲結束
                 const song = GAME_CONFIG.songs[this.gameState.currentSong];
                 if (this.gameState.songTime >= song.duration) {
                     this.gameOver();
                 }
                 
                 this.renderer.render(this.scene, this.camera);
-                this.updateUI();
             }
         }
         
