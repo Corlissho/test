@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TWICE 節奏手勢遊戲</title>
+    <title>TWICE 太空射擊遊戲</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif;
             overflow: hidden; 
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #000;
             color: #fff;
         }
         
-        #gameCanvas {
-            display: block;
+        canvas { 
+            display: block; 
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1;
         }
         
-        /* 遊戲介面 - 世界計畫風格 */
+        /* 遊戲介面 - 射擊遊戲風格 */
         .game-ui {
             position: fixed;
             top: 0;
@@ -45,7 +45,7 @@
         .score-label {
             font-size: 20px;
             font-weight: 700;
-            color: #ff6b9d;
+            color: #6ee7b7;
             margin-bottom: 5px;
             letter-spacing: 2px;
         }
@@ -54,7 +54,7 @@
             font-size: 48px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px #ff6b9d;
+            text-shadow: 0 0 15px #6ee7b7;
         }
         
         .combo-board {
@@ -67,7 +67,7 @@
         .combo-label {
             font-size: 20px;
             font-weight: 700;
-            color: #ff6b9d;
+            color: #6ee7b7;
             margin-bottom: 5px;
             letter-spacing: 2px;
         }
@@ -76,7 +76,7 @@
             font-size: 48px;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 15px #ff6b9d;
+            text-shadow: 0 0 15px #6ee7b7;
         }
         
         .life-board {
@@ -88,7 +88,7 @@
         .life-label {
             font-size: 20px;
             font-weight: 700;
-            color: #ff6b9d;
+            color: #6ee7b7;
             margin-bottom: 10px;
             letter-spacing: 2px;
         }
@@ -104,7 +104,7 @@
         
         .life-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff6b9d, #ff9a3d);
+            background: linear-gradient(90deg, #6ee7b7, #3b82f6);
             width: 100%;
             transition: width 0.3s;
         }
@@ -116,127 +116,55 @@
             font-size: 20px;
             font-weight: 700;
             color: #fff;
-            text-shadow: 0 0 5px #ff6b9d;
+            text-shadow: 0 0 5px #6ee7b7;
         }
         
-        .skill-board {
+        .weapon-board {
             position: absolute;
             top: 200px;
             left: 30px;
             background: rgba(0, 0, 0, 0.5);
             border-radius: 15px;
             padding: 15px 20px;
-            border: 2px solid rgba(255, 107, 157, 0.5);
+            border: 2px solid rgba(110, 231, 183, 0.5);
             min-width: 250px;
         }
         
-        .skill-label {
+        .weapon-label {
             font-size: 18px;
             font-weight: 700;
-            color: #ff9a3d;
+            color: #3b82f6;
             margin-bottom: 5px;
             letter-spacing: 1px;
         }
         
-        .skill-desc {
+        .weapon-desc {
             font-size: 16px;
             color: #fff;
             opacity: 0.8;
         }
         
-        .judgment-display {
+        .enemy-count {
             position: absolute;
-            bottom: 250px;
+            top: 30px;
             left: 50%;
             transform: translateX(-50%);
+            text-align: center;
+        }
+        
+        .enemy-label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        
+        .enemy-value {
             font-size: 48px;
             font-weight: 900;
-            color: #ff6b9d;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.7);
-            opacity: 0;
-            pointer-events: none;
-            z-index: 50;
-        }
-        
-        /* 音符軌道 */
-        .note-lane {
-            position: fixed;
-            bottom: 100px;
-            left: 0;
-            width: 100%;
-            height: 500px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-            padding: 0 20px;
-        }
-        
-        .lane {
-            width: 140px;
-            height: 100%;
-            position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-        }
-        
-        .lane-hit-area {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background: rgba(255, 107, 157, 0.2);
-            border-top: 4px solid rgba(255, 107, 157, 0.8);
-            pointer-events: none;
-            z-index: 12;
-            box-shadow: 0 -5px 20px rgba(255, 107, 157, 0.3);
-        }
-        
-        .note {
-            position: absolute;
-            width: 120px;
-            height: 40px;
-            background: linear-gradient(90deg, var(--color1), var(--color2));
-            border-radius: 8px;
-            left: 10px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            pointer-events: none;
-            z-index: 11;
-            display: none;
-            transform-origin: center;
-        }
-        
-        .note.perfect-zone {
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
-        }
-        
-        .hand-indicator {
-            position: fixed;
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 3px solid #ff6b9d;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            z-index: 20;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
-        }
-        
-        #leftHand {
-            border-color: #ff6b9d;
-        }
-        
-        #rightHand {
-            border-color: #4d96ff;
+            color: #fff;
+            text-shadow: 0 0 15px #ef4444;
         }
         
         /* 開始畫面 */
@@ -246,7 +174,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -257,85 +185,11 @@
         .game-title {
             font-size: 64px;
             font-weight: 900;
-            background: linear-gradient(90deg, #ff6b9d, #ff9a3d, #4d96ff);
+            background: linear-gradient(90deg, #6ee7b7, #3b82f6, #ef4444);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 30px;
-            text-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
-        }
-        
-        .song-select-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            z-index: 999;
-        }
-        
-        .song-select-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 40px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-        
-        .song-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin-bottom: 50px;
-        }
-        
-        .song-card {
-            width: 300px;
-            height: 180px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            position: relative;
-        }
-        
-        .song-card:hover {
-            transform: translateY(-10px);
-            border-color: #ff6b9d;
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
-        }
-        
-        .song-card.active {
-            border-color: #ff6b9d;
-            box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
-        }
-        
-        .song-image {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-        }
-        
-        .song-info {
-            padding: 15px;
-        }
-        
-        .song-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-        
-        .song-artist {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 30px rgba(110, 231, 183, 0.5);
         }
         
         .difficulty-select {
@@ -357,17 +211,17 @@
         }
         
         .difficulty-btn:hover {
-            background: rgba(255, 107, 157, 0.2);
+            background: rgba(110, 231, 183, 0.2);
         }
         
         .difficulty-btn.active {
-            background: rgba(255, 107, 157, 0.3);
-            border-color: #ff6b9d;
-            box-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+            background: rgba(110, 231, 183, 0.3);
+            border-color: #6ee7b7;
+            box-shadow: 0 0 15px rgba(110, 231, 183, 0.5);
         }
         
         .start-game-btn {
-            background: linear-gradient(90deg, #ff6b9d, #ff9a3d);
+            background: linear-gradient(90deg, #6ee7b7, #3b82f6);
             border: none;
             color: white;
             padding: 20px 60px;
@@ -380,7 +234,7 @@
         
         .start-game-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+            box-shadow: 0 10px 30px rgba(110, 231, 183, 0.4);
         }
         
         /* 倒數計時 */
@@ -401,8 +255,8 @@
         .countdown-number {
             font-size: 120px;
             font-weight: 900;
-            color: #ff6b9d;
-            text-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
+            color: #6ee7b7;
+            text-shadow: 0 0 30px rgba(110, 231, 183, 0.8);
             margin-bottom: 20px;
         }
         
@@ -430,9 +284,9 @@
         .gameover-title {
             font-size: 72px;
             font-weight: 900;
-            color: #ff6b9d;
+            color: #6ee7b7;
             margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.8);
+            text-shadow: 0 0 20px rgba(110, 231, 183, 0.8);
         }
         
         .gameover-stats {
@@ -460,7 +314,7 @@
         }
         
         .restart-btn {
-            background: linear-gradient(90deg, #4d96ff, #6bc5ff);
+            background: linear-gradient(90deg, #3b82f6, #6ee7b7);
             border: none;
             color: white;
             padding: 20px 50px;
@@ -541,22 +395,75 @@
             cursor: pointer;
         }
         
-        /* 天空藍色背景覆蓋 */
-        .sky-background {
+        /* 控制說明 */
+        .controls {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #87CEEB 0%, #6495ED 50%, #4169E1 100%);
-            z-index: -1;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #fff;
+            z-index: 100;
+            text-align: center;
+            display: none;
+        }
+        
+        /* 玩家飛船 */
+        .player-ship {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6ee7b7, #3b82f6);
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            transform: translateX(-50%);
+            z-index: 50;
+            display: none;
+            box-shadow: 0 0 20px rgba(110, 231, 183, 0.7);
+        }
+        
+        /* 子彈效果 */
+        .bullet {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background: linear-gradient(180deg, #6ee7b7, #3b82f6);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(110, 231, 183, 0.8);
+            display: none;
+            z-index: 30;
+        }
+        
+        /* 敵人 */
+        .enemy {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border-radius: 10px;
+            display: none;
+            z-index: 20;
+            transform: rotate(45deg);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+        }
+        
+        .explosion {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #fbbf24 0%, #ef4444 70%, transparent 100%);
+            border-radius: 50%;
+            display: none;
+            z-index: 40;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <!-- 天空藍色背景 -->
-    <div class="sky-background"></div>
-    
     <canvas id="gameCanvas"></canvas>
     
     <!-- 遊戲介面 -->
@@ -571,125 +478,77 @@
             <div class="combo-value" id="combo">0</div>
         </div>
         
+        <div class="enemy-count">
+            <div class="enemy-label">ENEMIES</div>
+            <div class="enemy-value" id="enemyCount">0</div>
+        </div>
+        
         <div class="life-board">
-            <div class="life-label">LIFE</div>
+            <div class="life-label">SHIELD</div>
             <div class="life-bar">
                 <div class="life-fill" id="lifeFill"></div>
             </div>
-            <div class="life-value" id="lifeValue">1520</div>
+            <div class="life-value" id="lifeValue">100%</div>
         </div>
         
-        <div class="skill-board" id="skillBoard">
-            <div class="skill-label">スキル発動</div>
-            <div class="skill-desc" id="skillDesc">ライフ回復 Lv.1</div>
-        </div>
-        
-        <div class="judgment-display" id="judgmentDisplay">PERFECT</div>
-    </div>
-    
-    <!-- 音符軌道 -->
-    <div class="note-lane">
-        <div class="lane" data-index="0">
-            <div class="lane-hit-area"></div>
-        </div>
-        <div class="lane" data-index="1">
-            <div class="lane-hit-area"></div>
-        </div>
-        <div class="lane" data-index="2">
-            <div class="lane-hit-area"></div>
-        </div>
-        <div class="lane" data-index="3">
-            <div class="lane-hit-area"></div>
+        <div class="weapon-board" id="weaponBoard">
+            <div class="weapon-label">WEAPON SYSTEM</div>
+            <div class="weapon-desc" id="weaponDesc">Basic Laser Lv.1</div>
         </div>
     </div>
     
-    <!-- 手部指示器 -->
-    <div class="hand-indicator" id="leftHand">✋</div>
-    <div class="hand-indicator" id="rightHand">✋</div>
+    <!-- 玩家飛船 -->
+    <div class="player-ship" id="playerShip"></div>
     
     <!-- 開始畫面 -->
     <div class="start-screen" id="startScreen">
-        <h1 class="game-title">TWICE RHYTHM GAME</h1>
-        <button class="start-game-btn" id="startButton">開始遊戲</button>
-        <div class="gesture-status" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: auto;">
-            🎮 使用手勢控制遊戲 | 需要攝影機權限
-        </div>
-    </div>
-    
-    <!-- 歌曲選擇畫面 -->
-    <div class="song-select-screen" id="songSelectScreen">
-        <h2 class="song-select-title">選擇歌曲</h2>
-        <div class="song-grid">
-            <div class="song-card active" data-song="likey">
-                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
-                <div class="song-info">
-                    <div class="song-name">LIKEY</div>
-                    <div class="song-artist">TWICE</div>
-                </div>
-            </div>
-            <div class="song-card" data-song="fancy">
-                <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
-                <div class="song-info">
-                    <div class="song-name">FANCY</div>
-                    <div class="song-artist">TWICE</div>
-                </div>
-            </div>
-            <div class="song-card" data-song="whatislove">
-                <img src="https://images.unsplash.com/photo-1519281682544-5f37c4b14c47?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
-                <div class="song-info">
-                    <div class="song-name">What is Love?</div>
-                    <div class="song-artist">TWICE</div>
-                </div>
-            </div>
-            <div class="song-card" data-song="yesoryes">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" class="song-image">
-                <div class="song-info">
-                    <div class="song-name">YES or YES</div>
-                    <div class="song-artist">TWICE</div>
-                </div>
-            </div>
-        </div>
-        
-        <h2 class="song-select-title" style="margin-top: 20px;">選擇難度</h2>
+        <h1 class="game-title">TWICE SPACE SHOOTER</h1>
         <div class="difficulty-select">
             <button class="difficulty-btn active" data-difficulty="easy">簡單</button>
             <button class="difficulty-btn" data-difficulty="normal">普通</button>
             <button class="difficulty-btn" data-difficulty="hard">困難</button>
         </div>
         
-        <button class="start-game-btn" id="startGameButton">開始遊戲</button>
-        <button class="restart-btn" id="backToStartButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">返回</button>
+        <button class="start-game-btn" id="startButton">開始遊戲</button>
+        
+        <div class="gesture-status" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: auto;">
+            🎮 手勢控制: 👋 移動飛船 | ✊ 發射 | 🤏 特殊武器
+        </div>
     </div>
     
     <!-- 倒數計時畫面 -->
     <div class="countdown-screen" id="countdownScreen">
         <div class="countdown-number" id="countdownNumber">3</div>
-        <div class="countdown-text">準備開始</div>
+        <div class="countdown-text">MISSION START</div>
     </div>
     
     <!-- 遊戲結束畫面 -->
     <div class="gameover-screen" id="gameoverScreen">
-        <h2 class="gameover-title">GAME OVER</h2>
+        <h2 class="gameover-title">MISSION COMPLETE</h2>
         <div class="gameover-stats">
             <div class="gameover-stat">
                 <span class="gameover-label">最終分數</span>
                 <span class="gameover-value" id="finalScore">00000000</span>
             </div>
             <div class="gameover-stat">
-                <span class="gameover-label">最高連擊</span>
+                <span class="gameover-label">擊毀敵機</span>
+                <span class="gameover-value" id="finalEnemies">0</span>
+            </div>
+            <div class="gameover-stat">
+                <span class="gameover-label">最大連擊</span>
                 <span class="gameover-value" id="finalCombo">0</span>
             </div>
             <div class="gameover-stat">
-                <span class="gameover-label">準確率</span>
-                <span class="gameover-value" id="finalAccuracy">100%</span>
-            </div>
-            <div class="gameover-stat">
-                <span class="gameover-label">歌曲</span>
-                <span class="gameover-value" id="finalSong">LIKEY</span>
+                <span class="gameover-label">存活時間</span>
+                <span class="gameover-value" id="finalTime">0s</span>
             </div>
         </div>
         <button class="restart-btn" id="restartButton">再玩一次</button>
-        <button class="restart-btn" id="backToSongSelectButton" style="margin-top: 20px; background: rgba(255,255,255,0.1);">選擇歌曲</button>
+    </div>
+    
+    <!-- 控制說明 -->
+    <div class="controls" id="controls">
+        👋 張開手掌移動飛船 | ✊ 握拳發射激光 | 🤏 捏合使用特殊武器
     </div>
     
     <!-- 鏡頭畫面 -->
@@ -701,222 +560,354 @@
     <div id="permissionWarning" class="warning">
         <h3>需要攝影機權限</h3>
         <p>請允許攝影機存取以使用手勢控制功能</p>
-        <button onclick="location.reload()">重新載入</button>
+        <button onclick="location.reload()">重新載入頁面</button>
     </div>
-
-    <!-- 音頻元素 -->
-    <audio id="gameMusic" preload="auto"></audio>
-    <audio id="hitSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="missSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="perfectSound" preload="auto">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
-    </audio>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.min.js"></script>
     
     <script>
-        // ==================== 遊戲設定 ====================
-        const GAME_CONFIG = {
-            // 歌曲設定 - 使用可訪問的音樂
-            songs: {
-                'likey': {
-                    name: 'LIKEY',
-                    bpm: 128,
-                    duration: 60, // 測試用60秒
-                    color1: '#ff6b9d',
-                    color2: '#ff9a3d',
-                    audioUrl: 'https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3'
-                },
-                'fancy': {
-                    name: 'FANCY',
-                    bpm: 120,
-                    duration: 60,
-                    color1: '#ff9a3d',
-                    color2: '#4d96ff',
-                    audioUrl: 'https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3'
-                },
-                'whatislove': {
-                    name: 'What is Love?',
-                    bpm: 122,
-                    duration: 60,
-                    color1: '#4d96ff',
-                    color2: '#6bc5ff',
-                    audioUrl: 'https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3'
-                },
-                'yesoryes': {
-                    name: 'YES or YES',
-                    bpm: 125,
-                    duration: 60,
-                    color1: '#6bc5ff',
-                    color2: '#ff6b9d',
-                    audioUrl: 'https://assets.mixkit.co/music/preview/mixkit-sunny-holiday-33.mp3'
-                }
+        // ==================== 遊戲互動規則配置 ====================
+        const GAME_RULES = {
+            // 事件 -> 行為映射
+            OPEN_BOTH: {
+                action: 'rapidFire',
+                strength: 1.0,
+                description: '雙手張開：快速射擊模式'
             },
-            
-            // 難度設定
-            difficulties: {
-                easy: { 
-                    speed: 1.0, 
-                    noteDensity: 0.3, 
-                    lifeRecovery: 0.2, 
-                    spawnDelay: 2000,
-                    perfectWindow: 150,
-                    greatWindow: 200
-                },
-                normal: { 
-                    speed: 1.5, 
-                    noteDensity: 0.5, 
-                    lifeRecovery: 0.1, 
-                    spawnDelay: 1500,
-                    perfectWindow: 120,
-                    greatWindow: 180
-                },
-                hard: { 
-                    speed: 2.0, 
-                    noteDensity: 0.7, 
-                    lifeRecovery: 0.05, 
-                    spawnDelay: 1000,
-                    perfectWindow: 100,
-                    greatWindow: 150
-                }
+            CLOSE_BOTH: {
+                action: 'shield',
+                strength: 1.0,
+                description: '雙手握拳：啟動護盾'
             },
-            
-            // 遊戲規則
-            rules: {
-                PERFECT: { threshold: 100, score: 1000, color: '#FFD700' },
-                GREAT: { threshold: 150, score: 800, color: '#ff6b9d' },
-                GOOD: { threshold: 200, score: 500, color: '#4d96ff' },
-                MISS: { score: 0, color: '#666' }
+            PINCH_LEFT: {
+                action: 'switchWeapon',
+                direction: -1,
+                description: '左手捏合：切換武器'
+            },
+            PINCH_RIGHT: {
+                action: 'switchWeapon',
+                direction: 1,
+                description: '右手捏合：切換武器'
+            },
+            MOVE_LEFT_HAND: {
+                action: 'moveLeft',
+                hand: 'left',
+                strength: 0.8,
+                description: '左手移動：控制飛船'
+            },
+            MOVE_RIGHT_HAND: {
+                action: 'moveRight',
+                hand: 'right',
+                strength: 0.8,
+                description: '右手移動：控制飛船'
+            },
+            NO_HANDS: {
+                action: 'idle',
+                strength: 0.1,
+                description: '無手勢：自動防禦'
+            },
+            PINCH_BOTH: {
+                action: 'specialAttack',
+                strength: 2.0,
+                description: '雙手捏合：特殊攻擊'
+            },
+            OPEN_LEFT: {
+                action: 'moveLeft',
+                hand: 'left',
+                strength: 0.6,
+                description: '左手張開：向左移動'
+            },
+            OPEN_RIGHT: {
+                action: 'moveRight',
+                hand: 'right',
+                strength: 0.6,
+                description: '右手張開：向右移動'
             }
         };
+        // ========================================================
 
-        // ==================== 遊戲主類別 ====================
-        class RhythmGame {
+        class SpaceShooterGame {
             constructor() {
+                // 遊戲狀態
                 this.gameState = {
                     score: 0,
                     combo: 0,
                     maxCombo: 0,
-                    accuracy: 100,
-                    totalNotes: 0,
-                    hitNotes: 0,
-                    perfectCount: 0,
-                    greatCount: 0,
-                    goodCount: 0,
-                    missCount: 0,
+                    enemiesDestroyed: 0,
+                    enemiesActive: 0,
+                    enemiesTotal: 0,
                     life: 100,
+                    shield: 0,
                     isPlaying: false,
                     isCountingDown: false,
-                    songTime: 0,
+                    gameTime: 0,
                     difficulty: 'normal',
-                    currentSong: 'likey',
-                    musicPlaying: false,
+                    weaponLevel: 1,
+                    rapidFire: false,
+                    specialAttackReady: true,
+                    specialAttackCooldown: 0,
                     gameStarted: false,
-                    audioEnabled: false
+                    cameraActive: false
                 };
                 
-                this.noteQueue = [];
-                this.activeNotes = [];
-                this.lanes = [0, 1, 2, 3];
-                this.handPositions = { left: null, right: null };
-                this.handStates = { left: 'open', right: 'open' };
-                this.smoothedOpenness = { left: 0, right: 0 };
+                // 手勢數據
+                this.handData = {
+                    left: { landmarks: null, openness: 0, smoothedOpenness: 0, position: null },
+                    right: { landmarks: null, openness: 0, smoothedOpenness: 0, position: null }
+                };
                 
+                // 遊戲對象
+                this.player = {
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight - 150,
+                    width: 60,
+                    height: 60,
+                    speed: 10,
+                    shooting: false,
+                    lastShot: 0
+                };
+                
+                // 子彈和敵人數組
+                this.bullets = [];
+                this.enemies = [];
+                this.explosions = [];
+                
+                // 武器系統
+                this.weapons = [
+                    { name: 'Basic Laser', level: 1, damage: 10, fireRate: 300, color: '#6ee7b7' },
+                    { name: 'Plasma Cannon', level: 1, damage: 25, fireRate: 500, color: '#3b82f6' },
+                    { name: 'Photon Blaster', level: 1, damage: 50, fireRate: 800, color: '#ef4444' }
+                ];
+                this.currentWeapon = 0;
+                
+                // 難度設定
+                this.difficulties = {
+                    easy: { enemySpeed: 2, enemySpawnRate: 1000, enemyHealth: 10 },
+                    normal: { enemySpeed: 3, enemySpawnRate: 800, enemyHealth: 20 },
+                    hard: { enemySpeed: 4, enemySpawnRate: 600, enemyHealth: 30 }
+                };
+                
+                // 性能監控
+                this.lastEnemySpawn = 0;
+                this.lastSpecialAttack = 0;
+                
+                // 初始化
                 this.initThreeJS();
-                this.initNoteSystem();
                 this.initMediaPipe();
                 this.initUI();
-                this.initAudio();
-                
-                this.animationId = null;
-                this.countdownInterval = null;
-                this.countdownTime = 3;
+                this.initGameObjects();
                 
                 // 顯示開始畫面
                 this.showStartScreen();
             }
             
             initThreeJS() {
+                // 創建場景
                 this.scene = new THREE.Scene();
+                
+                // 創建相機
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
                 this.camera.position.z = 15;
                 
+                // 創建渲染器
                 this.renderer = new THREE.WebGLRenderer({ 
                     canvas: document.getElementById('gameCanvas'),
                     antialias: true,
-                    alpha: true 
+                    alpha: true,
+                    powerPreference: "high-performance"
                 });
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.setClearColor(0x000000, 1);
                 
-                this.createBackground();
-                this.clock = new THREE.Clock();
-            }
-            
-            createBackground() {
-                // 創建網格背景
-                const gridSize = 50;
-                const gridDivisions = 50;
-                const gridGeometry = new THREE.BufferGeometry();
-                const vertices = [];
+                // 創建星空背景
+                this.createStarfield();
                 
-                for (let i = 0; i <= gridDivisions; i++) {
-                    const x = (i / gridDivisions - 0.5) * gridSize;
-                    vertices.push(x, -gridSize/2, 0);
-                    vertices.push(x, gridSize/2, 0);
-                    
-                    const y = (i / gridDivisions - 0.5) * gridSize;
-                    vertices.push(-gridSize/2, y, 0);
-                    vertices.push(gridSize/2, y, 0);
-                }
-                
-                gridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-                
-                const gridMaterial = new THREE.LineBasicMaterial({
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.05
-                });
-                
-                this.grid = new THREE.LineSegments(gridGeometry, gridMaterial);
-                this.scene.add(this.grid);
+                // 創建星雲效果
+                this.createNebula();
                 
                 // 添加環境光
                 const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
                 this.scene.add(ambientLight);
                 
                 // 添加點光源
-                const pointLight = new THREE.PointLight(0xff6b9d, 1, 100);
+                const pointLight = new THREE.PointLight(0x6ee7b7, 1, 100);
                 pointLight.position.set(10, 10, 10);
                 this.scene.add(pointLight);
+                
+                // 創建玩家飛船模型
+                this.createPlayerShip();
+                
+                // 創建敵人模型池
+                this.createEnemyPool();
+                
+                // 創建子彈模型池
+                this.createBulletPool();
+                
+                // 視窗大小調整處理
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
             }
             
-            initNoteSystem() {
-                this.notePool = [];
-                this.noteContainer = document.querySelector('.note-lane');
+            createStarfield() {
+                // 創建星空
+                const starGeometry = new THREE.BufferGeometry();
+                const starCount = 1000;
+                const positions = new Float32Array(starCount * 3);
                 
-                // 創建音符池
-                for (let i = 0; i < 200; i++) {
-                    const note = document.createElement('div');
-                    note.className = 'note';
-                    note.style.display = 'none';
-                    this.noteContainer.appendChild(note);
-                    this.notePool.push(note);
+                for (let i = 0; i < starCount * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * 2000;
+                    positions[i + 1] = (Math.random() - 0.5) * 2000;
+                    positions[i + 2] = (Math.random() - 0.5) * 2000;
+                }
+                
+                starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                const starMaterial = new THREE.PointsMaterial({
+                    color: 0xffffff,
+                    size: 0.7,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                this.stars = new THREE.Points(starGeometry, starMaterial);
+                this.scene.add(this.stars);
+            }
+            
+            createNebula() {
+                // 創建星雲效果
+                const nebulaGeometry = new THREE.SphereGeometry(100, 32, 32);
+                const nebulaMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x3b82f6,
+                    transparent: true,
+                    opacity: 0.1,
+                    side: THREE.BackSide
+                });
+                
+                this.nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
+                this.scene.add(this.nebula);
+            }
+            
+            createPlayerShip() {
+                // 創建玩家飛船模型
+                const shipGeometry = new THREE.ConeGeometry(0.5, 1.5, 8);
+                const shipMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x6ee7b7,
+                    shininess: 100,
+                    emissive: 0x006600,
+                    emissiveIntensity: 0.5
+                });
+                
+                this.playerShip = new THREE.Mesh(shipGeometry, shipMaterial);
+                this.playerShip.position.z = 5;
+                this.scene.add(this.playerShip);
+                
+                // 創建飛船引擎粒子
+                this.createEngineParticles();
+            }
+            
+            createEngineParticles() {
+                // 飛船引擎粒子
+                const particleCount = 100;
+                const particles = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const colors = new Float32Array(particleCount * 3);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const i3 = i * 3;
+                    positions[i3] = (Math.random() - 0.5) * 0.3;
+                    positions[i3 + 1] = -1.5;
+                    positions[i3 + 2] = (Math.random() - 0.5) * 0.3;
+                    
+                    colors[i3] = 1.0; // R
+                    colors[i3 + 1] = 0.9; // G
+                    colors[i3 + 2] = 0.1; // B
+                }
+                
+                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    size: 0.1,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                this.engineParticles = new THREE.Points(particles, particleMaterial);
+                this.playerShip.add(this.engineParticles);
+            }
+            
+            createEnemyPool() {
+                // 創建敵人模型池
+                this.enemyPool = [];
+                const enemyGeometry = new THREE.OctahedronGeometry(0.8);
+                const enemyMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xef4444,
+                    shininess: 50,
+                    emissive: 0x440000,
+                    emissiveIntensity: 0.3
+                });
+                
+                for (let i = 0; i < 20; i++) {
+                    const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
+                    enemy.visible = false;
+                    this.scene.add(enemy);
+                    this.enemyPool.push({
+                        mesh: enemy,
+                        active: false,
+                        x: 0,
+                        y: 0,
+                        health: 0,
+                        speed: 0
+                    });
+                }
+            }
+            
+            createBulletPool() {
+                // 創建子彈模型池
+                this.bulletPool = [];
+                const bulletGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8);
+                
+                for (let i = 0; i < 50; i++) {
+                    const bulletMaterial = new THREE.MeshPhongMaterial({
+                        color: 0x6ee7b7,
+                        emissive: 0x006600,
+                        emissiveIntensity: 0.8,
+                        transparent: true,
+                        opacity: 0.9
+                    });
+                    
+                    const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+                    bullet.visible = false;
+                    this.scene.add(bullet);
+                    this.bulletPool.push({
+                        mesh: bullet,
+                        active: false,
+                        x: 0,
+                        y: 0,
+                        speed: 0
+                    });
                 }
             }
             
             initMediaPipe() {
+                // 創建視頻元素
                 this.videoElement = document.getElementById('input_video');
+                
+                // 初始化 MediaPipe Hands
                 this.hands = new Hands({
                     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`
                 });
                 
+                // 設置選項
                 this.hands.setOptions({
                     maxNumHands: 2,
                     modelComplexity: 1,
@@ -924,10 +915,12 @@
                     minTrackingConfidence: 0.5
                 });
                 
+                // 設置結果回調
                 this.hands.onResults((results) => {
                     this.onHandResults(results);
                 });
                 
+                // 初始化相機
                 const camera = new Camera(this.videoElement, {
                     onFrame: async () => {
                         if (this.gameState.isPlaying || this.gameState.isCountingDown) {
@@ -938,13 +931,17 @@
                     height: 480
                 });
                 
+                // 啟動相機
                 camera.start().then(() => {
-                    console.log('Camera started successfully');
+                    this.gameState.cameraActive = true;
                     this.showCameraFeed();
                 }).catch((error) => {
                     console.error('Camera error:', error);
                     document.getElementById('permissionWarning').style.display = 'block';
                 });
+                
+                // 設置平滑係數
+                this.smoothingFactor = 0.2;
             }
             
             showCameraFeed() {
@@ -955,16 +952,7 @@
             initUI() {
                 // 開始按鈕
                 document.getElementById('startButton').addEventListener('click', () => {
-                    this.showSongSelectScreen();
-                });
-                
-                // 歌曲選擇
-                document.querySelectorAll('.song-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        document.querySelectorAll('.song-card').forEach(c => c.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-                        this.gameState.currentSong = e.currentTarget.dataset.song;
-                    });
+                    this.startGame();
                 });
                 
                 // 難度選擇
@@ -976,430 +964,557 @@
                     });
                 });
                 
-                // 開始遊戲按鈕
-                document.getElementById('startGameButton').addEventListener('click', () => {
-                    this.startGame();
-                });
-                
-                // 返回按鈕
-                document.getElementById('backToStartButton').addEventListener('click', () => {
-                    this.showStartScreen();
-                });
-                
                 // 重新開始按鈕
                 document.getElementById('restartButton').addEventListener('click', () => {
                     this.restartGame();
                 });
                 
-                // 返回選擇歌曲按鈕
-                document.getElementById('backToSongSelectButton').addEventListener('click', () => {
-                    this.showSongSelectScreen();
-                });
-                
-                // 視窗大小調整
-                window.addEventListener('resize', () => {
-                    this.camera.aspect = window.innerWidth / window.innerHeight;
-                    this.camera.updateProjectionMatrix();
-                    this.renderer.setSize(window.innerWidth, window.innerHeight);
-                });
-                
-                // 點擊頁面激活音頻
-                document.addEventListener('click', () => {
-                    this.activateAudio();
-                }, { once: true });
+                // 顯示控制說明
+                document.getElementById('controls').style.display = 'block';
             }
             
-            initAudio() {
-                this.audio = document.getElementById('gameMusic');
-                this.audio.volume = 0.7;
-                
-                this.hitSound = document.getElementById('hitSound');
-                this.missSound = document.getElementById('missSound');
-                this.perfectSound = document.getElementById('perfectSound');
-                
-                // 設置音效音量
-                this.hitSound.volume = 0.5;
-                this.missSound.volume = 0.5;
-                this.perfectSound.volume = 0.7;
-            }
-            
-            activateAudio() {
-                // 創建一個無聲音頻來激活音頻上下文
-                const silentAudio = new Audio();
-                silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ';
-                silentAudio.volume = 0.001;
-                
-                silentAudio.play().then(() => {
-                    console.log('音頻上下文已激活');
-                    this.gameState.audioEnabled = true;
-                    silentAudio.pause();
-                }).catch((error) => {
-                    console.error('音頻上下文激活失敗:', error);
-                });
-            }
-            
-            playMusic() {
-                if (!this.gameState.musicPlaying && this.gameState.isPlaying) {
-                    const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                    this.audio.src = song.audioUrl;
-                    
-                    this.audio.play().then(() => {
-                        console.log('音樂開始播放');
-                        this.gameState.musicPlaying = true;
-                    }).catch((error) => {
-                        console.error('音樂播放失敗:', error);
-                        // 如果自動播放失敗，我們仍然繼續遊戲，只是沒有音樂
-                        this.gameState.musicPlaying = true;
-                    });
-                }
-            }
-            
-            pauseMusic() {
-                if (this.gameState.musicPlaying) {
-                    this.audio.pause();
-                    this.gameState.musicPlaying = false;
-                }
+            initGameObjects() {
+                // 顯示玩家飛船
+                document.getElementById('playerShip').style.display = 'block';
             }
             
             onHandResults(results) {
-                if (!results.multiHandLandmarks || !this.gameState.gameStarted) return;
+                // 重置手部數據
+                this.handData.left.landmarks = null;
+                this.handData.right.landmarks = null;
                 
-                this.handPositions = { left: null, right: null };
-                
-                results.multiHandLandmarks.forEach((landmarks, index) => {
-                    const handedness = results.multiHandedness[index].label;
-                    const hand = handedness === 'Left' ? 'left' : 'right';
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    results.multiHandLandmarks.forEach((landmarks, index) => {
+                        const handedness = results.multiHandedness[index].label;
+                        const hand = handedness === 'Left' ? 'right' : 'left'; // MediaPipe 座標轉換
+                        
+                        this.handData[hand].landmarks = landmarks;
+                        this.handData[hand].openness = this.calculateHandOpenness(landmarks);
+                        
+                        // 平滑處理
+                        this.handData[hand].smoothedOpenness += 
+                            (this.handData[hand].openness - this.handData[hand].smoothedOpenness) * this.smoothingFactor;
+                        
+                        // 計算手部位置（轉換為屏幕空間）
+                        const wrist = landmarks[0];
+                        const screenX = wrist.x * window.innerWidth;
+                        const screenY = (1 - wrist.y) * window.innerHeight;
+                        
+                        this.handData[hand].position = {
+                            x: screenX,
+                            y: screenY
+                        };
+                    });
                     
-                    // 計算手掌中心位置
-                    const palmX = landmarks[0].x * window.innerWidth;
-                    const palmY = (1 - landmarks[0].y) * window.innerHeight;
+                    // 應用遊戲規則
+                    this.applyGameRules();
+                } else {
+                    // 沒有檢測到手部
+                    this.handData.left.landmarks = null;
+                    this.handData.right.landmarks = null;
                     
-                    this.handPositions[hand] = { x: palmX, y: palmY };
-                    
-                    // 更新手部指示器位置
-                    const indicator = document.getElementById(`${hand}Hand`);
-                    const laneWidth = window.innerWidth / 4;
-                    const laneIndex = Math.min(3, Math.max(0, Math.floor(palmX / laneWidth)));
-                    const indicatorX = (laneIndex * laneWidth) + (laneWidth / 2);
-                    const indicatorY = window.innerHeight - 160;
-                    
-                    indicator.style.left = `${indicatorX}px`;
-                    indicator.style.top = `${indicatorY}px`;
-                    indicator.style.display = 'block';
-                    
-                    // 計算手勢狀態
-                    const openness = this.calculateHandOpenness(landmarks);
-                    this.smoothedOpenness[hand] += (openness - this.smoothedOpenness[hand]) * 0.3;
-                    
-                    let state;
-                    if (this.smoothedOpenness[hand] > 0.6) {
-                        state = 'open';
-                    } else if (this.smoothedOpenness[hand] < 0.4) {
-                        state = 'closed';
-                    } else {
-                        state = this.handStates[hand];
-                    }
-                    
-                    this.handStates[hand] = state;
-                    
-                    // 更新指示器樣式
-                    if (hand === 'left') {
-                        indicator.style.borderColor = state === 'open' ? '#ff6b9d' : '#FFD700';
-                        indicator.style.boxShadow = state === 'open' 
-                            ? '0 0 20px rgba(255, 107, 157, 0.5)' 
-                            : '0 0 30px rgba(255, 215, 0, 0.8)';
-                    } else {
-                        indicator.style.borderColor = state === 'open' ? '#4d96ff' : '#FFD700';
-                        indicator.style.boxShadow = state === 'open' 
-                            ? '0 0 20px rgba(77, 150, 255, 0.5)' 
-                            : '0 0 30px rgba(255, 215, 0, 0.8)';
-                    }
-                    
-                    // 檢查擊打
-                    if (state === 'closed') {
-                        this.checkHit(hand, laneIndex);
-                    }
-                });
-                
-                // 隱藏未偵測到的手
-                if (!this.handPositions.left) {
-                    document.getElementById('leftHand').style.display = 'none';
-                }
-                if (!this.handPositions.right) {
-                    document.getElementById('rightHand').style.display = 'none';
+                    // 執行無手勢規則
+                    this.executeAction(GAME_RULES.NO_HANDS);
                 }
             }
             
             calculateHandOpenness(landmarks) {
                 if (!landmarks) return 0;
                 
-                const fingerTips = [4, 8, 12, 16, 20];
+                // 計算掌心位置
                 const wrist = landmarks[0];
+                const palmX = (landmarks[0].x + landmarks[5].x + landmarks[17].x) / 3;
+                const palmY = (landmarks[0].y + landmarks[5].y + landmarks[17].y) / 3;
+                const palmZ = (landmarks[0].z + landmarks[5].z + landmarks[17].z) / 3;
+                
+                // 計算指尖到掌心的距離
+                const fingerIndices = [4, 8, 12, 16, 20];
                 let totalDistance = 0;
                 
-                fingerTips.forEach(index => {
-                    const dx = landmarks[index].x - wrist.x;
-                    const dy = landmarks[index].y - wrist.y;
-                    const dz = landmarks[index].z - wrist.z;
+                fingerIndices.forEach(idx => {
+                    const dx = landmarks[idx].x - palmX;
+                    const dy = landmarks[idx].y - palmY;
+                    const dz = landmarks[idx].z - palmZ;
                     totalDistance += Math.sqrt(dx * dx + dy * dy + dz * dz);
                 });
                 
-                return Math.min(totalDistance / 0.5, 1);
+                // 正規化到 [0, 1]
+                const normalized = Math.min(totalDistance / 0.5, 1);
+                return normalized;
             }
             
-            checkHit(hand, laneIndex) {
-                if (!this.gameState.isPlaying) return;
+            calculatePinch(landmarks) {
+                if (!landmarks) return 1;
+                const thumb = landmarks[4];
+                const index = landmarks[8];
+                const dx = thumb.x - index.x;
+                const dy = thumb.y - index.y;
+                const dz = thumb.z - index.z;
+                return Math.sqrt(dx * dx + dy * dy + dz * dz);
+            }
+            
+            applyGameRules() {
+                const left = this.handData.left;
+                const right = this.handData.right;
                 
-                const now = this.gameState.songTime * 1000;
-                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
-                const hitWindow = difficulty.greatWindow;
+                // 檢查捏合手勢
+                const pinchThreshold = 0.05;
+                let leftPinch = false;
+                let rightPinch = false;
                 
-                for (let i = this.activeNotes.length - 1; i >= 0; i--) {
-                    const note = this.activeNotes[i];
-                    if (note.lane === laneIndex && !note.hit) {
-                        const timeDiff = Math.abs(note.time - now);
-                        
-                        if (timeDiff <= hitWindow) {
-                            this.hitNote(note, timeDiff);
-                            break;
-                        }
+                if (left.landmarks && this.calculatePinch(left.landmarks) < pinchThreshold) {
+                    leftPinch = true;
+                    if (Date.now() - this.lastSpecialAttack > 500) {
+                        this.executeAction(GAME_RULES.PINCH_LEFT);
+                        this.lastSpecialAttack = Date.now();
                     }
                 }
+                
+                if (right.landmarks && this.calculatePinch(right.landmarks) < pinchThreshold) {
+                    rightPinch = true;
+                    if (Date.now() - this.lastSpecialAttack > 500) {
+                        this.executeAction(GAME_RULES.PINCH_RIGHT);
+                        this.lastSpecialAttack = Date.now();
+                    }
+                }
+                
+                // 雙手同時捏合
+                if (leftPinch && rightPinch) {
+                    if (Date.now() - this.lastSpecialAttack > 1000) {
+                        this.executeAction(GAME_RULES.PINCH_BOTH);
+                        this.lastSpecialAttack = Date.now();
+                    }
+                }
+                
+                // 雙手張開/閉合
+                if (left.landmarks && right.landmarks) {
+                    const avgOpenness = (left.smoothedOpenness + right.smoothedOpenness) / 2;
+                    
+                    if (avgOpenness > 0.7) {
+                        this.executeAction(GAME_RULES.OPEN_BOTH);
+                    } else if (avgOpenness < 0.3) {
+                        this.executeAction(GAME_RULES.CLOSE_BOTH);
+                    }
+                }
+                
+                // 單手張開
+                if (left.landmarks && left.smoothedOpenness > 0.7) {
+                    this.executeAction(GAME_RULES.OPEN_LEFT);
+                }
+                
+                if (right.landmarks && right.smoothedOpenness > 0.7) {
+                    this.executeAction(GAME_RULES.OPEN_RIGHT);
+                }
+                
+                // 單手移動
+                if (left.landmarks && left.position) {
+                    this.executeAction(GAME_RULES.MOVE_LEFT_HAND);
+                }
+                if (right.landmarks && right.position) {
+                    this.executeAction(GAME_RULES.MOVE_RIGHT_HAND);
+                }
+                
+                // 自動射擊（當手張開時）
+                if (left.landmarks && left.smoothedOpenness > 0.6) {
+                    this.player.shooting = true;
+                }
+                
+                if (right.landmarks && right.smoothedOpenness > 0.6) {
+                    this.player.shooting = true;
+                }
             }
             
-            hitNote(note, timeDiff) {
-                note.hit = true;
+            executeAction(rule) {
+                // 更新手勢狀態顯示
+                if (rule.description) {
+                    document.getElementById('gestureStatus').textContent = rule.description;
+                }
                 
-                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
-                let judgment;
+                // 執行對應行為
+                switch (rule.action) {
+                    case 'rapidFire':
+                        this.activateRapidFire(rule.strength);
+                        break;
+                    case 'shield':
+                        this.activateShield(rule.strength);
+                        break;
+                    case 'switchWeapon':
+                        this.switchWeapon(rule.direction);
+                        break;
+                    case 'moveLeft':
+                        this.movePlayer('left', rule.strength);
+                        break;
+                    case 'moveRight':
+                        this.movePlayer('right', rule.strength);
+                        break;
+                    case 'specialAttack':
+                        this.specialAttack(rule.strength);
+                        break;
+                    case 'idle':
+                        this.idleMode(rule.strength);
+                        break;
+                }
+            }
+            
+            // ============ 行為實作 ============
+            activateRapidFire(strength) {
+                this.gameState.rapidFire = true;
+                setTimeout(() => {
+                    this.gameState.rapidFire = false;
+                }, 2000 * strength);
+            }
+            
+            activateShield(strength) {
+                this.gameState.shield = 50 * strength;
+                this.playerShip.material.emissive.setHex(0x0066ff);
+                this.playerShip.material.emissiveIntensity = 0.8;
                 
-                if (timeDiff <= difficulty.perfectWindow) {
-                    judgment = 'PERFECT';
-                    this.perfectSound.currentTime = 0;
-                    this.perfectSound.play().catch(e => console.log('音效播放失敗:', e));
-                    this.gameState.perfectCount++;
-                } else if (timeDiff <= difficulty.greatWindow) {
-                    judgment = 'GREAT';
-                    this.hitSound.currentTime = 0;
-                    this.hitSound.play().catch(e => console.log('音效播放失敗:', e));
-                    this.gameState.greatCount++;
+                setTimeout(() => {
+                    this.gameState.shield = 0;
+                    this.playerShip.material.emissive.setHex(0x006600);
+                    this.playerShip.material.emissiveIntensity = 0.5;
+                }, 3000 * strength);
+            }
+            
+            switchWeapon(direction) {
+                this.currentWeapon = (this.currentWeapon + direction + this.weapons.length) % this.weapons.length;
+                const weapon = this.weapons[this.currentWeapon];
+                document.getElementById('weaponDesc').textContent = `${weapon.name} Lv.${weapon.level}`;
+                
+                // 更新武器顯示顏色
+                document.getElementById('weaponBoard').style.borderColor = weapon.color;
+            }
+            
+            movePlayer(direction, strength) {
+                const hand = direction === 'left' ? this.handData.left : this.handData.right;
+                if (!hand.position) return;
+                
+                // 計算移動目標
+                const targetX = hand.position.x;
+                const currentX = this.playerShip.position.x;
+                
+                // 平滑移動
+                const moveSpeed = 0.1 * strength;
+                const newX = currentX + (targetX - currentX) * moveSpeed;
+                
+                // 限制移動範圍
+                const screenWidth = window.innerWidth;
+                const minX = -screenWidth / 100 + 2;
+                const maxX = screenWidth / 100 - 2;
+                
+                this.playerShip.position.x = Math.max(minX, Math.min(maxX, newX));
+                
+                // 更新2D顯示
+                const playerShip2D = document.getElementById('playerShip');
+                const screenX = ((this.playerShip.position.x + 10) / 20) * window.innerWidth;
+                playerShip2D.style.left = `${screenX}px`;
+            }
+            
+            specialAttack(strength) {
+                if (!this.gameState.specialAttackReady) return;
+                
+                // 發射特殊攻擊
+                const weapon = this.weapons[this.currentWeapon];
+                
+                // 創建大型能量彈
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        this.createSpecialBullet(i * 0.2);
+                    }, i * 100);
+                }
+                
+                this.gameState.specialAttackReady = false;
+                this.gameState.specialAttackCooldown = 5000;
+                
+                setTimeout(() => {
+                    this.gameState.specialAttackReady = true;
+                }, 5000);
+            }
+            
+            createSpecialBullet(delay) {
+                const bullet = this.getBulletFromPool();
+                if (!bullet) return;
+                
+                bullet.active = true;
+                bullet.x = this.playerShip.position.x * 10;
+                bullet.y = this.playerShip.position.y + 10;
+                bullet.speed = 25;
+                bullet.damage = 100;
+                bullet.special = true;
+                
+                bullet.mesh.position.set(this.playerShip.position.x, this.playerShip.position.y, 5);
+                bullet.mesh.scale.set(3, 3, 3);
+                bullet.mesh.material.color.setHex(0xff0000);
+                bullet.mesh.visible = true;
+                
+                // 添加粒子效果
+                this.createBulletTrail(bullet);
+            }
+            
+            idleMode(strength) {
+                // 自動防禦模式
+                this.player.shooting = false;
+                
+                // 緩慢恢復護盾
+                if (this.gameState.life < 100) {
+                    this.gameState.life += 0.1 * strength;
+                    this.updateLifeDisplay();
+                }
+            }
+            
+            spawnEnemy() {
+                const difficulty = this.difficulties[this.gameState.difficulty];
+                const now = Date.now();
+                
+                if (now - this.lastEnemySpawn > difficulty.enemySpawnRate) {
+                    this.lastEnemySpawn = now;
+                    
+                    // 獲取可用的敵人
+                    const enemy = this.getEnemyFromPool();
+                    if (!enemy) return;
+                    
+                    // 設置敵人屬性
+                    enemy.active = true;
+                    enemy.x = Math.random() * (window.innerWidth - 100) + 50;
+                    enemy.y = -50;
+                    enemy.health = difficulty.enemyHealth;
+                    enemy.speed = difficulty.enemySpeed * (0.8 + Math.random() * 0.4);
+                    
+                    // 設置3D位置
+                    enemy.mesh.position.x = (enemy.x / window.innerWidth - 0.5) * 20;
+                    enemy.mesh.position.y = 10;
+                    enemy.mesh.position.z = 5;
+                    enemy.mesh.visible = true;
+                    
+                    // 隨機旋轉
+                    enemy.mesh.rotation.x = Math.random() * Math.PI * 2;
+                    enemy.mesh.rotation.y = Math.random() * Math.PI * 2;
+                    
+                    this.gameState.enemiesActive++;
+                    this.gameState.enemiesTotal++;
+                    this.updateEnemyCount();
+                }
+            }
+            
+            getEnemyFromPool() {
+                return this.enemyPool.find(enemy => !enemy.active);
+            }
+            
+            getBulletFromPool() {
+                return this.bulletPool.find(bullet => !bullet.active);
+            }
+            
+            shoot() {
+                if (!this.player.shooting) return;
+                
+                const now = Date.now();
+                const weapon = this.weapons[this.currentWeapon];
+                const fireRate = this.gameState.rapidFire ? weapon.fireRate / 2 : weapon.fireRate;
+                
+                if (now - this.player.lastShot > fireRate) {
+                    this.player.lastShot = now;
+                    
+                    // 創建子彈
+                    const bullet = this.getBulletFromPool();
+                    if (!bullet) return;
+                    
+                    bullet.active = true;
+                    bullet.x = this.playerShip.position.x * 10;
+                    bullet.y = this.playerShip.position.y + 10;
+                    bullet.speed = 15;
+                    bullet.damage = weapon.damage;
+                    
+                    bullet.mesh.position.set(this.playerShip.position.x, this.playerShip.position.y, 5);
+                    bullet.mesh.scale.set(1, 1, 1);
+                    bullet.mesh.material.color.setHex(parseInt(weapon.color.replace('#', ''), 16));
+                    bullet.mesh.visible = true;
+                }
+            }
+            
+            createBulletTrail(bullet) {
+                // 創建子彈尾跡
+                const trailGeometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(10 * 3);
+                
+                for (let i = 0; i < 10; i++) {
+                    const i3 = i * 3;
+                    positions[i3] = bullet.mesh.position.x;
+                    positions[i3 + 1] = bullet.mesh.position.y - i * 0.1;
+                    positions[i3 + 2] = bullet.mesh.position.z;
+                }
+                
+                trailGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                const trailMaterial = new THREE.LineBasicMaterial({
+                    color: parseInt(this.weapons[this.currentWeapon].color.replace('#', ''), 16),
+                    transparent: true,
+                    opacity: 0.5,
+                    linewidth: 2
+                });
+                
+                const trail = new THREE.Line(trailGeometry, trailMaterial);
+                this.scene.add(trail);
+                
+                // 稍後移除尾跡
+                setTimeout(() => {
+                    this.scene.remove(trail);
+                }, 100);
+            }
+            
+            updateBullets() {
+                this.bulletPool.forEach(bullet => {
+                    if (!bullet.active) return;
+                    
+                    // 移動子彈
+                    bullet.y += bullet.speed;
+                    bullet.mesh.position.y += bullet.speed / 10;
+                    
+                    // 檢查是否超出屏幕
+                    if (bullet.y > window.innerHeight + 100) {
+                        bullet.active = false;
+                        bullet.mesh.visible = false;
+                        return;
+                    }
+                    
+                    // 檢查碰撞
+                    this.checkBulletCollision(bullet);
+                });
+            }
+            
+            checkBulletCollision(bullet) {
+                this.enemyPool.forEach(enemy => {
+                    if (!enemy.active) return;
+                    
+                    // 簡單碰撞檢測
+                    const dx = bullet.x - enemy.x;
+                    const dy = bullet.y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 40) {
+                        // 命中敵人
+                        enemy.health -= bullet.damage;
+                        
+                        if (enemy.health <= 0) {
+                            // 敵人被摧毀
+                            this.destroyEnemy(enemy);
+                            this.gameState.score += 100 * this.gameState.combo;
+                            this.gameState.enemiesDestroyed++;
+                            this.gameState.combo++;
+                            this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
+                            
+                            // 創建爆炸效果
+                            this.createExplosion(enemy.x, enemy.y);
+                        }
+                        
+                        // 移除子彈
+                        bullet.active = false;
+                        bullet.mesh.visible = false;
+                    }
+                });
+            }
+            
+            destroyEnemy(enemy) {
+                enemy.active = false;
+                enemy.mesh.visible = false;
+                this.gameState.enemiesActive--;
+                this.updateEnemyCount();
+            }
+            
+            createExplosion(x, y) {
+                // 創建爆炸效果
+                const explosionGeometry = new THREE.SphereGeometry(1, 16, 16);
+                const explosionMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff9900,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
+                explosion.position.set(
+                    (x / window.innerWidth - 0.5) * 20,
+                    10,
+                    5
+                );
+                this.scene.add(explosion);
+                
+                // 爆炸動畫
+                let scale = 1;
+                const animateExplosion = () => {
+                    scale += 0.2;
+                    explosion.scale.set(scale, scale, scale);
+                    explosion.material.opacity -= 0.05;
+                    
+                    if (explosion.material.opacity > 0) {
+                        requestAnimationFrame(animateExplosion);
+                    } else {
+                        this.scene.remove(explosion);
+                    }
+                };
+                
+                animateExplosion();
+            }
+            
+            updateEnemies() {
+                this.enemyPool.forEach(enemy => {
+                    if (!enemy.active) return;
+                    
+                    // 移動敵人
+                    enemy.y += enemy.speed;
+                    enemy.mesh.position.y -= enemy.speed / 50;
+                    
+                    // 檢查是否到達底部
+                    if (enemy.y > window.innerHeight + 100) {
+                        enemy.active = false;
+                        enemy.mesh.visible = false;
+                        this.gameState.enemiesActive--;
+                        this.updateEnemyCount();
+                        
+                        // 扣減生命值
+                        this.gameState.life -= 10;
+                        this.gameState.combo = 0;
+                        this.updateLifeDisplay();
+                        
+                        if (this.gameState.life <= 0) {
+                            this.gameOver();
+                        }
+                    }
+                    
+                    // 旋轉敵人
+                    enemy.mesh.rotation.x += 0.02;
+                    enemy.mesh.rotation.y += 0.03;
+                });
+            }
+            
+            updateLifeDisplay() {
+                document.getElementById('lifeFill').style.width = `${this.gameState.life}%`;
+                document.getElementById('lifeValue').textContent = `${Math.floor(this.gameState.life)}%`;
+                
+                // 根據生命值改變顏色
+                if (this.gameState.life > 70) {
+                    document.getElementById('lifeFill').style.background = 'linear-gradient(90deg, #6ee7b7, #3b82f6)';
+                } else if (this.gameState.life > 30) {
+                    document.getElementById('lifeFill').style.background = 'linear-gradient(90deg, #fbbf24, #f97316)';
                 } else {
-                    judgment = 'GOOD';
-                    this.hitSound.currentTime = 0;
-                    this.hitSound.play().catch(e => console.log('音效播放失敗:', e));
-                    this.gameState.goodCount++;
+                    document.getElementById('lifeFill').style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
                 }
-                
-                const rule = GAME_CONFIG.rules[judgment];
-                
-                // 更新遊戲狀態
-                this.gameState.combo++;
-                this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
-                this.gameState.score += rule.score * (1 + this.gameState.combo / 50);
-                this.gameState.hitNotes++;
-                
-                // 更新準確率
-                const totalHits = this.gameState.perfectCount + this.gameState.greatCount + this.gameState.goodCount + this.gameState.missCount;
-                this.gameState.accuracy = totalHits > 0 ? 
-                    ((this.gameState.perfectCount * 1 + this.gameState.greatCount * 0.8 + this.gameState.goodCount * 0.5) / totalHits) * 100 : 100;
-                
-                // 恢復生命值
-                this.gameState.life = Math.min(100, this.gameState.life + 15);
-                
-                // 顯示判定
-                this.showJudgment(judgment);
-                
-                // 顯示連擊效果
-                if (this.gameState.combo >= 5) {
-                    this.showCombo();
-                }
-                
-                // 更新技能顯示
-                this.updateSkillDisplay();
-                
-                // 移除音符
-                if (note.element) {
-                    note.element.style.display = 'none';
-                    this.notePool.push(note.element);
-                }
-                
-                this.updateUI();
             }
             
-            showJudgment(judgment) {
-                const display = document.getElementById('judgmentDisplay');
-                display.textContent = judgment;
-                display.style.color = GAME_CONFIG.rules[judgment].color;
-                display.style.opacity = '1';
-                display.style.transform = 'translateX(-50%) scale(1.2)';
-                
-                setTimeout(() => {
-                    display.style.opacity = '0';
-                    display.style.transform = 'translateX(-50%) scale(1)';
-                }, 500);
-            }
-            
-            showCombo() {
-                const comboDisplay = document.getElementById('combo');
-                comboDisplay.style.transform = 'scale(1.2)';
-                comboDisplay.style.color = '#FFD700';
-                
-                setTimeout(() => {
-                    comboDisplay.style.transform = 'scale(1)';
-                    comboDisplay.style.color = '#fff';
-                }, 200);
-            }
-            
-            updateSkillDisplay() {
-                const skillBoard = document.getElementById('skillBoard');
-                const skillDesc = document.getElementById('skillDesc');
-                
-                if (this.gameState.combo >= 20) {
-                    skillDesc.textContent = 'スコアアップ Lv.3';
-                    skillBoard.style.borderColor = 'rgba(255, 215, 0, 0.8)';
-                    skillBoard.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
-                } else if (this.gameState.combo >= 10) {
-                    skillDesc.textContent = 'スコアアップ Lv.2';
-                    skillBoard.style.borderColor = 'rgba(255, 107, 157, 0.8)';
-                    skillBoard.style.boxShadow = '0 0 15px rgba(255, 107, 157, 0.5)';
-                } else if (this.gameState.combo >= 5) {
-                    skillDesc.textContent = 'ライフ回復 Lv.1';
-                    skillBoard.style.borderColor = 'rgba(77, 150, 255, 0.8)';
-                    skillBoard.style.boxShadow = '0 0 10px rgba(77, 150, 255, 0.5)';
-                }
+            updateEnemyCount() {
+                document.getElementById('enemyCount').textContent = this.gameState.enemiesDestroyed;
             }
             
             updateUI() {
-                // 更新分數 (格式化為8位數)
+                // 更新分數
                 document.getElementById('score').textContent = Math.floor(this.gameState.score).toString().padStart(8, '0');
                 document.getElementById('combo').textContent = this.gameState.combo;
                 
-                // 更新生命值
-                document.getElementById('lifeFill').style.width = `${this.gameState.life}%`;
-                document.getElementById('lifeValue').textContent = Math.floor(this.gameState.life * 15.2);
-            }
-            
-            spawnNote(noteData) {
-                if (this.notePool.length === 0) return;
-                
-                const noteElement = this.notePool.pop();
-                const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                
-                noteElement.className = 'note';
-                noteElement.style.setProperty('--color1', song.color1);
-                noteElement.style.setProperty('--color2', song.color2);
-                
-                // 如果是完美區域的音符，添加特殊樣式
-                if (noteData.isPerfectZone) {
-                    noteElement.classList.add('perfect-zone');
-                }
-                
-                const lane = document.querySelector(`.lane[data-index="${noteData.lane}"]`);
-                noteElement.style.display = 'block';
-                noteElement.style.top = '-40px';
-                noteElement.style.left = '10px';
-                lane.appendChild(noteElement);
-                
-                noteData.element = noteElement;
-                this.activeNotes.push(noteData);
-            }
-            
-            updateNotes() {
-                if (!this.gameState.isPlaying) return;
-                
-                const now = this.gameState.songTime * 1000;
-                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
-                
-                // 生成新音符
-                while (this.noteQueue.length > 0 && this.noteQueue[0].time <= now + difficulty.spawnDelay) {
-                    const note = this.noteQueue.shift();
-                    this.spawnNote(note);
-                }
-                
-                // 更新音符位置（由上而下）
-                const laneHeight = 500;
-                const hitPosition = 0;
-                
-                for (let i = this.activeNotes.length - 1; i >= 0; i--) {
-                    const note = this.activeNotes[i];
-                    const timeLeft = note.time - now;
-                    const fallDistance = (timeLeft / difficulty.spawnDelay) * laneHeight;
-                    
-                    if (note.element) {
-                        const position = Math.max(hitPosition, laneHeight - fallDistance);
-                        note.element.style.top = `${position}px`;
-                        note.element.style.opacity = Math.min(1, (timeLeft + 500) / 1000);
-                        
-                        // 如果是完美區域，更新樣式
-                        if (timeLeft <= difficulty.perfectWindow + 50 && timeLeft >= -50) {
-                            note.element.classList.add('perfect-zone');
-                        } else {
-                            note.element.classList.remove('perfect-zone');
-                        }
-                    }
-                    
-                    // 檢查錯過的音符
-                    if (timeLeft < -difficulty.greatWindow && !note.hit) {
-                        this.missNote(note);
-                    }
-                    
-                    // 移除已擊中或超出範圍的音符
-                    if (timeLeft < -300 || note.hit) {
-                        if (note.element) {
-                            note.element.style.display = 'none';
-                            this.notePool.push(note.element);
-                        }
-                        this.activeNotes.splice(i, 1);
+                // 更新特殊攻擊冷卻
+                if (!this.gameState.specialAttackReady) {
+                    this.gameState.specialAttackCooldown -= 16;
+                    if (this.gameState.specialAttackCooldown <= 0) {
+                        this.gameState.specialAttackReady = true;
                     }
                 }
-            }
-            
-            missNote(note) {
-                note.hit = true;
-                this.gameState.combo = 0;
-                this.gameState.life -= 10;
-                this.gameState.missCount++;
-                this.missSound.currentTime = 0;
-                this.missSound.play().catch(e => console.log('音效播放失敗:', e));
-                
-                // 更新技能顯示
-                this.updateSkillDisplay();
-                
-                if (this.gameState.life <= 0) {
-                    this.gameOver();
-                }
-                
-                this.updateUI();
-            }
-            
-            generateBeatMap() {
-                const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                const difficulty = GAME_CONFIG.difficulties[this.gameState.difficulty];
-                const totalBeats = Math.floor((song.duration * song.bpm) / 60);
-                
-                this.noteQueue = [];
-                this.gameState.totalNotes = 0;
-                
-                // 生成音符
-                for (let i = 0; i < totalBeats; i++) {
-                    if (Math.random() < difficulty.noteDensity) {
-                        const note = {
-                            beat: i,
-                            lane: Math.floor(Math.random() * 4),
-                            time: (i * 60 / song.bpm) * 1000,
-                            type: Math.random() > 0.9 ? 'long' : 'normal',
-                            isPerfectZone: Math.random() > 0.7,
-                            hit: false,
-                            element: null
-                        };
-                        
-                        this.noteQueue.push(note);
-                        this.gameState.totalNotes++;
-                    }
-                }
-                
-                // 按時間排序
-                this.noteQueue.sort((a, b) => a.time - b.time);
             }
             
             startCountdown() {
@@ -1427,38 +1542,48 @@
                 this.gameState.isCountingDown = false;
                 this.gameState.isPlaying = true;
                 this.gameState.gameStarted = true;
-                this.playMusic();
+                
+                // 開始遊戲動畫循環
                 this.animate();
             }
             
             startGame() {
+                // 重置遊戲狀態
                 this.resetGameState();
-                this.generateBeatMap();
-                document.getElementById('songSelectScreen').style.display = 'none';
+                
+                // 隱藏開始畫面
+                document.getElementById('startScreen').style.display = 'none';
+                
+                // 開始3秒倒數計時
                 this.startCountdown();
             }
             
             restartGame() {
+                // 完全重置遊戲
                 this.resetGame();
+                
+                // 重新開始遊戲
                 this.startGame();
             }
             
             resetGame() {
+                // 停止遊戲
                 this.gameState.isPlaying = false;
                 this.gameState.gameStarted = false;
                 
-                // 清除所有音符
-                this.activeNotes.forEach(note => {
-                    if (note.element) {
-                        note.element.style.display = 'none';
-                        this.notePool.push(note.element);
-                    }
+                // 清除所有敵人
+                this.enemyPool.forEach(enemy => {
+                    enemy.active = false;
+                    enemy.mesh.visible = false;
                 });
                 
-                this.activeNotes = [];
-                this.noteQueue = [];
+                // 清除所有子彈
+                this.bulletPool.forEach(bullet => {
+                    bullet.active = false;
+                    bullet.mesh.visible = false;
+                });
                 
-                // 停止動畫
+                // 停止動畫循環
                 if (this.animationId) {
                     cancelAnimationFrame(this.animationId);
                     this.animationId = null;
@@ -1469,15 +1594,11 @@
                     clearInterval(this.countdownInterval);
                 }
                 
-                // 停止音樂
-                this.pauseMusic();
-                this.audio.currentTime = 0;
-                
                 // 隱藏遊戲結束畫面
                 document.getElementById('gameoverScreen').style.display = 'none';
                 
                 // 顯示開始畫面
-                document.getElementById('gameStart').style.display = 'flex';
+                document.getElementById('startScreen').style.display = 'flex';
             }
             
             resetGameState() {
@@ -1485,32 +1606,43 @@
                     score: 0,
                     combo: 0,
                     maxCombo: 0,
-                    accuracy: 100,
-                    totalNotes: 0,
-                    hitNotes: 0,
-                    perfectCount: 0,
-                    greatCount: 0,
-                    goodCount: 0,
-                    missCount: 0,
+                    enemiesDestroyed: 0,
+                    enemiesActive: 0,
+                    enemiesTotal: 0,
                     life: 100,
+                    shield: 0,
                     isPlaying: false,
                     isCountingDown: false,
-                    songTime: 0,
+                    gameTime: 0,
                     difficulty: this.gameState.difficulty,
-                    currentSong: this.gameState.currentSong,
-                    musicPlaying: false,
+                    weaponLevel: 1,
+                    rapidFire: false,
+                    specialAttackReady: true,
+                    specialAttackCooldown: 0,
                     gameStarted: false,
-                    audioEnabled: this.gameState.audioEnabled
+                    cameraActive: this.gameState.cameraActive
                 };
                 
+                // 重置玩家位置
+                this.playerShip.position.set(0, -5, 5);
+                
+                // 重置武器
+                this.currentWeapon = 0;
+                document.getElementById('weaponDesc').textContent = 'Basic Laser Lv.1';
+                document.getElementById('weaponBoard').style.borderColor = '#6ee7b7';
+                
+                // 更新UI
                 this.updateUI();
+                this.updateLifeDisplay();
+                this.updateEnemyCount();
             }
             
             gameOver() {
+                // 停止遊戲
                 this.gameState.isPlaying = false;
                 this.gameState.gameStarted = false;
-                this.pauseMusic();
                 
+                // 停止動畫循環
                 if (this.animationId) {
                     cancelAnimationFrame(this.animationId);
                     this.animationId = null;
@@ -1518,24 +1650,18 @@
                 
                 // 更新遊戲結束畫面數據
                 document.getElementById('finalScore').textContent = Math.floor(this.gameState.score).toString().padStart(8, '0');
+                document.getElementById('finalEnemies').textContent = this.gameState.enemiesDestroyed;
                 document.getElementById('finalCombo').textContent = this.gameState.maxCombo;
-                document.getElementById('finalAccuracy').textContent = `${this.gameState.accuracy.toFixed(1)}%`;
-                document.getElementById('finalSong').textContent = GAME_CONFIG.songs[this.gameState.currentSong].name;
+                document.getElementById('finalTime').textContent = `${Math.floor(this.gameState.gameTime / 1000)}s`;
                 
-                // 顯示遊戲結束畫面（不使用alert）
+                // 顯示遊戲結束畫面
                 document.getElementById('gameoverScreen').style.display = 'flex';
             }
             
             showStartScreen() {
                 document.getElementById('startScreen').style.display = 'flex';
-                document.getElementById('songSelectScreen').style.display = 'none';
                 document.getElementById('gameoverScreen').style.display = 'none';
-            }
-            
-            showSongSelectScreen() {
-                document.getElementById('startScreen').style.display = 'none';
-                document.getElementById('songSelectScreen').style.display = 'flex';
-                document.getElementById('gameoverScreen').style.display = 'none';
+                document.getElementById('countdownScreen').style.display = 'none';
             }
             
             animate() {
@@ -1543,30 +1669,46 @@
                 
                 this.animationId = requestAnimationFrame(() => this.animate());
                 
-                const delta = this.clock.getDelta();
-                this.gameState.songTime += delta;
+                // 更新遊戲時間
+                this.gameState.gameTime += 16;
                 
-                this.updateNotes();
+                // 生成敵人
+                this.spawnEnemy();
                 
-                // 更新背景
-                if (this.grid) {
-                    this.grid.rotation.x += delta * 0.05;
-                    this.grid.rotation.y += delta * 0.03;
+                // 發射子彈
+                this.shoot();
+                
+                // 更新遊戲對象
+                this.updateBullets();
+                this.updateEnemies();
+                
+                // 旋轉星空背景
+                if (this.stars) {
+                    this.stars.rotation.y += 0.0005;
                 }
                 
-                // 檢查歌曲結束
-                const song = GAME_CONFIG.songs[this.gameState.currentSong];
-                if (this.gameState.songTime >= song.duration) {
-                    this.gameOver();
+                // 旋轉星雲
+                if (this.nebula) {
+                    this.nebula.rotation.x += 0.0002;
+                    this.nebula.rotation.y += 0.0003;
                 }
                 
+                // 旋轉飛船引擎粒子
+                if (this.engineParticles) {
+                    this.engineParticles.rotation.y += 0.1;
+                }
+                
+                // 更新UI
+                this.updateUI();
+                
+                // 渲染場景
                 this.renderer.render(this.scene, this.camera);
             }
         }
         
         // 初始化遊戲
         window.addEventListener('load', () => {
-            window.game = new RhythmGame();
+            window.game = new SpaceShooterGame();
         });
     </script>
 </body>
