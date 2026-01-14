@@ -1,648 +1,846 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>射箭遊戲</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow: hidden;
-        }
-        
-        .game-container {
-            position: relative;
-            width: 800px;
-            max-width: 95%;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            padding: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        h1 {
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px #ffcc00, 0 0 20px #ff9900;
-            letter-spacing: 2px;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(30, 30, 40, 0.8);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-box {
-            text-align: center;
-            color: white;
-        }
-        
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-        
-        canvas {
-            background: #0d1b2a;
-            border-radius: 12px;
-            display: block;
-            margin: 0 auto;
-            cursor: crosshair;
-        }
-        
-        .instructions {
-            color: #e0e0e0;
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(30, 30, 40, 0.8);
-            border-radius: 12px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-        
-        .instructions p {
-            margin: 8px 0;
-        }
-        
-        .highlight {
-            color: #ffcc00;
-            font-weight: bold;
-        }
-        
-        .power-bar {
-            height: 20px;
-            background: #333;
-            border-radius: 10px;
-            margin: 15px 0;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .power-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(to right, #ff3300, #ffcc00);
-            border-radius: 10px;
-            transition: width 0.1s;
-        }
-        
-        .power-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 0 2px black;
-        }
-        
-        .game-over {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            border-radius: 20px;
-            display: none;
-        }
-        
-        .game-over h2 {
-            color: #ffcc00;
-            font-size: 3rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
-        }
-        
-        .final-score {
-            color: white;
-            font-size: 2rem;
-            margin-bottom: 30px;
-        }
-        
-        .btn {
-            background: linear-gradient(to right, #ff9900, #ff3300);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(255, 51, 0, 0.4);
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 51, 0, 0.6);
-        }
-        
-        .btn:active {
-            transform: translateY(1px);
-        }
-        
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .stat-value {
-                font-size: 1.8rem;
-            }
-            
-            .instructions {
-                font-size: 0.9rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="game-container">
-        <div class="header">
-            <h1>🏹 射箭大師 🏹</h1>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-value" id="score">0</div>
-                <div class="stat-label">得分</div>
+    <div class="game-info">
+        <div class="player-info player-red current-player" id="player-red">
+            <div class="player-title">
+                <span class="player-icon"></span>
+                玩家 紅方
             </div>
-            <div class="stat-box">
-                <div class="stat-value" id="arrows">5</div>
-                <div class="stat-label">剩餘箭數</div>
+            <div class="status-item">
+                <span class="status-label">起飛:</span>
+                <span class="status-value" id="ready-red">0/4</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-value" id="accuracy">0%</div>
-                <div class="stat-label">命中率</div>
+            <div class="status-item">
+                <span class="status-label">完成:</span>
+                <span class="status-value" id="finished-red">0/4</span>
             </div>
         </div>
         
-        <div class="power-bar">
-            <div class="power-fill" id="powerFill"></div>
-            <div class="power-text" id="powerText">拉弓力度: 0%</div>
+        <div class="player-info player-blue" id="player-blue">
+            <div class="player-title">
+                <span class="player-icon"></span>
+                玩家 藍方
+            </div>
+            <div class="status-item">
+                <span class="status-label">起飛:</span>
+                <span class="status-value" id="ready-blue">0/4</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">完成:</span>
+                <span class="status-value" id="finished-blue">0/4</span>
+            </div>
         </div>
         
-        <canvas id="gameCanvas" width="760" height="400"></canvas>
-        
-        <div class="instructions">
-            <p>🎯 <span class="highlight">按住滑鼠左鍵</span> 拉弓並調整力度</p>
-            <p>🎯 <span class="highlight">釋放滑鼠左鍵</span> 發射箭矢</p>
-            <p>🎯 命中靶心獲得<span class="highlight">10分</span>！每輪有<span class="highlight">5支箭</span></p>
+        <div class="player-info player-yellow" id="player-yellow">
+            <div class="player-title">
+                <span class="player-icon"></span>
+                玩家 黃方
+            </div>
+            <div class="status-item">
+                <span class="status-label">起飛:</span>
+                <span class="status-value" id="ready-yellow">0/4</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">完成:</span>
+                <span class="status-value" id="finished-yellow">0/4</span>
+            </div>
         </div>
         
-        <div class="game-over" id="gameOver">
-            <h2>遊戲結束！</h2>
-            <div class="final-score">最終得分: <span id="finalScore">0</span></div>
-            <button class="btn" id="restartBtn">再玩一次</button>
+        <div class="player-info player-green" id="player-green">
+            <div class="player-title">
+                <span class="player-icon"></span>
+                電腦 綠方
+            </div>
+            <div class="status-item">
+                <span class="status-label">起飛:</span>
+                <span class="status-value" id="ready-green">0/4</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">完成:</span>
+                <span class="status-value" id="finished-green">0/4</span>
+            </div>
         </div>
     </div>
+    
+    <div class="game-board">
+        <div class="board-grid" id="board"></div>
+    </div>
+    
+    <div class="dice-container">
+        <div class="dice" id="dice">?</div>
+    </div>
+    
+    <div class="action-buttons">
+        <button class="btn btn-roll" id="roll-btn">擲骰子</button>
+        <button class="btn btn-skip" id="skip-btn" disabled>跳過回合</button>
+    </div>
+    
+    <div class="game-status" id="status">紅方玩家，請擲骰子開始遊戲！</div>
+</div>
 
-    <script>
-        // 遊戲變數
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const arrowsElement = document.getElementById('arrows');
-        const accuracyElement = document.getElementById('accuracy');
-        const powerFill = document.getElementById('powerFill');
-        const powerText = document.getElementById('powerText');
-        const gameOverScreen = document.getElementById('gameOver');
-        const finalScoreElement = document.getElementById('finalScore');
-        const restartBtn = document.getElementById('restartBtn');
+<script>
+    // 遊戲狀態
+    const gameState = {
+        currentPlayer: 'red', // 'red', 'yellow', 'blue', 'green'
+        diceValue: 0,
+        boardSize: 15,
+        homePositions: {
+            red: { row: 1, col: 1 },
+            yellow: { row: 1, col: 11 },
+            blue: { row: 11, col: 11 },
+            green: { row: 11, col: 1 }
+        },
+        startPositions: {
+            red: { row: 6, col: 1 },
+            yellow: { row: 1, col: 8 },
+            blue: { row: 8, col: 14 },
+            green: { row: 14, col: 7 }
+        },
+        safePositions: [
+            { row: 6, col: 1 }, { row: 1, col: 8 }, { row: 8, col: 14 }, { row: 14, col: 7 },
+            { row: 6, col: 7 }, { row: 7, col: 8 }, { row: 8, col: 8 }, { row: 8, col: 7 }
+        ],
+        finishPaths: {
+            red: [
+                { row: 6, col: 2 }, { row: 6, col: 3 }, { row: 6, col: 4 },
+                { row: 6, col: 5 }, { row: 6, col: 6 }, { row: 6, col: 7 }
+            ],
+            yellow: [
+                { row: 2, col: 8 }, { row: 3, col: 8 }, { row: 4, col: 8 },
+                { row: 5, col: 8 }, { row: 6, col: 8 }, { row: 7, col: 8 }
+            ],
+            blue: [
+                { row: 8, col: 13 }, { row: 8, col: 12 }, { row: 8, col: 11 },
+                { row: 8, col: 10 }, { row: 8, col: 9 }, { row: 8, col: 8 }
+            ],
+            green: [
+                { row: 13, col: 7 }, { row: 12, col: 7 }, { row: 11, col: 7 },
+                { row: 10, col: 7 }, { row: 9, col: 7 }, { row: 8, col: 7 }
+            ]
+        },
+        players: {
+            red: { pieces: [0, 0, 0, 0], started: [false, false, false, false], finished: [false, false, false, false] },
+            yellow: { pieces: [0, 0, 0, 0], started: [false, false, false, false], finished: [false, false, false, false] },
+            blue: { pieces: [0, 0, 0, 0], started: [false, false, false, false], finished: [false, false, false, false] },
+            green: { pieces: [0, 0, 0, 0], started: [false, false, false, false], finished: [false, false, false, false] }
+        },
+        path: [],
+        canRoll: true,
+        extraTurn: false,
+        playerNames: {
+            red: '紅方',
+            yellow: '黃方',
+            blue: '藍方',
+            green: '綠方'
+        },
+        waitingForMove: false,
+        boardElement: null,
+        diceElement: null,
+        rollButton: null,
+        skipButton: null,
+        statusElement: null,
+        winner: null
+    };
+    
+    // 初始化遊戲
+    function initGame() {
+        gameState.boardElement = document.getElementById('board');
+        gameState.diceElement = document.getElementById('dice');
+        gameState.rollButton = document.getElementById('roll-btn');
+        gameState.skipButton = document.getElementById('skip-btn');
+        gameState.statusElement = document.getElementById('status');
         
-        // 遊戲狀態
-        let score = 0;
-        let arrowsLeft = 5; // 修改為5支箭
-        let hits = 0;
-        let gameActive = true;
-        let isDragging = false;
-        let power = 0;
-        let arrow = null;
-        let target = null;
+        createBoard();
+        renderPieces();
+        setupEventListeners();
+    }
+    
+    // 創建棋盤
+    function createBoard() {
+        gameState.boardElement.innerHTML = '';
+        const boardSize = gameState.boardSize;
         
-        // 初始化遊戲
-        function initGame() {
-            score = 0;
-            arrowsLeft = 5; // 修改為5支箭
-            hits = 0;
-            gameActive = true;
-            isDragging = false;
-            power = 0;
-            arrow = null;
-            target = { x: canvas.width - 100, y: canvas.height / 2 };
-            
-            updateUI();
-            gameOverScreen.style.display = 'none';
-            draw();
-        }
+        // 創建路徑
+        createPath();
         
-        // 更新UI
-        function updateUI() {
-            scoreElement.textContent = score;
-            arrowsElement.textContent = arrowsLeft;
-            const accuracy = arrowsLeft === 5 ? 0 : Math.round((hits / (5 - arrowsLeft)) * 100); // 修改為5支箭
-            accuracyElement.textContent = `${accuracy}%`;
-        }
-        
-        // 繪製遊戲元素
-        function draw() {
-            // 清除畫布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 繪製背景
-            drawBackground();
-            
-            // 繪製靶子
-            drawTarget();
-            
-            // 繪製弓
-            drawBow();
-            
-            // 繪製箭
-            if (arrow) {
-                drawArrow();
-            }
-            
-            // 如果遊戲結束
-            if (!gameActive && arrowsLeft === 0) {
-                showGameOver();
-            }
-        }
-        
-        // 繪製背景
-        function drawBackground() {
-            // 天空漸層
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGradient.addColorStop(0, '#1e3c72');
-            skyGradient.addColorStop(1, '#2a5298');
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 雲朵
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            drawCloud(100, 80, 30);
-            drawCloud(300, 60, 40);
-            drawCloud(500, 100, 35);
-            drawCloud(650, 70, 25);
-            
-            // 地面
-            ctx.fillStyle = '#2d5d2d';
-            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-            
-            // 草地細節
-            ctx.fillStyle = '#3d7d3d';
-            for (let i = 0; i < 50; i++) {
-                const x = Math.random() * canvas.width;
-                const height = 10 + Math.random() * 15;
-                ctx.fillRect(x, canvas.height - 40, 2, -height);
-            }
-        }
-        
-        // 繪製雲朵
-        function drawCloud(x, y, size) {
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.arc(x + size * 0.8, y - size * 0.2, size * 0.8, 0, Math.PI * 2);
-            ctx.arc(x + size * 1.5, y, size * 0.9, 0, Math.PI * 2);
-            ctx.arc(x + size * 0.8, y + size * 0.2, size * 0.7, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        
-        // 繪製靶子
-        function drawTarget() {
-            const { x, y } = target;
-            const rings = [
-                { radius: 80, color: '#f44336' },
-                { radius: 65, color: '#ff9800' },
-                { radius: 50, color: '#ffeb3b' },
-                { radius: 35, color: '#4caf50' },
-                { radius: 20, color: '#2196f3' },
-                { radius: 8, color: '#9c27b0' }
-            ];
-            
-            // 繪製靶環
-            rings.forEach(ring => {
-                ctx.beginPath();
-                ctx.arc(x, y, ring.radius, 0, Math.PI * 2);
-                ctx.fillStyle = ring.color;
-                ctx.fill();
-            });
-            
-            // 靶心
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-            
-            // 靶架
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 8;
-            ctx.beginPath();
-            ctx.moveTo(x - 100, y + 120);
-            ctx.lineTo(x + 100, y + 120);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(x, y + 120);
-            ctx.lineTo(x, y - 100);
-            ctx.stroke();
-        }
-        
-        // 繪製弓
-        function drawBow() {
-            const bowX = 80;
-            const bowY = canvas.height / 2;
-            
-            // 弓身
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 12;
-            ctx.beginPath();
-            ctx.arc(bowX, bowY, 60, -Math.PI/3, Math.PI/3);
-            ctx.stroke();
-            
-            // 弓弦（根據拉弓力度變化）
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 3;
-            const pullX = isDragging ? bowX - power * 1.5 : bowX;
-            ctx.beginPath();
-            ctx.moveTo(pullX, bowY - 50);
-            ctx.lineTo(pullX, bowY + 50);
-            ctx.stroke();
-            
-            // 手柄
-            ctx.fillStyle = '#5D4037';
-            ctx.fillRect(bowX - 15, bowY - 20, 30, 40);
-        }
-        
-        // 繪製箭
-        function drawArrow() {
-            const { x, y, vx, vy } = arrow;
-            
-            // 計算箭的角度
-            const angle = Math.atan2(vy, vx);
-            
-            // 箭桿
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-            
-            // 箭身
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(0, -2, 40, 4);
-            
-            // 箭頭
-            ctx.fillStyle = '#777';
-            ctx.beginPath();
-            ctx.moveTo(40, -5);
-            ctx.lineTo(55, 0);
-            ctx.lineTo(40, 5);
-            ctx.closePath();
-            ctx.fill();
-            
-            // 箭羽
-            ctx.fillStyle = '#f44336';
-            ctx.fillRect(-10, -8, 10, 4);
-            ctx.fillRect(-10, 4, 10, 4);
-            
-            ctx.restore();
-        }
-        
-        // 發射箭
-        function shootArrow() {
-            if (!gameActive || arrowsLeft <= 0) return;
-            
-            const bowX = 80;
-            const bowY = canvas.height / 2;
-            const targetX = target.x;
-            const targetY = target.y;
-            
-            // 計算箭的初速度（基於拉弓力度）
-            const speed = 5 + power * 0.15;
-            
-            // 計算方向向量
-            const dx = targetX - bowX;
-            const dy = targetY - bowY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // 正規化方向向量
-            const vx = (dx / distance) * speed;
-            const vy = (dy / distance) * speed;
-            
-            // 創建箭物件
-            arrow = {
-                x: bowX,
-                y: bowY,
-                vx: vx,
-                vy: vy,
-                gravity: 0.2
-            };
-            
-            // 減少箭數
-            arrowsLeft--;
-            updateUI();
-            
-            // 重置拉弓狀態
-            isDragging = false;
-            power = 0;
-            updatePowerBar();
-            
-            // 開始動畫
-            animateArrow();
-        }
-        
-        // 箭的動畫
-        function animateArrow() {
-            if (!arrow) return;
-            
-            // 更新箭的位置
-            arrow.x += arrow.vx;
-            arrow.y += arrow.vy;
-            arrow.vy += arrow.gravity; // 重力影響
-            
-            // 檢查是否擊中靶子
-            if (arrow.x > target.x - 90 && arrow.x < target.x + 90 && 
-                arrow.y > target.y - 90 && arrow.y < target.y + 90) {
+        // 生成所有格子
+        for (let row = 0; row < boardSize; row++) {
+            for (let col = 0; col < boardSize; col++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = row;
+                cell.dataset.col = col;
                 
-                // 計算距離靶心的距離
-                const dx = arrow.x - target.x;
-                const dy = arrow.y - target.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // 根據距離計算得分（修改為靶心10分）
-                let points = 0;
-                if (distance <= 8) points = 10;   // 靶心 - 10分
-                else if (distance <= 20) points = 8;
-                else if (distance <= 35) points = 6;
-                else if (distance <= 50) points = 4;
-                else if (distance <= 65) points = 2;
-                else if (distance <= 80) points = 1;
-                
-                if (points > 0) {
-                    score += points;
-                    hits++;
-                    updateUI();
+                // 設置家園位置
+                if ((row >= 1 && row <= 3 && col >= 1 && col <= 3) ||
+                    (row >= 1 && row <= 3 && col >= 11 && col <= 13) ||
+                    (row >= 11 && row <= 13 && col >= 11 && col <= 13) ||
+                    (row >= 11 && row <= 13 && col >= 1 && col <= 3)) {
                     
-                    // 顯示得分動畫
-                    showScorePopup(arrow.x, arrow.y, points);
+                    if (row >= 1 && row <= 3 && col >= 1 && col <= 3) {
+                        cell.className += ' home-base home-red';
+                    } else if (row >= 1 && row <= 3 && col >= 11 && col <= 13) {
+                        cell.className += ' home-base home-yellow';
+                    } else if (row >= 11 && row <= 13 && col >= 11 && col <= 13) {
+                        cell.className += ' home-base home-blue';
+                    } else if (row >= 11 && row <= 13 && col >= 1 && col <= 3) {
+                        cell.className += ' home-base home-green';
+                    }
                 }
                 
-                // 移除箭
-                arrow = null;
+                // 設置起點
+                if ((row === 6 && col === 1) || (row === 1 && col === 8) || 
+                    (row === 8 && col === 14) || (row === 14 && col === 7)) {
+                    cell.className += ' start-cell';
+                }
+                
+                // 設置安全點
+                gameState.safePositions.forEach(pos => {
+                    if (row === pos.row && col === pos.col) {
+                        cell.className += ' safe-cell';
+                    }
+                });
+                
+                // 設置終點路徑
+                Object.entries(gameState.finishPaths).forEach(([color, path]) => {
+                    const finishColor = `finish-${color}`;
+                    path.forEach(pos => {
+                        if (row === pos.row && col === pos.col) {
+                            cell.className += ` finish-path ${finishColor}`;
+                        }
+                    });
+                });
+                
+                gameState.boardElement.appendChild(cell);
             }
-            // 檢查是否超出邊界
-            else if (arrow.x > canvas.width || arrow.y > canvas.height || arrow.y < 0) {
-                arrow = null;
-            }
-            
-            // 重新繪製
-            draw();
-            
-            // 如果箭還在飛行，繼續動畫
-            if (arrow) {
-                requestAnimationFrame(animateArrow);
+        }
+    }
+    
+    // 創建路徑
+    function createPath() {
+        const path = [];
+        const boardSize = gameState.boardSize;
+        
+        // 頂部路徑 (左到右)
+        for (let col = 1; col < boardSize - 1; col++) {
+            if (col !== 8) { // 跳過黃色起點
+                path.push({ row: 0, col: col });
             }
         }
         
-        // 顯示得分動畫
-        function showScorePopup(x, y, points) {
-            const popup = document.createElement('div');
-            popup.textContent = `+${points}`;
-            popup.style.position = 'absolute';
-            popup.style.left = `${x + canvas.offsetLeft}px`;
-            popup.style.top = `${y + canvas.offsetTop}px`;
-            popup.style.color = points >= 8 ? '#ffeb3b' : points >= 4 ? '#4caf50' : '#2196f3';
-            popup.style.fontSize = '24px';
-            popup.style.fontWeight = 'bold';
-            popup.style.textShadow = '0 0 5px black';
-            popup.style.pointerEvents = 'none';
-            popup.style.zIndex = '5';
-            popup.style.transition = 'all 1s ease-out';
+        // 右側路徑 (上到下)
+        for (let row = 1; row < boardSize - 1; row++) {
+            if (row !== 8) { // 跳過藍色起點
+                path.push({ row: row, col: boardSize - 1 });
+            }
+        }
+        
+        // 底部路徑 (右到左)
+        for (let col = boardSize - 2; col > 0; col--) {
+            if (col !== 7) { // 跳過綠色起點
+                path.push({ row: boardSize - 1, col: col });
+            }
+        }
+        
+        // 左側路徑 (下到上)
+        for (let row = boardSize - 2; row > 0; row--) {
+            if (row !== 6) { // 跳過紅色起點
+                path.push({ row: row, col: 0 });
+            }
+        }
+        
+        gameState.path = path;
+    }
+    
+    // 渲染棋子
+    function renderPieces() {
+        // 移除現有的棋子
+        document.querySelectorAll('.piece').forEach(piece => piece.remove());
+        
+        // 渲染所有玩家的棋子
+        Object.entries(gameState.players).forEach(([color, player]) => {
+            player.pieces.forEach((position, index) => {
+                if (player.finished[index]) {
+                    // 已完成的棋子放在終點區域
+                    const finishPath = gameState.finishPaths[color];
+                    if (finishPath.length > 0) {
+                        const finishPosition = finishPath[finishPath.length - 1];
+                        createPiece(color, index, finishPosition.row, finishPosition.col, true);
+                    }
+                    return;
+                }
+                
+                if (player.started[index]) {
+                    // 已起飛的棋子在路徑上
+                    if (position < gameState.path.length) {
+                        const pos = gameState.path[position];
+                        createPiece(color, index, pos.row, pos.col);
+                    } else {
+                        // 進入終點路徑
+                        const finishIndex = position - gameState.path.length;
+                        const finishPath = gameState.finishPaths[color];
+                        
+                        if (finishIndex < finishPath.length) {
+                            const pos = finishPath[finishIndex];
+                            createPiece(color, index, pos.row, pos.col);
+                        }
+                    }
+                } else {
+                    // 在家園中的棋子
+                    const homePos = gameState.homePositions[color];
+                    const offsets = [
+                        { row: 0, col: 0 },
+                        { row: 0, col: 2 },
+                        { row: 2, col: 0 },
+                        { row: 2, col: 2 }
+                    ];
+                    
+                    const offset = offsets[index];
+                    createPiece(color, index, homePos.row + offset.row, homePos.col + offset.col, true);
+                }
+            });
+        });
+        
+        // 更新狀態
+        updateStatus();
+    }
+    
+    // 創建單個棋子
+    function createPiece(color, pieceIndex, row, col, inHome = false) {
+        const piece = document.createElement('div');
+        piece.className = `piece piece-${color} ${inHome ? 'in-home' : ''}`;
+        piece.dataset.color = color;
+        piece.dataset.pieceIndex = pieceIndex;
+        piece.innerHTML = pieceIndex + 1;
+        piece.style.top = `${row * (100 / gameState.boardSize)}%`;
+        piece.style.left = `${col * (100 / gameState.boardSize)}%`;
+        
+        if (inHome) {
+            piece.style.transform = 'translate(-50%, -50%) scale(0.7)';
+        } else {
+            piece.style.transform = 'translate(-50%, -50%)';
+        }
+        
+        const boardRect = gameState.boardElement.getBoundingClientRect();
+        const cellSize = boardRect.width / gameState.boardSize;
+        piece.style.width = `${cellSize * 0.7}px`;
+        piece.style.height = `${cellSize * 0.7}px`;
+        
+        // 只為人類玩家的棋子添加點擊事件
+        if (color !== 'green' || gameState.currentPlayer === 'green') {
+            piece.addEventListener('click', () => handlePieceClick(color, pieceIndex));
+        }
+        
+        gameState.boardElement.appendChild(piece);
+    }
+    
+    // 處理棋子點擊
+    function handlePieceClick(color, pieceIndex) {
+        if (!gameState.waitingForMove || gameState.currentPlayer !== color || gameState.winner) return;
+        
+        const player = gameState.players[color];
+        
+        // 檢查這顆棋子是否可以移動
+        if (!canMovePiece(color, pieceIndex)) {
+            showStatus(`這顆棋子無法移動！`);
+            return;
+        }
+        
+        movePiece(color, pieceIndex, gameState.diceValue);
+        checkForKnockouts(color, pieceIndex);
+        
+        // 檢查是否完成
+        checkWinCondition();
+        
+        if (gameState.winner) {
+            showWinner(gameState.winner);
+            return;
+        }
+        
+        // 檢查是否需要額外回合
+        if (!gameState.extraTurn) {
+            nextPlayer();
+        } else {
+            gameState.extraTurn = false;
+            showStatus(`${gameState.playerNames[gameState.currentPlayer]} 擊落對手，獲得額外回合！`);
+            gameState.waitingForMove = false;
+            gameState.canRoll = true;
+            enableRollButton();
+        }
+    }
+    
+    // 檢查棋子是否可以移動
+    function canMovePiece(color, pieceIndex) {
+        const player = gameState.players[color];
+        const piecePos = player.pieces[pieceIndex];
+        
+        // 尚未起飛
+        if (!player.started[pieceIndex]) {
+            return gameState.diceValue === 6;
+        }
+        
+        // 已完成
+        if (player.finished[pieceIndex]) {
+            return false;
+        }
+        
+        // 檢查移動後是否會超出終點
+        const finishPath = gameState.finishPaths[color];
+        const pathLength = gameState.path.length;
+        
+        if (piecePos >= pathLength) {
+            // 已經在終點路徑上
+            const finishIndex = piecePos - pathLength;
+            return finishIndex + gameState.diceValue < finishPath.length;
+        }
+        
+        return true;
+    }
+    
+    // 移動棋子
+    function movePiece(color, pieceIndex, steps) {
+        const player = gameState.players[color];
+        
+        if (!player.started[pieceIndex]) {
+            // 起飛
+            player.started[pieceIndex] = true;
+            player.pieces[pieceIndex] = 0;
             
-            document.body.appendChild(popup);
+            // 如果第一次擲到6，可以再擲一次
+            if (gameState.diceValue === 6) {
+                gameState.extraTurn = true;
+            }
+        } else {
+            // 在路徑上移動
+            const currentPosition = player.pieces[pieceIndex];
+            const newPathPosition = currentPosition + steps;
+            const pathLength = gameState.path.length;
+            const finishPath = gameState.finishPaths[color];
             
-            // 動畫效果
+            if (currentPosition < pathLength && newPathPosition >= pathLength) {
+                // 進入終點路徑
+                const finishSteps = newPathPosition - pathLength;
+                
+                if (finishSteps < finishPath.length) {
+                    player.pieces[pieceIndex] = pathLength + finishSteps;
+                    
+                    // 檢查是否完成
+                    if (finishSteps === finishPath.length - 1) {
+                        player.finished[pieceIndex] = true;
+                        showStatus(`太棒了！${gameState.playerNames[color]} 的 ${pieceIndex + 1} 號飛機到達終點！`);
+                    }
+                }
+            } else if (currentPosition >= pathLength) {
+                // 在終點路徑上
+                const finishIndex = currentPosition - pathLength;
+                const newFinishIndex = finishIndex + steps;
+                
+                if (newFinishIndex < finishPath.length) {
+                    player.pieces[pieceIndex] = pathLength + newFinishIndex;
+                    
+                    // 檢查是否完成
+                    if (newFinishIndex === finishPath.length - 1) {
+                        player.finished[pieceIndex] = true;
+                        showStatus(`太棒了！${gameState.playerNames[color]} 的 ${pieceIndex + 1} 號飛機到達終點！`);
+                    }
+                }
+            } else {
+                // 在主路徑上
+                player.pieces[pieceIndex] = newPathPosition % pathLength;
+            }
+        }
+        
+        renderPieces();
+    }
+    
+    // 檢查並處理擊落
+    function checkForKnockouts(currentColor, movedPieceIndex) {
+        const currentPlayer = gameState.players[currentColor];
+        const movedPiecePos = currentPlayer.pieces[movedPieceIndex];
+        
+        // 只有在主路徑上才會擊落
+        if (movedPiecePos >= gameState.path.length) return;
+        
+        const currentPos = gameState.path[movedPiecePos];
+        let knockedOut = false;
+        
+        // 檢查其他所有玩家的棋子
+        Object.entries(gameState.players).forEach(([color, player]) => {
+            if (color === currentColor) return;
+            
+            player.pieces.forEach((pos, index) => {
+                if (player.finished[index] || !player.started[index]) return;
+                
+                // 檢查是否在同一個位置
+                if (pos < gameState.path.length) {
+                    const otherPos = gameState.path[pos];
+                    
+                    if (currentPos.row === otherPos.row && currentPos.col === otherPos.col) {
+                        // 檢查是否是安全位置
+                        const isSafe = gameState.safePositions.some(
+                            safePos => safePos.row === currentPos.row && safePos.col === currentPos.col
+                        );
+                        
+                        if (!isSafe) {
+                            // 擊落對手
+                            player.started[index] = false;
+                            player.pieces[index] = 0;
+                            knockedOut = true;
+                            showStatus(`${gameState.playerNames[currentColor]} 擊落了 ${gameState.playerNames[color]} 的飛機！`);
+                        }
+                    }
+                }
+            });
+        });
+        
+        if (knockedOut) {
+            gameState.extraTurn = true;
+        }
+    }
+    
+    // 檢查贏的條件
+    function checkWinCondition() {
+        Object.entries(gameState.players).forEach(([color, player]) => {
+            if (player.finished.every(finished => finished) && !gameState.winner) {
+                gameState.winner = color;
+            }
+        });
+    }
+    
+    // 電腦移動
+    function computerMove() {
+        if (gameState.currentPlayer !== 'green' || gameState.winner) return;
+        
+        setTimeout(() => {
+            const availableMoves = getAvailableMoves('green');
+            
+            if (availableMoves.length === 0) {
+                // 沒有可移動的棋子
+                showStatus("綠方電腦沒有可移動的棋子...");
+                setTimeout(nextPlayer, 1000);
+                return;
+            }
+            
+            // 選擇最佳移動
+            const bestMove = chooseBestMove(availableMoves);
+            
+            if (bestMove) {
+                movePiece('green', bestMove.pieceIndex, gameState.diceValue);
+                checkForKnockouts('green', bestMove.pieceIndex);
+                
+                // 檢查是否贏
+                checkWinCondition();
+                
+                if (gameState.winner) {
+                    showWinner(gameState.winner);
+                    return;
+                }
+                
+                // 檢查是否需要額外回合
+                if (gameState.extraTurn) {
+                    gameState.extraTurn = false;
+                    showStatus("綠方電腦擊落對手，獲得額外回合！");
+                    setTimeout(rollDice, 1500);
+                } else {
+                    setTimeout(nextPlayer, 1500);
+                }
+            } else {
+                setTimeout(nextPlayer, 1000);
+            }
+        }, 1000);
+    }
+    
+    // 獲取可用的移動
+    function getAvailableMoves(color) {
+        const player = gameState.players[color];
+        const moves = [];
+        
+        player.pieces.forEach((position, index) => {
+            if (!player.finished[index] && canMovePiece(color, index)) {
+                moves.push({
+                    pieceIndex: index,
+                    position: position,
+                    isStarting: !player.started[index]
+                });
+            }
+        });
+        
+        return moves;
+    }
+    
+    // 選擇最佳移動（簡單AI）
+    function chooseBestMove(moves) {
+        // 優先選擇可以擊落對手的移動
+        for (const move of moves) {
+            if (canKnockOpponent('green', move.pieceIndex)) {
+                return move;
+            }
+        }
+        
+        // 優先選擇已經在路徑上的棋子
+        const inPathMoves = moves.filter(move => !move.isStarting);
+        if (inPathMoves.length > 0) {
+            // 選擇最接近終點的棋子
+            return inPathMoves.reduce((best, current) => 
+                current.position > best.position ? current : best
+            );
+        }
+        
+        // 選擇第一個可以起飛的棋子
+        return moves.find(move => move.isStarting) || moves[0];
+    }
+    
+    // 檢查是否可以擊落對手
+    function canKnockOpponent(color, pieceIndex) {
+        const player = gameState.players[color];
+        let newPosition = player.pieces[pieceIndex] + gameState.diceValue;
+        
+        if (!player.started[pieceIndex] && gameState.diceValue === 6) {
+            newPosition = 0;
+        }
+        
+        if (newPosition >= gameState.path.length) return false;
+        
+        const newPos = gameState.path[newPosition];
+        
+        // 檢查是否是安全位置
+        const isSafe = gameState.safePositions.some(
+            safePos => safePos.row === newPos.row && safePos.col === newPos.col
+        );
+        
+        if (isSafe) return false;
+        
+        // 檢查是否有對手在這個位置
+        let hasOpponent = false;
+        
+        Object.entries(gameState.players).forEach(([otherColor, otherPlayer]) => {
+            if (otherColor === color) return;
+            
+            otherPlayer.pieces.forEach((pos, index) => {
+                if (otherPlayer.finished[index] || !otherPlayer.started[index]) return;
+                
+                if (pos < gameState.path.length) {
+                    const otherPos = gameState.path[pos];
+                    
+                    if (newPos.row === otherPos.row && newPos.col === otherPos.col) {
+                        hasOpponent = true;
+                    }
+                }
+            });
+        });
+        
+        return hasOpponent;
+    }
+    
+    // 下一個玩家
+    function nextPlayer() {
+        const players = ['red', 'yellow', 'blue', 'green'];
+        const currentIndex = players.indexOf(gameState.currentPlayer);
+        const nextIndex = (currentIndex + 1) % players.length;
+        gameState.currentPlayer = players[nextIndex];
+        
+        // 更新UI
+        document.querySelectorAll('.player-info').forEach(el => el.classList.remove('current-player'));
+        document.getElementById(`player-${gameState.currentPlayer}`).classList.add('current-player');
+        
+        gameState.waitingForMove = false;
+        gameState.canRoll = true;
+        enableRollButton();
+        
+        // 顯示狀態
+        showStatus(`${gameState.playerNames[gameState.currentPlayer]} 的回合`);
+        
+        // 如果是電腦玩家，自動擲骰子
+        if (gameState.currentPlayer === 'green') {
+            setTimeout(rollDice, 1000);
+        }
+    }
+    
+    // 擲骰子
+    function rollDice() {
+        if (!gameState.canRoll || gameState.winner) return;
+        
+        gameState.canRoll = false;
+        disableRollButton();
+        
+        // 動畫效果
+        let rollCount = 0;
+        const maxRolls = 15;
+        const rollInterval = setInterval(() => {
+            gameState.diceValue = Math.floor(Math.random() * 6) + 1;
+            gameState.diceElement.textContent = gameState.diceValue;
+            
+            rollCount++;
+            if (rollCount >= maxRolls) {
+                clearInterval(rollInterval);
+                diceRolled();
+            }
+        }, 100);
+    }
+    
+    // 骰子擲完後
+    function diceRolled() {
+        showStatus(`${gameState.playerNames[gameState.currentPlayer]} 擲出了 ${gameState.diceValue}！`);
+        
+        const availableMoves = getAvailableMoves(gameState.currentPlayer);
+        
+        if (availableMoves.length === 0) {
+            // 沒有可移動的棋子
+            showStatus("沒有可移動的棋子，跳過回合...");
+            setTimeout(nextPlayer, 1500);
+            return;
+        }
+        
+        gameState.waitingForMove = true;
+        
+        if (gameState.currentPlayer === 'green') {
+            computerMove();
+        }
+    }
+    
+    // 跳過回合
+    function skipTurn() {
+        if (!gameState.waitingForMove || gameState.winner) return;
+        
+        showStatus(`${gameState.playerNames[gameState.currentPlayer]} 跳過了回合`);
+        setTimeout(nextPlayer, 1000);
+    }
+    
+    // 更新狀態顯示
+    function updateStatus() {
+        // 更新每個玩家的狀態
+        Object.keys(gameState.players).forEach(color => {
+            const player = gameState.players[color];
+            const readyCount = player.started.filter(started => started).length;
+            const finishedCount = player.finished.filter(finished => finished).length;
+            
+            document.getElementById(`ready-${color}`).textContent = `${readyCount}/4`;
+            document.getElementById(`finished-${color}`).textContent = `${finishedCount}/4`;
+        });
+    }
+    
+    // 顯示狀態消息
+    function showStatus(message) {
+        gameState.statusElement.textContent = message;
+    }
+    
+    // 顯示贏家
+    function showWinner(winnerColor) {
+        const winnerName = gameState.playerNames[winnerColor];
+        
+        // 創建獲勝畫面
+        const winnerScreen = document.createElement('div');
+        winnerScreen.className = 'winner-message';
+        winnerScreen.innerHTML = `
+            <h2 class="winner-title">${winnerName} 勝利！</h2>
+            <div class="winner-color" style="background: ${getWinnerColor(winnerColor)};"></div>
+            <button class="btn btn-roll" id="restart-btn">再玩一次</button>
+        `;
+        
+        document.body.appendChild(winnerScreen);
+        
+        // 添加重啟按鈕事件
+        document.getElementById('restart-btn').addEventListener('click', restartGame);
+        
+        // 創建彩色紙屑
+        createConfetti();
+    }
+    
+    // 獲取贏家顏色
+    function getWinnerColor(color) {
+        const colors = {
+            red: '#ff5252',
+            yellow: '#ffd700',
+            blue: '#4da6ff',
+            green: '#4dff88'
+        };
+        return colors[color];
+    }
+    
+    // 創建彩色紙屑
+    function createConfetti() {
+        const colors = ['#ff5252', '#ffd700', '#4da6ff', '#4dff88', '#ff4081', '#7c4dff'];
+        const confettiCount = 150;
+        
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.top = `-${Math.random() * 20}%`;
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            confetti.style.opacity = Math.random();
+            document.body.appendChild(confetti);
+            
+            // 移除動畫完成後的紙屑
             setTimeout(() => {
-                popup.style.transform = 'translateY(-50px)';
-                popup.style.opacity = '0';
-            }, 10);
-            
-            // 移除元素
-            setTimeout(() => {
-                document.body.removeChild(popup);
-            }, 1000);
+                if (confetti.parentNode) {
+                    confetti.parentNode.removeChild(confetti);
+                }
+            }, 5000);
+        }
+    }
+    
+    // 重啟遊戲
+    function restartGame() {
+        // 重置遊戲狀態
+        gameState.currentPlayer = 'red';
+        gameState.diceValue = 0;
+        gameState.canRoll = true;
+        gameState.extraTurn = false;
+        gameState.waitingForMove = false;
+        gameState.winner = null;
+        
+        // 重置玩家狀態
+        Object.keys(gameState.players).forEach(color => {
+            gameState.players[color] = { 
+                pieces: [0, 0, 0, 0], 
+                started: [false, false, false, false], 
+                finished: [false, false, false, false] 
+            };
+        });
+        
+        // 移除獲勝畫面
+        const winnerScreen = document.querySelector('.winner-message');
+        if (winnerScreen) {
+            winnerScreen.remove();
         }
         
-        // 更新拉弓力度條
-        function updatePowerBar() {
-            powerFill.style.width = `${power}%`;
-            powerText.textContent = `拉弓力度: ${Math.round(power)}%`;
-        }
+        // 移除所有紙屑
+        document.querySelectorAll('.confetti').forEach(confetti => confetti.remove());
         
-        // 顯示遊戲結束畫面
-        function showGameOver() {
-            finalScoreElement.textContent = score;
-            gameOverScreen.style.display = 'flex';
-        }
+        // 重新渲染
+        renderPieces();
         
-        // 事件監聽器
-        canvas.addEventListener('mousedown', (e) => {
-            if (!gameActive || arrowsLeft <= 0) return;
-            isDragging = true;
-        });
+        // 更新UI
+        document.querySelectorAll('.player-info').forEach(el => el.classList.remove('current-player'));
+        document.getElementById('player-red').classList.add('current-player');
         
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDragging || !gameActive || arrowsLeft <= 0) return;
-            
-            // 計算拉弓力度（限制在0-100%）
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const bowX = 80;
-            power = Math.min(100, Math.max(0, (bowX - mouseX) * 2));
-            updatePowerBar();
-        });
+        gameState.diceElement.textContent = '?';
+        enableRollButton();
+        gameState.skipButton.disabled = true;
         
-        canvas.addEventListener('mouseup', () => {
-            if (isDragging && gameActive && arrowsLeft > 0) {
-                shootArrow();
-            }
-            isDragging = false;
-        });
-        
-        canvas.addEventListener('mouseleave', () => {
-            if (isDragging && gameActive && arrowsLeft > 0) {
-                shootArrow();
-            }
-            isDragging = false;
-        });
-        
-        // 觸控設備支援
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (!gameActive || arrowsLeft <= 0) return;
-            isDragging = true;
-        });
-        
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (!isDragging || !gameActive || arrowsLeft <= 0) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            const bowX = 80;
-            power = Math.min(100, Math.max(0, (bowX - touchX) * 2));
-            updatePowerBar();
-        });
-        
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (isDragging && gameActive && arrowsLeft > 0) {
-                shootArrow();
-            }
-            isDragging = false;
-        });
-        
-        // 重新開始按鈕
-        restartBtn.addEventListener('click', initGame);
-        
-        // 初始化遊戲
-        initGame();
-    </script>
-</body>
-</html>
+        showStatus('紅方玩家，請擲骰子開始遊戲！');
+    }
+    
+    // 禁用擲骰子按鈕
+    function disableRollButton() {
+        gameState.rollButton.disabled = true;
+        gameState.rollButton.style.opacity = '0.6';
+        gameState.rollButton.style.transform = 'none';
+        gameState.rollButton.style.boxShadow = 'none';
+    }
+    
+    // 啟用擲骰子按鈕
+    function enableRollButton() {
+        gameState.rollButton.disabled = false;
+        gameState.rollButton.style.opacity = '1';
+    }
+    
+    // 設置事件監聽
+    function setupEventListeners() {
+        gameState.rollButton.addEventListener('click', rollDice);
+        gameState.skipButton.addEventListener('click', skipTurn);
+    }
+    
+    // 初始化遊戲
+    document.addEventListener('DOMContentLoaded', initGame);
+</script>
