@@ -205,7 +205,7 @@
                 <div class="stat-label">得分</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" id="arrows">10</div>
+                <div class="stat-value" id="arrows">5</div>
                 <div class="stat-label">剩餘箭數</div>
             </div>
             <div class="stat-box">
@@ -224,7 +224,7 @@
         <div class="instructions">
             <p>🎯 <span class="highlight">按住滑鼠左鍵</span> 拉弓並調整力度</p>
             <p>🎯 <span class="highlight">釋放滑鼠左鍵</span> 發射箭矢</p>
-            <p>🎯 命中靶心獲得最高分！每輪有10支箭</p>
+            <p>🎯 命中靶心獲得<span class="highlight">10分</span>！每輪有<span class="highlight">5支箭</span></p>
         </div>
         
         <div class="game-over" id="gameOver">
@@ -249,7 +249,7 @@
         
         // 遊戲狀態
         let score = 0;
-        let arrowsLeft = 10;
+        let arrowsLeft = 5; // 修改為5支箭
         let hits = 0;
         let gameActive = true;
         let isDragging = false;
@@ -260,7 +260,7 @@
         // 初始化遊戲
         function initGame() {
             score = 0;
-            arrowsLeft = 10;
+            arrowsLeft = 5; // 修改為5支箭
             hits = 0;
             gameActive = true;
             isDragging = false;
@@ -277,7 +277,7 @@
         function updateUI() {
             scoreElement.textContent = score;
             arrowsElement.textContent = arrowsLeft;
-            const accuracy = arrowsLeft === 10 ? 0 : Math.round((hits / (10 - arrowsLeft)) * 100);
+            const accuracy = arrowsLeft === 5 ? 0 : Math.round((hits / (5 - arrowsLeft)) * 100); // 修改為5支箭
             accuracyElement.textContent = `${accuracy}%`;
         }
         
@@ -505,14 +505,14 @@
                 const dy = arrow.y - target.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // 根據距離計算得分
+                // 根據距離計算得分（修改為靶心10分）
                 let points = 0;
-                if (distance <= 8) points = 50;   // 靶心
-                else if (distance <= 20) points = 40;
-                else if (distance <= 35) points = 30;
-                else if (distance <= 50) points = 20;
-                else if (distance <= 65) points = 10;
-                else if (distance <= 80) points = 5;
+                if (distance <= 8) points = 10;   // 靶心 - 10分
+                else if (distance <= 20) points = 8;
+                else if (distance <= 35) points = 6;
+                else if (distance <= 50) points = 4;
+                else if (distance <= 65) points = 2;
+                else if (distance <= 80) points = 1;
                 
                 if (points > 0) {
                     score += points;
@@ -547,7 +547,7 @@
             popup.style.position = 'absolute';
             popup.style.left = `${x + canvas.offsetLeft}px`;
             popup.style.top = `${y + canvas.offsetTop}px`;
-            popup.style.color = points >= 40 ? '#ffeb3b' : points >= 20 ? '#4caf50' : '#2196f3';
+            popup.style.color = points >= 8 ? '#ffeb3b' : points >= 4 ? '#4caf50' : '#2196f3';
             popup.style.fontSize = '24px';
             popup.style.fontWeight = 'bold';
             popup.style.textShadow = '0 0 5px black';
