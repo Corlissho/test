@@ -221,6 +221,21 @@
             font-weight: bold;
         }
         
+        .phase-indicator.attack-ready {
+            background: rgba(255, 215, 0, 0.3);
+            border: 1px solid #ffc107;
+        }
+        
+        .facility-highlight {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        
         @media (max-width: 768px) {
             .players-container {
                 flex-direction: column;
@@ -255,7 +270,8 @@
             <p><strong>玩法說明：</strong> 這是一個基於猜拳的策略遊戲！</p>
             <p>1️⃣ 通過猜拳決定先後順序，贏的一方可以建設或攻擊</p>
             <p>2️⃣ 遊戲分四個階段：寫「天下太平」→ 插旗 → 建保護罩 → 放置武器/攻擊</p>
-            <p>3️⃣ 當一方的旗、保護罩和堡壘全部被消滅時，該方輸掉遊戲</p>
+            <p>3️⃣ <span style="color: #e74c3c; font-weight: bold;">重要更新：</span> 插旗後（至少一面旗）即可攻擊敵人！</p>
+            <p>4️⃣ 當一方的旗、保護罩和堡壘全部被消滅時，該方輸掉遊戲</p>
         </div>
         
         <div class="result-display" id="resultDisplay"></div>
@@ -273,11 +289,11 @@
                     <div class="fortress-cell" id="cell1-4">平</div>
                 </div>
                 <div class="facilities">
-                    <div class="facility-item">
+                    <div class="facility-item facility-highlight" id="flagsItem1">
                         <span>🚩 旗幟：</span>
                         <span id="flags1">0/3</span>
                     </div>
-                    <div class="facility-item">
+                    <div class="facility-item" id="shieldsItem1">
                         <span>🛡️ 保護罩：</span>
                         <span id="shields1">0/5</span>
                     </div>
@@ -306,11 +322,11 @@
                     <div class="fortress-cell" id="cell2-4">平</div>
                 </div>
                 <div class="facilities">
-                    <div class="facility-item">
+                    <div class="facility-item facility-highlight" id="flagsItem2">
                         <span>🚩 旗幟：</span>
                         <span id="flags2">0/3</span>
                     </div>
-                    <div class="facility-item">
+                    <div class="facility-item" id="shieldsItem2">
                         <span>🛡️ 保護罩：</span>
                         <span id="shields2">0/5</span>
                     </div>
@@ -408,6 +424,12 @@
             document.getElementById('gameStatus').textContent = '請選擇猜拳...';
             document.getElementById('gameStatus').style.backgroundColor = '#f1c40f';
             
+            // 移除高亮效果
+            document.getElementById('flagsItem1').classList.remove('facility-highlight');
+            document.getElementById('flagsItem2').classList.remove('facility-highlight');
+            document.getElementById('shieldsItem1').classList.remove('facility-highlight');
+            document.getElementById('shieldsItem2').classList.remove('facility-highlight');
+            
             updateUI();
             enableRPSButtons();
             disableActionButtons();
@@ -489,16 +511,54 @@
         function computerAction() {
             if (gameState.gameOver) return;
             
-            // 電腦隨機選擇行動：70%建設，30%攻擊
-            if (Math.random() < 0.7 && canBuild(gameState.player2)) {
-                computerBuild();
+            // 電腦根據階段和資源決定行動
+            const player = gameState.player2;
+            let actionTaken = false;
+            
+            // 優先建設基礎設施
+            if (player.phase === 1 && player.flags < 3) {
+                // 插旗階段
+                player.flags++;
+                document.getElementById('gameStatus').textContent = '電腦插了一枝旗！';
+                actionTaken = true;
+            } else if (player.phase === 2 && player.shields < 5) {
+                // 保護罩階段
+                player.shields++;
+                document.getElementById('gameStatus').textContent = '電腦建了一層保護罩！';
+                actionTaken = true;
             } else if (canAttack()) {
+                // 可以攻擊時優先攻擊
                 computerAttack();
-            } else if (canRepair(gameState.player2)) {
-                computerRepair();
+                actionTaken = true;
+            } else if (player.phase === 2 || player.phase === 3) {
+                // 建設武器
+                const weapons = ['aircrafts', 'cannons', 'rockets'];
+                const weapon = weapons[Math.floor(Math.random() * 3)];
+                player[weapon]++;
+                document.getElementById('gameStatus').textContent = `電腦建造了${getWeaponName(weapon)}！`;
+                actionTaken = true;
             } else {
-                // 如果都無法進行，就建設
-                computerBuild();
+                // 默認建設
+                if (player.flags < 3) {
+                    player.flags++;
+                    document.getElementById('gameStatus').textContent = '電腦插了一枝旗！';
+                } else if (player.shields < 5) {
+                    player.shields++;
+                    document.getElementById('gameStatus').textContent = '電腦建了一層保護罩！';
+                } else {
+                    const weapons = ['aircrafts', 'cannons', 'rockets'];
+                    const weapon = weapons[Math.floor(Math.random() * 3)];
+                    player[weapon]++;
+                    document.getElementById('gameStatus').textContent = `電腦建造了${getWeaponName(weapon)}！`;
+                }
+                actionTaken = true;
+            }
+            
+            // 檢查是否需要進階
+            if (actionTaken) {
+                checkPhaseUpgrade(player, 2);
+                updateUI();
+                checkGameOver();
             }
             
             // 行動完成後，重新啟用猜拳按鈕
@@ -512,58 +572,31 @@
             }, 1500);
         }
 
-        // 電腦建設設施
-        function computerBuild() {
-            const player = gameState.player2;
-            
-            // 根據當前階段建設
-            switch(player.phase) {
-                case 1: // 插旗
-                    if (player.flags < 3) {
-                        player.flags++;
-                        document.getElementById('gameStatus').textContent = '電腦插了一枝旗！';
-                    }
-                    break;
-                case 2: // 保護罩
-                    if (player.shields < 5) {
-                        player.shields++;
-                        document.getElementById('gameStatus').textContent = '電腦建了一層保護罩！';
-                    }
-                    break;
-                case 3: // 武器
-                    const weapons = ['aircrafts', 'cannons', 'rockets'];
-                    const weapon = weapons[Math.floor(Math.random() * 3)];
-                    player[weapon]++;
-                    document.getElementById('gameStatus').textContent = `電腦建造了${getWeaponName(weapon)}！`;
-                    break;
-            }
-            
-            // 檢查是否需要進階
-            checkPhaseUpgrade(player, 2);
-            updateUI();
-        }
-
         // 電腦攻擊
         function computerAttack() {
             const player1 = gameState.player1;
             const attackPower = getAttackPower(gameState.player2);
             
-            // 隨機選擇攻擊目標
-            const targets = [];
-            if (player1.shields > 0) targets.push('shields');
-            if (player1.flags > 0) targets.push('flags');
-            if (player1.fortressIntact) targets.push('fortress');
+            // 選擇攻擊目標（優先攻擊保護罩，然後是旗幟，最後是堡壘）
+            let target = '';
+            if (player1.shields > 0) {
+                target = 'shields';
+            } else if (player1.flags > 0) {
+                target = 'flags';
+            } else if (player1.fortressIntact) {
+                target = 'fortress';
+            }
             
-            if (targets.length === 0) return;
+            if (!target) return; // 沒有可攻擊目標
             
-            const target = targets[Math.floor(Math.random() * targets.length)];
-            
-            if (target === 'shields' && player1.shields > 1) {
-                player1.shields -= Math.min(attackPower, player1.shields - 1);
-                document.getElementById('gameStatus').textContent = `電腦攻擊了你的保護罩！剩餘${player1.shields}層！`;
-            } else if (target === 'flags' && player1.flags > 0) {
-                player1.flags = Math.max(0, player1.flags - attackPower);
-                document.getElementById('gameStatus').textContent = `電腦攻擊了你的旗幟！剩餘${player1.flags}枝！`;
+            if (target === 'shields') {
+                const damage = Math.min(attackPower, player1.shields);
+                player1.shields -= damage;
+                document.getElementById('gameStatus').textContent = `電腦攻擊了你的保護罩！造成了${damage}點傷害！剩餘${player1.shields}層！`;
+            } else if (target === 'flags') {
+                const damage = Math.min(attackPower, player1.flags);
+                player1.flags -= damage;
+                document.getElementById('gameStatus').textContent = `電腦攻擊了你的旗幟！造成了${damage}點傷害！剩餘${player1.flags}枝！`;
             } else if (target === 'fortress') {
                 player1.fortressIntact = false;
                 // 清空堡壘文字
@@ -573,32 +606,6 @@
                 document.getElementById('cell1-4').textContent = '';
                 document.getElementById('gameStatus').textContent = '電腦摧毀了你的堡壘！';
             }
-            
-            updateUI();
-            checkGameOver();
-        }
-
-        // 電腦修復設施
-        function computerRepair() {
-            const player = gameState.player2;
-            
-            // 優先修復堡壘
-            if (!player.fortressIntact) {
-                player.fortressIntact = true;
-                document.getElementById('cell2-1').textContent = '天';
-                document.getElementById('cell2-2').textContent = '下';
-                document.getElementById('cell2-3').textContent = '太';
-                document.getElementById('cell2-4').textContent = '平';
-                document.getElementById('gameStatus').textContent = '電腦修復了堡壘！';
-            } else if (player.shields < 5) {
-                player.shields = Math.min(5, player.shields + 1);
-                document.getElementById('gameStatus').textContent = '電腦修復了一層保護罩！';
-            } else if (player.flags < 3) {
-                player.flags = Math.min(3, player.flags + 1);
-                document.getElementById('gameStatus').textContent = '電腦修復了一枝旗幟！';
-            }
-            
-            updateUI();
         }
 
         // 玩家建設設施
@@ -606,35 +613,58 @@
             if (gameState.currentPlayer !== 1 || gameState.gameOver) return;
             
             const player = gameState.player1;
+            let actionText = '';
             
             switch(player.phase) {
                 case 1: // 插旗
                     if (player.flags < 3) {
                         player.flags++;
-                        document.getElementById('gameStatus').textContent = '你插了一枝旗！';
+                        actionText = '你插了一枝旗！';
+                        // 當第一面旗插下時，提示可以攻擊
+                        if (player.flags === 1) {
+                            document.getElementById('flagsItem1').classList.add('facility-highlight');
+                            setTimeout(() => {
+                                document.getElementById('flagsItem1').classList.remove('facility-highlight');
+                            }, 3000);
+                        }
                     } else {
-                        document.getElementById('gameStatus').textContent = '旗幟已達上限！';
-                        return;
+                        actionText = '旗幟已達上限！';
                     }
                     break;
                 case 2: // 保護罩
                     if (player.shields < 5) {
                         player.shields++;
-                        document.getElementById('gameStatus').textContent = '你建了一層保護罩！';
+                        actionText = '你建了一層保護罩！';
                     } else {
-                        document.getElementById('gameStatus').textContent = '保護罩已達上限！';
-                        return;
+                        actionText = '保護罩已達上限！';
                     }
                     break;
                 case 3: // 武器
-                    // 隨機選擇一種武器建設
-                    const weapons = ['aircrafts', 'cannons', 'rockets'];
-                    const weapon = weapons[Math.floor(Math.random() * 3)];
-                    player[weapon]++;
-                    document.getElementById('gameStatus').textContent = `你建造了${getWeaponName(weapon)}！`;
+                    // 讓玩家選擇建設哪種武器
+                    const weaponChoice = prompt("選擇要建設的武器:\n1. 戰機 (攻擊力1)\n2. 大砲 (攻擊力2)\n3. 火箭 (攻擊力3)", "1");
+                    let weaponType = '';
+                    
+                    if (weaponChoice === "1") {
+                        player.aircrafts++;
+                        weaponType = 'aircrafts';
+                    } else if (weaponChoice === "2") {
+                        player.cannons++;
+                        weaponType = 'cannons';
+                    } else if (weaponChoice === "3") {
+                        player.rockets++;
+                        weaponType = 'rockets';
+                    } else {
+                        actionText = '無效選擇，未建設武器。';
+                        break;
+                    }
+                    
+                    actionText = `你建造了${getWeaponName(weaponType)}！`;
                     break;
             }
             
+            document.getElementById('gameStatus').textContent = actionText || '建設完成！';
+            
+            // 檢查是否需要進階
             checkPhaseUpgrade(player, 1);
             updateUI();
             
@@ -642,30 +672,43 @@
             resetTurn();
         }
 
-        // 玩家攻擊敵人
+        // 玩家攻擊敵人 - 核心修改：允許在插旗後（第二階段）攻擊
         function attackEnemy() {
             if (gameState.currentPlayer !== 1 || gameState.gameOver || !canAttack()) return;
             
             const player2 = gameState.player2;
             const attackPower = getAttackPower(gameState.player1);
             
-            // 隨機選擇攻擊目標
-            const targets = [];
-            if (player2.shields > 0) targets.push('shields');
-            if (player2.flags > 0) targets.push('flags');
-            if (player2.fortressIntact) targets.push('fortress');
+            // 選擇攻擊目標
+            const target = prompt("選擇攻擊目標:\n1. 保護罩\n2. 旗幟\n3. 堡壘", "1");
+            let attackTarget = '';
             
-            if (targets.length === 0) return;
+            if (target === "1" && player2.shields > 0) {
+                attackTarget = 'shields';
+            } else if (target === "2" && player2.flags > 0) {
+                attackTarget = 'flags';
+            } else if (target === "3" && player2.fortressIntact) {
+                attackTarget = 'fortress';
+            } else {
+                // 自動選擇有效目標
+                if (player2.shields > 0) attackTarget = 'shields';
+                else if (player2.flags > 0) attackTarget = 'flags';
+                else if (player2.fortressIntact) attackTarget = 'fortress';
+                else {
+                    document.getElementById('gameStatus').textContent = '沒有可攻擊的目標！';
+                    return;
+                }
+            }
             
-            const target = targets[Math.floor(Math.random() * targets.length)];
-            
-            if (target === 'shields' && player2.shields > 1) {
-                player2.shields -= Math.min(attackPower, player2.shields - 1);
-                document.getElementById('gameStatus').textContent = `你攻擊了電腦的保護罩！剩餘${player2.shields}層！`;
-            } else if (target === 'flags' && player2.flags > 0) {
-                player2.flags = Math.max(0, player2.flags - attackPower);
-                document.getElementById('gameStatus').textContent = `你攻擊了電腦的旗幟！剩餘${player2.flags}枝！`;
-            } else if (target === 'fortress') {
+            if (attackTarget === 'shields') {
+                const damage = Math.min(attackPower, player2.shields);
+                player2.shields -= damage;
+                document.getElementById('gameStatus').textContent = `你攻擊了電腦的保護罩！造成了${damage}點傷害！剩餘${player2.shields}層！`;
+            } else if (attackTarget === 'flags') {
+                const damage = Math.min(attackPower, player2.flags);
+                player2.flags -= damage;
+                document.getElementById('gameStatus').textContent = `你攻擊了電腦的旗幟！造成了${damage}點傷害！剩餘${player2.flags}枝！`;
+            } else if (attackTarget === 'fortress') {
                 player2.fortressIntact = false;
                 // 清空堡壘文字
                 document.getElementById('cell2-1').textContent = '';
@@ -687,23 +730,30 @@
             if (gameState.currentPlayer !== 1 || gameState.gameOver || !canRepair(gameState.player1)) return;
             
             const player = gameState.player1;
+            let actionText = '';
             
-            // 優先修復堡壘
-            if (!player.fortressIntact) {
+            // 讓玩家選擇修復什麼
+            const repairChoice = prompt("選擇修復項目:\n1. 旗幟 (每枝1點資源)\n2. 保護罩 (每層1點資源)\n3. 堡壘 (需要3點資源)", "1");
+            
+            if (repairChoice === "1" && player.flags < 3) {
+                player.flags = Math.min(3, player.flags + 1);
+                actionText = '你修復了一枝旗幟！';
+            } else if (repairChoice === "2" && player.shields < 5) {
+                player.shields = Math.min(5, player.shields + 1);
+                actionText = '你修復了一層保護罩！';
+            } else if (repairChoice === "3" && !player.fortressIntact) {
+                // 修復堡壘需要資源，此處簡化
                 player.fortressIntact = true;
                 document.getElementById('cell1-1').textContent = '天';
                 document.getElementById('cell1-2').textContent = '下';
                 document.getElementById('cell1-3').textContent = '太';
                 document.getElementById('cell1-4').textContent = '平';
-                document.getElementById('gameStatus').textContent = '你修復了堡壘！';
-            } else if (player.shields < 5) {
-                player.shields = Math.min(5, player.shields + 1);
-                document.getElementById('gameStatus').textContent = '你修復了一層保護罩！';
-            } else if (player.flags < 3) {
-                player.flags = Math.min(3, player.flags + 1);
-                document.getElementById('gameStatus').textContent = '你修復了一枝旗幟！';
+                actionText = '你修復了堡壘！';
+            } else {
+                actionText = '無效選擇或資源不足。';
             }
             
+            document.getElementById('gameStatus').textContent = actionText;
             updateUI();
             
             // 重置猜拳狀態
@@ -732,11 +782,24 @@
             }
         }
 
-        // 檢查是否可以攻擊
+        // 檢查是否可以攻擊 - 關鍵修改：允許在第二階段（保護罩階段）且有旗幟時攻擊
         function canAttack() {
             const attacker = gameState.currentPlayer === 1 ? gameState.player1 : gameState.player2;
-            return attacker.phase === 3 && 
-                   (attacker.aircrafts > 0 || attacker.cannons > 0 || attacker.rockets > 0);
+            
+            // 第一階段（插旗階段）不能攻擊
+            if (attacker.phase === 1) return false;
+            
+            // 第二階段（保護罩階段）：只要有旗幟就可以攻擊
+            if (attacker.phase === 2) {
+                return attacker.flags > 0;
+            }
+            
+            // 第三階段（武器階段）：需要有武器
+            if (attacker.phase === 3) {
+                return attacker.aircrafts > 0 || attacker.cannons > 0 || attacker.rockets > 0;
+            }
+            
+            return false;
         }
 
         // 檢查是否可以修復
@@ -744,24 +807,43 @@
             return !player.fortressIntact || player.shields < 5 || player.flags < 3;
         }
 
-        // 獲取攻擊力
+        // 獲取攻擊力 - 關鍵修改：根據階段和設施計算攻擊力
         function getAttackPower(player) {
-            return player.aircrafts + player.cannons + player.rockets;
+            if (player.phase === 2) {
+                // 保護罩階段：攻擊力 = 旗幟數量
+                return player.flags;
+            } else if (player.phase === 3) {
+                // 武器階段：攻擊力 = 武器總攻擊力
+                // 戰機:1, 大砲:2, 火箭:3
+                return player.aircrafts * 1 + player.cannons * 2 + player.rockets * 3;
+            }
+            return 0;
         }
 
         // 檢查階段升級
         function checkPhaseUpgrade(player, playerId) {
+            const phaseIndicator = document.getElementById(`phase${playerId}`);
+            
             switch(player.phase) {
                 case 1: // 插旗階段
                     if (player.flags >= 3) {
                         player.phase = 2;
-                        document.getElementById(`phase${playerId}`).textContent = '第二階段：建立保護罩';
+                        phaseIndicator.textContent = '第二階段：建立保護罩 (插旗後可攻擊)';
+                        phaseIndicator.classList.add('attack-ready');
+                        // 高亮保護罩項目
+                        if (playerId === 1) {
+                            document.getElementById('shieldsItem1').classList.add('facility-highlight');
+                        } else {
+                            document.getElementById('shieldsItem2').classList.add('facility-highlight');
+                        }
                     }
                     break;
                 case 2: // 保護罩階段
                     if (player.shields >= 5) {
                         player.phase = 3;
-                        document.getElementById(`phase${playerId}`).textContent = '第三階段：武器/攻擊';
+                        phaseIndicator.textContent = '第三階段：武器/攻擊 (高攻擊力)';
+                        phaseIndicator.classList.remove('attack-ready');
+                        phaseIndicator.classList.add('attack-ready');
                     }
                     break;
             }
@@ -820,7 +902,6 @@
             document.getElementById('aircrafts1').textContent = p1.aircrafts;
             document.getElementById('cannons1').textContent = p1.cannons;
             document.getElementById('rockets1').textContent = p1.rockets;
-            document.getElementById('phase1').textContent = getPhaseText(p1.phase);
             
             // 更新玩家2的UI
             document.getElementById('flags2').textContent = `${p2.flags}/3`;
@@ -828,7 +909,6 @@
             document.getElementById('aircrafts2').textContent = p2.aircrafts;
             document.getElementById('cannons2').textContent = p2.cannons;
             document.getElementById('rockets2').textContent = p2.rockets;
-            document.getElementById('phase2').textContent = getPhaseText(p2.phase);
             
             // 更新堡壘顯示
             if (!p1.fortressIntact) {
@@ -844,16 +924,9 @@
                 document.getElementById('cell2-3').textContent = '❌';
                 document.getElementById('cell2-4').textContent = '❌';
             }
-        }
-
-        // 獲取階段文字
-        function getPhaseText(phase) {
-            const phases = {
-                1: '第一階段：插旗 (0-3枝)',
-                2: '第二階段：保護罩 (0-5層)',
-                3: '第三階段：武器/攻擊'
-            };
-            return phases[phase];
+            
+            // 更新行動按鈕狀態
+            enableActionButtons();
         }
 
         // 啟用猜拳按鈕
@@ -876,13 +949,38 @@
         function enableActionButtons() {
             const player = gameState.currentPlayer === 1 ? gameState.player1 : gameState.player2;
             
-            document.getElementById('buildBtn').disabled = !canBuild(player);
-            document.getElementById('attackBtn').disabled = !canAttack();
-            document.getElementById('repairBtn').disabled = !canRepair(player);
+            // 建設按鈕：只要可以建設就啟用
+            const buildBtn = document.getElementById('buildBtn');
+            buildBtn.disabled = !canBuild(player);
+            buildBtn.style.opacity = buildBtn.disabled ? '0.5' : '1';
+            buildBtn.title = !canBuild(player) ? "無法建設：已完成本階段或堡壘已毀" : "";
             
-            document.querySelectorAll('.action-btn').forEach(btn => {
-                btn.style.opacity = '1';
-            });
+            // 攻擊按鈕：根據新規則啟用
+            const attackBtn = document.getElementById('attackBtn');
+            attackBtn.disabled = !canAttack();
+            attackBtn.style.opacity = attackBtn.disabled ? '0.5' : '1';
+            attackBtn.title = !canAttack() ? getAttackDisabledReason(player) : "可以攻擊敵人！";
+            
+            // 修復按鈕
+            const repairBtn = document.getElementById('repairBtn');
+            repairBtn.disabled = !canRepair(player);
+            repairBtn.style.opacity = repairBtn.disabled ? '0.5' : '1';
+            repairBtn.title = !canRepair(player) ? "無需修復" : "";
+        }
+
+        // 獲取攻擊按鈕禁用原因
+        function getAttackDisabledReason(player) {
+            if (player.phase === 1) {
+                return "需要先完成插旗階段";
+            } else if (player.phase === 2 && player.flags === 0) {
+                return "需要至少一面旗幟才能攻擊";
+            } else if (player.phase === 3 && 
+                      player.aircrafts === 0 && 
+                      player.cannons === 0 && 
+                      player.rockets === 0) {
+                return "需要先建造武器";
+            }
+            return "無法攻擊";
         }
 
         // 停用行動按鈕
