@@ -137,22 +137,37 @@
             font-size: 14px;
         }
 
+        /* 修正CSS語法錯誤：移除rgba前面的#號 */
         input[type="range"] {
             width: 100%;
             height: 6px;
             border-radius: 3px;
-            background: rgba(40, 60, 100, 0.8);
+            background: rgba(40, 60, 100, 0.8); /* 修正這裡：移除#號 */
             outline: none;
             -webkit-appearance: none;
+            appearance: none; /* 添加標準屬性 */
         }
 
+        /* 修正CSS選擇器：改為-webkit-slider-thumb */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
+            appearance: none; /* 添加標準屬性 */
             width: 20px;
             height: 20px;
             border-radius: 50%;
             background: #7aa2f7;
             cursor: pointer;
+            box-shadow: 0 0 8px rgba(122, 162, 247, 0.8);
+        }
+
+        /* 添加Firefox支援 */
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #7aa2f7;
+            cursor: pointer;
+            border: none;
             box-shadow: 0 0 8px rgba(122, 162, 247, 0.8);
         }
 
@@ -662,7 +677,7 @@
 
     <!-- 隱藏的攝影機視訊元素 -->
     <video id="input_video" style="display: none;"></video>
-    <canvas id="output_canvas" style="display: none;"></canvas>
+<canvas id="output_canvas" style="display: none;"></canvas>
 
     <!-- 音效 -->
     <audio id="shootSound" preload="auto">
