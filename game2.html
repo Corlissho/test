@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 第一視角射箭大師 🎯</title>
+    <title>🎯 擊靶射手大師 - 第一視角 🎯</title>
     <style>
         * {
             margin: 0;
@@ -94,7 +94,7 @@
             border-radius: 15px;
             display: block;
             margin: 0 auto;
-            cursor: none;
+            cursor: crosshair;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             border: 2px solid rgba(100, 150, 255, 0.4);
         }
@@ -120,7 +120,7 @@
             font-weight: bold;
         }
         
-        .power-bar {
+        .ammo-bar {
             height: 25px;
             background: rgba(20, 30, 50, 0.8);
             border-radius: 15px;
@@ -130,16 +130,16 @@
             border: 1px solid rgba(100, 150, 255, 0.3);
         }
         
-        .power-fill {
+        .ammo-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(to right, #ff3300, #ffcc00, #4db6ac);
+            background: linear-gradient(to right, #4db6ac, #4fc3f7, #5e81ac);
             border-radius: 15px;
             transition: width 0.1s;
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            box-shadow: 0 0 10px rgba(77, 182, 172, 0.5);
         }
         
-        .power-text {
+        .ammo-text {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -231,39 +231,22 @@
             transform: rotate(30deg) translate(40%, 40%);
         }
         
+        /* 擊靶瞄準十字線 */
         .crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 30px;
-            height: 30px;
+            width: 2px;
+            height: 2px;
             pointer-events: none;
             z-index: 5;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 5px #ffcc00;
         }
         
-        .crosshair::before,
-        .crosshair::after {
-            content: '';
-            position: absolute;
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 2px;
-        }
-        
-        .crosshair::before {
-            width: 30px;
-            height: 3px;
-            top: 13.5px;
-            left: 0;
-        }
-        
-        .crosshair::after {
-            width: 3px;
-            height: 30px;
-            top: 0;
-            left: 13.5px;
-        }
-        
+        /* 擊靶瞄準鏡 */
         .scope-ring {
             position: absolute;
             top: 50%;
@@ -288,6 +271,46 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+        }
+        
+        /* 枪械握把 */
+        .gun-handle {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 120px;
+            background: linear-gradient(to right, #333, #555);
+            border-radius: 10px 10px 5px 5px;
+            z-index: 3;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+        }
+        
+        .gun-barrel {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 80px;
+            background: linear-gradient(to right, #222, #444);
+            border-radius: 15px 15px 0 0;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+        }
+        
+        .muzzle-flash {
+            position: absolute;
+            bottom: 280px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ff9900, #ff3300, transparent 70%);
+            border-radius: 50%;
+            z-index: 3;
+            opacity: 0;
         }
         
         /* 放大鏡樣式 */
@@ -327,8 +350,9 @@
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            color: #ffcc00;
+            color: #4fc3f7;
             font-size: 12px;
+            font-weight: bold;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
             z-index: 11;
             pointer-events: none;
@@ -356,14 +380,13 @@
                 font-size: 0.95rem;
             }
             
-            .crosshair::before,
-            .crosshair::after {
-                background: rgba(255, 255, 255, 0.9);
-            }
-            
             .zoom-container {
                 width: 120px;
                 height: 120px;
+            }
+            
+            .gun-handle, .gun-barrel {
+                display: none;
             }
         }
     </style>
@@ -371,8 +394,8 @@
 <body>
     <div class="game-container">
         <div class="header">
-            <h1>🎯 射箭大師 - 第一視角 🎯</h1>
-            <div class="subtitle">體驗真實的射箭感受，瞄準靶心，創造最高分數！</div>
+            <h1>🎯 擊靶射手大師 🎯</h1>
+            <div class="subtitle">體驗專業射擊訓練，精準瞄準靶心，爭取最高分數！</div>
         </div>
         
         <div class="stats">
@@ -381,8 +404,8 @@
                 <div class="stat-label">得分</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" id="arrows">10</div>
-                <div class="stat-label">剩餘箭數</div>
+                <div class="stat-value" id="bullets">30</div>
+                <div class="stat-label">剩餘子彈</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value" id="accuracy">0%</div>
@@ -390,19 +413,24 @@
             </div>
         </div>
         
-        <div class="power-bar">
-            <div class="power-fill" id="powerFill"></div>
-            <div class="power-text" id="powerText">拉弓力度: 0%</div>
+        <div class="ammo-bar">
+            <div class="ammo-fill" id="ammoFill"></div>
+            <div class="ammo-text" id="ammoText">子彈: 30/30</div>
         </div>
         
         <div style="position: relative; overflow: hidden; border-radius: 15px;">
             <canvas id="gameCanvas" width="880" height="500"></canvas>
             
+            <!-- 枪械模型 -->
+            <div class="gun-barrel"></div>
+            <div class="gun-handle"></div>
+            <div class="muzzle-flash" id="muzzleFlash"></div>
+            
             <!-- 放大鏡元素 -->
             <div class="zoom-container">
                 <canvas id="zoomCanvas" width="150" height="150"></canvas>
                 <div class="zoom-border"></div>
-                <div class="zoom-label">瞄準輔助鏡</div>
+                <div class="zoom-label">瞄準鏡</div>
             </div>
             
             <div class="crosshair"></div>
@@ -410,14 +438,14 @@
         </div>
         
         <div class="instructions">
-            <p>🎯 <span class="highlight">按住滑鼠左鍵</span> 拉弓並調整力度（垂直拖動）</p>
-            <p>🎯 <span class="highlight">釋放滑鼠左鍵</span> 發射箭矢</p>
-            <p>🎯 靶心（黃色）得分最高，<span class="highlight">10分</span>！每輪有<span class="highlight">10支箭</span></p>
-            <p>🎯 環境風速會影響箭的軌跡，注意瞄準微調</p>
+            <p>🎯 <span class="highlight">移動滑鼠</span> 控制瞄準位置</p>
+            <p>🎯 <span class="highlight">點擊滑鼠左鍵</span> 射擊目標</p>
+            <p>🎯 靶心（黃色）得分最高，<span class="highlight">10分</span>！每輪有<span class="highlight">30顆子彈</span></p>
+            <p>🎯 射擊時會有後座力影響，瞄準需要更精準</p>
         </div>
         
         <div class="game-over" id="gameOver">
-            <h2>🎯 遊戲結束！🎯</h2>
+            <h2>🎯 訓練結束！🎯</h2>
             <div class="final-score">最終得分: <span id="finalScore">0</span></div>
             <button class="btn" id="restartBtn">再玩一次</button>
         </div>
@@ -430,36 +458,34 @@
         const zoomCanvas = document.getElementById('zoomCanvas');
         const zoomCtx = zoomCanvas.getContext('2d');
         const scoreElement = document.getElementById('score');
-        const arrowsElement = document.getElementById('arrows');
+        const bulletsElement = document.getElementById('bullets');
         const accuracyElement = document.getElementById('accuracy');
-        const powerFill = document.getElementById('powerFill');
-        const powerText = document.getElementById('powerText');
+        const ammoFill = document.getElementById('ammoFill');
+        const ammoText = document.getElementById('ammoText');
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreElement = document.getElementById('finalScore');
         const restartBtn = document.getElementById('restartBtn');
+        const muzzleFlash = document.getElementById('muzzleFlash');
         
         // 遊戲狀態
         let score = 0;
-        let arrowsLeft = 10; // 增加箭數
+        let bulletsLeft = 30; // 子彈數
         let hits = 0;
         let gameActive = true;
-        let isDragging = false;
-        let power = 0;
-        let arrows = [];
-        let wind = { x: 0, y: 0 };
+        let bullets = [];
+        let recoil = { x: 0, y: 0 }; // 後座力
         let lastShotTime = 0;
         let environment = [];
-        let aimingPoint = { x: 0, y: 0 }; // 儲存當前瞄準點
+        let aimingPoint = { x: canvas.width / 2, y: canvas.height / 2 - 30 }; // 儲存當前瞄準點
         
         // 初始化遊戲
         function initGame() {
             score = 0;
-            arrowsLeft = 10;
+            bulletsLeft = 30;
             hits = 0;
             gameActive = true;
-            isDragging = false;
-            power = 0;
-            arrows = [];
+            bullets = [];
+            recoil = { x: 0, y: 0 };
             lastShotTime = 0;
             aimingPoint = { x: canvas.width / 2, y: canvas.height / 2 - 30 }; // 初始瞄準點在靶心
             
@@ -468,37 +494,33 @@
             
             updateUI();
             gameOverScreen.style.display = 'none';
-            updateWind();
             draw();
-            
-            // 每5秒更新一次風向
-            setInterval(updateWind, 5000);
         }
         
         // 初始化環境
         function initEnvironment() {
             environment = [];
             
-            // 添加樹木
-            for (let i = 0; i < 15; i++) {
+            // 添加射擊場景元素
+            for (let i = 0; i < 10; i++) {
                 environment.push({
-                    type: 'tree',
+                    type: 'range',
                     x: Math.random() * canvas.width,
-                    y: canvas.height - 100 + Math.random() * 50,
-                    height: 80 + Math.random() * 40,
-                    width: 30 + Math.random() * 20,
-                    color: `hsl(${Math.random() * 30 + 80}, 40%, ${25 + Math.random() * 15}%)`
+                    y: canvas.height - 80 + Math.random() * 30,
+                    height: 50 + Math.random() * 30,
+                    width: 40 + Math.random() * 30,
+                    color: `hsl(${Math.random() * 10 + 180}, 30%, ${20 + Math.random() * 15}%)`
                 });
             }
             
-            // 添加遠山
-            for (let i = 0; i < 5; i++) {
+            // 添加遠處背景
+            for (let i = 0; i < 3; i++) {
                 environment.push({
-                    type: 'mountain',
-                    x: i * (canvas.width / 5) + Math.random() * 50,
+                    type: 'building',
+                    x: i * (canvas.width / 3) + Math.random() * 100,
                     y: canvas.height - 150,
-                    height: 80 + Math.random() * 70,
-                    color: `hsl(${Math.random() * 10 + 180}, 30%, ${10 + Math.random() * 15}%)`
+                    height: 80 + Math.random() * 50,
+                    color: `hsl(${Math.random() * 10 + 180}, 20%, ${15 + Math.random() * 10}%)`
                 });
             }
         }
@@ -506,18 +528,14 @@
         // 更新UI
         function updateUI() {
             scoreElement.textContent = score;
-            arrowsElement.textContent = arrowsLeft;
-            const accuracy = arrowsLeft === 10 ? 0 : Math.round((hits / (10 - arrowsLeft)) * 100);
+            bulletsElement.textContent = bulletsLeft;
+            const accuracy = bulletsLeft === 30 ? 0 : Math.round((hits / (30 - bulletsLeft)) * 100);
             accuracyElement.textContent = `${accuracy}%`;
-        }
-        
-        // 更新風向
-        function updateWind() {
-            wind = {
-                x: (Math.random() - 0.5) * 0.3,
-                y: (Math.random() - 0.7) * 0.1 // 輕微向上風
-            };
-            drawZoomView(); // 更新放大鏡視圖
+            
+            // 更新子彈條
+            const ammoPercentage = (bulletsLeft / 30) * 100;
+            ammoFill.style.width = `${ammoPercentage}%`;
+            ammoText.textContent = `子彈: ${bulletsLeft}/30`;
         }
         
         // 繪製遊戲元素 - 第一視角
@@ -534,11 +552,11 @@
             // 繪製環境
             drawEnvironment();
             
-            // 繪製箭
-            drawArrows();
+            // 繪製子彈
+            drawBullets();
             
-            // 繪製風向指示器
-            drawWindIndicator();
+            // 繪製後座力效果
+            drawRecoilEffect();
             
             // 繪製瞄準鏡和準星
             drawSights();
@@ -547,12 +565,12 @@
             drawZoomView();
             
             // 如果遊戲結束
-            if (!gameActive && arrowsLeft === 0) {
+            if (!gameActive && bulletsLeft === 0) {
                 showGameOver();
             }
         }
         
-        // 繪製背景 - 第一視角射箭場
+        // 繪製背景 - 射擊場
         function drawBackground() {
             // 天空漸層
             const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
@@ -562,66 +580,70 @@
             ctx.fillStyle = skyGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height * 0.6);
             
-            // 遠山
+            // 遠處建築
             ctx.fillStyle = '#1a237e';
             ctx.beginPath();
             ctx.moveTo(0, canvas.height * 0.6);
-            ctx.lineTo(canvas.width * 0.3, canvas.height * 0.45);
-            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.55);
-            ctx.lineTo(canvas.width, canvas.height * 0.4);
+            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.5);
+            ctx.lineTo(canvas.width * 0.4, canvas.height * 0.55);
+            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.48);
+            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.52);
+            ctx.lineTo(canvas.width, canvas.height * 0.45);
             ctx.lineTo(canvas.width, canvas.height * 0.6);
             ctx.closePath();
             ctx.fill();
             
-            // 中景草地
-            const grassGradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
-            grassGradient.addColorStop(0, '#2e7d32');
-            grassGradient.addColorStop(1, '#1b5e20');
-            ctx.fillStyle = grassGradient;
+            // 射擊場地面
+            const groundGradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
+            groundGradient.addColorStop(0, '#4a4a4a');
+            groundGradient.addColorStop(1, '#2a2a2a');
+            ctx.fillStyle = groundGradient;
             ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
             
-            // 添加草地紋理
-            ctx.fillStyle = 'rgba(46, 125, 50, 0.1)';
+            // 地面紋理
+            ctx.fillStyle = 'rgba(100, 100, 100, 0.2)';
             for (let i = 0; i < 100; i++) {
                 const x = Math.random() * canvas.width;
                 const y = canvas.height * 0.6 + Math.random() * canvas.height * 0.4;
-                const size = 2 + Math.random() * 4;
+                const size = 1 + Math.random() * 3;
                 ctx.beginPath();
                 ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
             }
+            
+            // 射擊位置標線
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 100, canvas.height * 0.9);
+            ctx.lineTo(canvas.width / 2 + 100, canvas.height * 0.9);
+            ctx.stroke();
         }
         
         // 繪製環境元素
         function drawEnvironment() {
-            // 繪製樹木
-            environment.filter(obj => obj.type === 'tree').forEach(tree => {
-                // 樹幹
-                ctx.fillStyle = '#5d4037';
-                ctx.fillRect(tree.x - tree.width/4, tree.y - tree.height, tree.width/2, tree.height * 0.7);
+            // 繪製射擊場元素
+            environment.filter(obj => obj.type === 'range').forEach(obj => {
+                ctx.fillStyle = obj.color;
+                ctx.fillRect(obj.x - obj.width/2, obj.y - obj.height, obj.width, obj.height);
                 
-                // 樹冠
-                ctx.fillStyle = tree.color;
-                ctx.beginPath();
-                ctx.arc(tree.x, tree.y - tree.height * 0.9, tree.width * 0.8, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // 樹葉陰影
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-                ctx.beginPath();
-                ctx.arc(tree.x + 5, tree.y - tree.height * 0.9 + 5, tree.width * 0.6, 0, Math.PI * 2);
-                ctx.fill();
+                // 添加陰影
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(obj.x - obj.width/2 + 5, obj.y - obj.height + 5, obj.width, obj.height);
             });
             
-            // 繪製遠山
-            environment.filter(obj => obj.type === 'mountain').forEach(mountain => {
-                ctx.fillStyle = mountain.color;
-                ctx.beginPath();
-                ctx.moveTo(mountain.x - 50, mountain.y + mountain.height);
-                ctx.lineTo(mountain.x, mountain.y);
-                ctx.lineTo(mountain.x + 50, mountain.y + mountain.height);
-                ctx.closePath();
-                ctx.fill();
+            // 繪製遠處建築
+            environment.filter(obj => obj.type === 'building').forEach(building => {
+                ctx.fillStyle = building.color;
+                ctx.fillRect(building.x - 30, building.y - building.height, 60, building.height);
+                
+                // 建築窗戶
+                ctx.fillStyle = 'rgba(200, 220, 255, 0.3)';
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 2; j++) {
+                        ctx.fillRect(building.x - 20 + i * 15, building.y - building.height + 20 + j * 25, 8, 15);
+                    }
+                }
             });
         }
         
@@ -666,84 +688,23 @@
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.font = '16px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('70m', centerX, centerY + baseRadius + 40);
+            ctx.fillText('25m', centerX, centerY + baseRadius + 40);
         }
         
-        // 繪製箭
-        function drawArrows() {
-            arrows.forEach(arrow => {
-                // 計算箭的角度
-                const angle = Math.atan2(arrow.vy, arrow.vx);
-                
+        // 繪製子彈
+        function drawBullets() {
+            bullets.forEach(bullet => {
                 ctx.save();
-                ctx.translate(arrow.x, arrow.y);
-                ctx.rotate(angle);
+                ctx.translate(bullet.x, bullet.y);
                 
-                // 箭桿
-                ctx.fillStyle = '#8B4513';
-                ctx.fillRect(0, -1.5, 35, 3);
-                
-                // 箭頭
-                ctx.fillStyle = '#777';
+                // 子彈軌跡
                 ctx.beginPath();
-                ctx.moveTo(35, -3);
-                ctx.lineTo(45, 0);
-                ctx.lineTo(35, 3);
-                ctx.closePath();
+                ctx.arc(0, 0, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffcc00';
                 ctx.fill();
-                
-                // 箭羽
-                ctx.fillStyle = '#f44336';
-                ctx.fillRect(-5, -4, 5, 2);
-                ctx.fillRect(-5, 2, 5, 2);
                 
                 ctx.restore();
             });
-        }
-        
-        // 繪製風向指示器
-        function drawWindIndicator() {
-            const indicatorX = 50;
-            const indicatorY = 50;
-            const size = 30;
-            
-            // 風向背景
-            ctx.fillStyle = 'rgba(20, 30, 50, 0.7)';
-            ctx.beginPath();
-            ctx.arc(indicatorX, indicatorY, size + 5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // 風向箭頭
-            ctx.save();
-            ctx.translate(indicatorX, indicatorY);
-            ctx.rotate(Math.atan2(wind.y, wind.x));
-            
-            // 箭頭主體
-            ctx.fillStyle = '#4fc3f7';
-            ctx.beginPath();
-            ctx.moveTo(-size, 0);
-            ctx.lineTo(size, 0);
-            ctx.lineTo(size * 0.7, -size * 0.3);
-            ctx.lineTo(size * 0.7, size * 0.3);
-            ctx.closePath();
-            ctx.fill();
-            
-            // 箭頭尖端
-            ctx.fillStyle = '#ffcc00';
-            ctx.beginPath();
-            ctx.moveTo(size * 0.7, -size * 0.3);
-            ctx.lineTo(size * 1.2, 0);
-            ctx.lineTo(size * 0.7, size * 0.3);
-            ctx.closePath();
-            ctx.fill();
-            
-            // 風速標示
-            ctx.fillStyle = 'white';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`風: ${Math.sqrt(wind.x**2 + wind.y**2).toFixed(2)}`, 0, size + 15);
-            
-            ctx.restore();
         }
         
         // 繪製瞄準鏡和準星
@@ -765,7 +726,7 @@
                 if (i === 0) continue;
                 const x = canvas.width/2 + i * 40;
                 const y = canvas.height/2 + 160;
-                ctx.fillText(`${i*10}cm`, x, y);
+                ctx.fillText(`${i*1}MOA`, x, y);
                 
                 ctx.beginPath();
                 ctx.moveTo(x, y - 5);
@@ -778,12 +739,26 @@
                 if (i === 0) continue;
                 const x = canvas.width/2 + 160;
                 const y = canvas.height/2 + i * 30;
-                ctx.fillText(`${i*5}cm`, x, y);
+                ctx.fillText(`${i*1}MOA`, x, y);
                 
                 ctx.beginPath();
                 ctx.moveTo(x - 5, y);
                 ctx.lineTo(x - 10, y);
                 ctx.stroke();
+            }
+        }
+        
+        // 繪製後座力效果
+        function drawRecoilEffect() {
+            if (Math.abs(recoil.x) > 0.1 || Math.abs(recoil.y) > 0.1) {
+                // 平滑恢復
+                recoil.x *= 0.9;
+                recoil.y *= 0.9;
+                
+                // 應用畫布變換
+                ctx.save();
+                ctx.translate(recoil.x, recoil.y);
+                ctx.restore();
             }
         }
         
@@ -795,7 +770,7 @@
             // 設置放大鏡的中心點
             const centerX = zoomCanvas.width / 2;
             const centerY = zoomCanvas.height / 2;
-            const zoomScale = 3; // 放大倍率
+            const zoomScale = 4; // 放大倍率
             
             // 繪製靶心（放大版本）
             const targetCenterX = canvas.width / 2;
@@ -805,10 +780,6 @@
             // 計算瞄準點在靶心上的位置
             const aimX = aimingPoint.x - targetCenterX;
             const aimY = aimingPoint.y - targetCenterY;
-            
-            // 考慮風力影響
-            const windEffectX = wind.x * 10; // 風力影響係數
-            const windEffectY = wind.y * 10;
             
             // 繪製靶環
             const rings = [
@@ -828,33 +799,33 @@
                 zoomCtx.fill();
             });
             
-            // 繪製瞄準點（考慮風力）
-            const adjustedAimX = aimX * zoomScale + windEffectX;
-            const adjustedAimY = aimY * zoomScale + windEffectY;
+            // 繪製瞄準點
+            const aimXZoom = aimX * zoomScale;
+            const aimYZoom = aimY * zoomScale;
             
             // 確保瞄準點在靶子範圍內
             const maxDistance = baseRadius * zoomScale;
-            const distance = Math.sqrt(adjustedAimX * adjustedAimX + adjustedAimY * adjustedAimY);
-            let finalAimX = adjustedAimX;
-            let finalAimY = adjustedAimY;
+            const distance = Math.sqrt(aimXZoom * aimXZoom + aimYZoom * aimYZoom);
+            let finalAimX = aimXZoom;
+            let finalAimY = aimYZoom;
             
             if (distance > maxDistance) {
                 // 如果超出範圍，將點限制在邊界上
-                finalAimX = (adjustedAimX / distance) * maxDistance;
-                finalAimY = (adjustedAimY / distance) * maxDistance;
+                finalAimX = (aimXZoom / distance) * maxDistance;
+                finalAimY = (aimYZoom / distance) * maxDistance;
             }
             
             // 繪製瞄準點
             zoomCtx.beginPath();
-            zoomCtx.arc(centerX + finalAimX, centerY + finalAimY, 5, 0, Math.PI * 2);
+            zoomCtx.arc(centerX + finalAimX, centerY + finalAimY, 3, 0, Math.PI * 2);
             zoomCtx.fillStyle = '#ff0000';
             zoomCtx.fill();
             
             // 繪製瞄準點外圈
             zoomCtx.beginPath();
-            zoomCtx.arc(centerX + finalAimX, centerY + finalAimY, 8, 0, Math.PI * 2);
+            zoomCtx.arc(centerX + finalAimX, centerY + finalAimY, 6, 0, Math.PI * 2);
             zoomCtx.strokeStyle = '#ffffff';
-            zoomCtx.lineWidth = 2;
+            zoomCtx.lineWidth = 1.5;
             zoomCtx.stroke();
             
             // 計算瞄準點所在的分數
@@ -868,75 +839,85 @@
             else if (distanceFromCenter <= baseRadius * 0.7 * zoomScale) scoreText = '2分';
             
             // 顯示分數
-            zoomCtx.fillStyle = '#ffcc00';
+            zoomCtx.fillStyle = '#4fc3f7';
             zoomCtx.font = '14px Arial';
             zoomCtx.textAlign = 'center';
             zoomCtx.textBaseline = 'middle';
             zoomCtx.fillText(scoreText, centerX, centerY + baseRadius * zoomScale + 15);
             
-            // 顯示風力指示
-            zoomCtx.fillStyle = '#4fc3f7';
+            // 顯示瞄準座標
+            zoomCtx.fillStyle = '#ffcc00';
             zoomCtx.font = '10px Arial';
-            zoomCtx.fillText(`風: ${Math.sqrt(wind.x**2 + wind.y**2).toFixed(2)}`, centerX, centerY - baseRadius * zoomScale - 10);
+            zoomCtx.fillText(`X: ${Math.round(finalAimX/zoomScale)} Y: ${Math.round(finalAimY/zoomScale)}`, centerX, centerY - baseRadius * zoomScale - 10);
         }
         
-        // 發射箭
-        function shootArrow() {
-            if (!gameActive || arrowsLeft <= 0) return;
-            if (Date.now() - lastShotTime < 300) return; // 防止快速連發
+        // 擊發子彈
+        function shootBullet() {
+            if (!gameActive || bulletsLeft <= 0 || Date.now() - lastShotTime < 200) return;
             
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height - 80; // 從底部發射
+            // 產生槍口火光效果
+            showMuzzleFlash();
             
-            // 計算箭的初速度（基於拉弓力度）
-            const baseSpeed = 15 + power * 0.25;
-            
-            // 計算方向向量 (指向瞄準點)
-            const targetX = aimingPoint.x;
-            const targetY = aimingPoint.y;
-            const dx = targetX - centerX;
-            const dy = targetY - centerY;
+            // 計算子彈軌跡
+            const bulletSpeed = 30;
+            const dx = aimingPoint.x - canvas.width/2;
+            const dy = aimingPoint.y - (canvas.height/2 - 30);
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             // 正規化方向向量
-            let vx = (dx / distance) * baseSpeed;
-            let vy = (dy / distance) * baseSpeed;
+            const vx = (dx / distance) * bulletSpeed;
+            const vy = (dy / distance) * bulletSpeed;
             
-            // 添加風向影響
-            vx += wind.x * 3;
-            vy += wind.y * 3;
-            
-            // 創建箭物件
-            arrows.push({
-                x: centerX,
-                y: centerY,
+            // 創建子彈物件
+            bullets.push({
+                x: canvas.width / 2,
+                y: canvas.height - 100,
                 vx: vx,
-                vy: vy,
-                gravity: 0.25,
-                rotation: Math.atan2(vy, vx)
+                vy: vy
             });
             
-            // 減少箭數
-            arrowsLeft--;
+            // 應用後座力
+            applyRecoil();
+            
+            // 減少子彈數
+            bulletsLeft--;
             lastShotTime = Date.now();
             updateUI();
             
-            // 重置拉弓狀態
-            isDragging = false;
-            power = 0;
-            updatePowerBar();
-            
             // 檢查是否擊中靶子
-            setTimeout(checkArrowHit, 1000);
+            setTimeout(checkBulletHit, 200);
         }
         
-        // 檢查箭是否擊中靶子
-        function checkArrowHit() {
-            arrows.forEach((arrow, index) => {
+        // 顯示槍口火光
+        function showMuzzleFlash() {
+            muzzleFlash.style.transform = 'translateX(-50%) scale(1, 0.5)';
+            muzzleFlash.style.opacity = '1';
+            
+            setTimeout(() => {
+                muzzleFlash.style.transform = 'translateX(-50%) scale(1.5, 0.8)';
+                muzzleFlash.style.opacity = '0.7';
+            }, 50);
+            
+            setTimeout(() => {
+                muzzleFlash.style.transform = 'translateX(-50%) scale(0)';
+                muzzleFlash.style.opacity = '0';
+            }, 100);
+        }
+        
+        // 應用後座力效果
+        function applyRecoil() {
+            // 隨機後座力方向（向上為主）
+            recoil.x = (Math.random() - 0.5) * 15;
+            recoil.y = -(10 + Math.random() * 10);
+        }
+        
+        // 檢查子彈是否擊中靶子
+        function checkBulletHit() {
+            bullets.forEach((bullet, index) => {
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2 - 30;
-                const dx = arrow.x - centerX;
-                const dy = arrow.y - centerY;
+                const dx = bullet.x - centerX;
+                const dy = bullet.y - centerY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 // 靶子半徑
@@ -957,12 +938,12 @@
                     if (points > 0) {
                         score += points;
                         hits++;
-                        showScorePopup(arrow.x, arrow.y, points);
+                        showScorePopup(bullet.x, bullet.y, points);
                     }
                 }
                 
-                // 移除箭
-                arrows.splice(index, 1);
+                // 移除子彈
+                bullets.splice(index, 1);
                 updateUI();
             });
         }
@@ -997,33 +978,23 @@
             }, 1300);
         }
         
-        // 箭的動畫
-        function animateArrows() {
-            arrows.forEach((arrow, index) => {
-                // 更新箭的位置
-                arrow.x += arrow.vx;
-                arrow.y += arrow.vy;
-                arrow.vy += arrow.gravity; // 重力影響
-                
-                // 更新旋轉角度
-                arrow.rotation = Math.atan2(arrow.vy, arrow.vx);
+        // 子彈的動畫
+        function animateBullets() {
+            bullets.forEach((bullet, index) => {
+                // 更新子彈的位置
+                bullet.x += bullet.vx;
+                bullet.y += bullet.vy;
                 
                 // 檢查是否超出邊界
-                if (arrow.x < 0 || arrow.x > canvas.width || arrow.y > canvas.height) {
-                    arrows.splice(index, 1);
+                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y > canvas.height) {
+                    bullets.splice(index, 1);
                 }
             });
             
             draw();
-            if (arrows.length > 0) {
-                requestAnimationFrame(animateArrows);
+            if (bullets.length > 0 || Math.abs(recoil.x) > 0.1 || Math.abs(recoil.y) > 0.1) {
+                requestAnimationFrame(animateBullets);
             }
-        }
-        
-        // 更新拉弓力度條
-        function updatePowerBar() {
-            powerFill.style.width = `${power}%`;
-            powerText.textContent = `拉弓力度: ${Math.round(power)}%`;
         }
         
         // 顯示遊戲結束畫面
@@ -1033,19 +1004,8 @@
         }
         
         // 事件監聽器
-        canvas.addEventListener('mousedown', (e) => {
-            if (!gameActive || arrowsLeft <= 0) return;
-            isDragging = true;
-            
-            // 播放拉弓音效 (模擬)
-            const audio = new Audio();
-            audio.volume = 0.1;
-            audio.src = 'data:audio/mp3;base64,SUQzAwAAAAAAJlRQRTEAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAADQgD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAAA5TEFNRTMuOThyAZQAAAAALgAAAQgAAAaFc/umAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+xDEAAPAAAGkAAAAIAAANIAAAARMQU1FMy45OHIAZgAAAC4AAAEIAAAGhXP7pgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7kMQvA8AAAaQAAAAgAAA0gAAABEVFQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//sQxB8DwAABpAAAAAgAAA0gAAAAEVFRQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMAAP/7kMQ/A8AAAaQAAAAIAAANIAAAABFQVAAQAAAAgAAAGlVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
-            audio.play().catch(() => {});
-        });
-        
         canvas.addEventListener('mousemove', (e) => {
-            if (!gameActive || arrowsLeft <= 0) return;
+            if (!gameActive || bulletsLeft <= 0) return;
             
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
@@ -1057,53 +1017,27 @@
                 y: mouseY
             };
             
-            // 如果在拖動，同時計算拉弓力度
-            if (isDragging) {
-                const startY = rect.top + canvas.height - 100; // 從底部開始測量
-                const currentY = e.clientY;
-                
-                // 計算拉弓力度 (從底部向上拉)
-                const pullDistance = startY - currentY;
-                power = Math.min(100, Math.max(0, pullDistance * 0.8)); // 調整靈敏度
-                updatePowerBar();
-            }
-            
             // 更新放大鏡視圖
             drawZoomView();
         });
         
-        canvas.addEventListener('mouseup', () => {
-            if (isDragging && gameActive && arrowsLeft > 0) {
-                shootArrow();
-                animateArrows();
-            }
-            isDragging = false;
-        });
-        
-        canvas.addEventListener('mouseleave', () => {
-            if (isDragging && gameActive && arrowsLeft > 0) {
-                shootArrow();
-                animateArrows();
-            }
-            isDragging = false;
+        canvas.addEventListener('mousedown', (e) => {
+            if (!gameActive || bulletsLeft <= 0) return;
+            shootBullet();
+            animateBullets();
         });
         
         // 觸控設備支援
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            if (!gameActive || arrowsLeft <= 0) return;
-            isDragging = true;
-            
-            // 播放拉弓音效 (模擬)
-            const audio = new Audio();
-            audio.volume = 0.1;
-            audio.src = 'data:audio/mp3;base64,SUQzAwAAAAAAJlRQRTEAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAADQgD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAAA5TEFNRTMuOThyAZQAAAAALgAAAQgAAAaFc/umAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+xDEAAPAAAGkAAAAIAAANIAAAARMQU1FMy45OHIAZgAAAC4AAAEIAAAGhXP7pgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7kMQvA8AAAaQAAAAgAAA0gAAABEVFQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//sQxB8DwAABpAAAAAgAAA0gAAAAEVFRQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMAAP/7kMQ/A8AAAaQAAAAIAAANIAAAABFQVAAQAAAAgAAAGlVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
-            audio.play().catch(() => {});
+            if (!gameActive || bulletsLeft <= 0) return;
+            shootBullet();
+            animateBullets();
         });
         
         canvas.addEventListener('touchmove', (e) => {
             e.preventDefault();
-            if (!gameActive || arrowsLeft <= 0) return;
+            if (!gameActive || bulletsLeft <= 0) return;
             
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
@@ -1115,27 +1049,8 @@
                 y: touchY
             };
             
-            if (isDragging) {
-                const startY = rect.top + canvas.height - 100;
-                const currentY = e.touches[0].clientY;
-                
-                // 計算拉弓力度
-                const pullDistance = startY - currentY;
-                power = Math.min(100, Math.max(0, pullDistance * 0.8));
-                updatePowerBar();
-            }
-            
             // 更新放大鏡視圖
             drawZoomView();
-        });
-        
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (isDragging && gameActive && arrowsLeft > 0) {
-                shootArrow();
-                animateArrows();
-            }
-            isDragging = false;
         });
         
         // 重新開始按鈕
