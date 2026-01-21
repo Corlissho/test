@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>跑車賽道小遊戲</title>
+<title>極速F1賽道</title>
 <style>
 * {
 margin: 0;
@@ -278,7 +278,6 @@ border-radius: 50%;
 .double-icon { background-color: #9C27B0; }
 .magnet-icon { background-color: #2196F3; }
 .speed-icon { background-color: #FFD700; }
-
 /* 倒計時樣式 */
 .countdown-overlay {
 position: absolute;
@@ -398,7 +397,6 @@ font-size: 6rem;
 </div>
 </div>
 <div class="status-effects" id="statusEffects">
-<!-- 狀態效果將在這裡動態生成 -->
 </div>
 </div>
 </div>
@@ -460,6 +458,7 @@ let maxSpeed = 15;
 let acceleration = 0.2;
 let deceleration = 0.1;
 let gameFrameId = null; // 用於存儲requestAnimationFrame的ID
+let gameInitialized = false; // 標記遊戲是否已初始化
 // 定義F1賽道控制點
 const trackPoints = [
 { x: canvas.width / 2, y: -100 },       // 起點
@@ -570,6 +569,13 @@ const trackWidth = 200;
 // 轉彎係數（用於模擬轉彎時的離心力）
 const turnFactor = 0.5;
 
+// 確保遊戲資源加載完畢後才開始
+window.addEventListener('load', () => {
+initGame();
+drawInitialScene();
+gameInitialized = true;
+});
+
 // 初始化遊戲
 function initGame() {
 score = 0;
@@ -594,15 +600,16 @@ gameOverScreen.style.display = 'none';
 countdownOverlay.style.display = 'none';
 updateUI();
 updateStatusEffects();
-// 初始化時就繪製賽道和車輛
-drawInitialScene();
+// 重置按鈕狀態
+startButton.textContent = '開始遊戲';
+pauseButton.textContent = '暫停遊戲';
 }
 
 // 繪製初始場景
 function drawInitialScene() {
 // 清除畫布
 ctx.clearRect(0, 0, canvas.width, canvas.height);
-// 計算垂直偏移
+// 初始化偏移量
 const offsetY = playerCar.y - (canvas.height - 150);
 // 繪製賽道
 drawTrack(offsetY);
@@ -1397,10 +1404,10 @@ lapProgressElement.textContent = Math.floor(trackProgress);
 function updateStatusEffects() {
 statusEffectsElement.innerHTML = '';
 for (let effectKey in playerEffects) {
-const effect = playerEffects[effectKey];
-if (effect.active && POWERUP_TYPES[effectKey.toUpperCase()]) {
+if (playerEffects[effectKey].hasOwnProperty('active') && playerEffects[effectKey].active) {
 const powerUpType = POWERUP_TYPES[effectKey.toUpperCase()];
-const timeLeft = Math.max(0, Math.ceil((effect.endTime - Date.now()) / 1000));
+if (powerUpType) {
+const timeLeft = Math.max(0, Math.ceil((playerEffects[effectKey].endTime - Date.now()) / 1000));
 const effectElement = document.createElement('div');
 effectElement.className = 'status-effect';
 effectElement.innerHTML = `
@@ -1411,12 +1418,14 @@ statusEffectsElement.appendChild(effectElement);
 }
 }
 }
+}
 
 // 結束遊戲
 function endGame() {
 gameRunning = false;
 if (gameFrameId) {
 cancelAnimationFrame(gameFrameId);
+gameFrameId = null;
 }
 finalScoreElement.textContent = score;
 gameOverScreen.style.display = 'flex';
@@ -1424,6 +1433,7 @@ gameOverScreen.style.display = 'flex';
 
 // 開始倒計時
 function startCountdown() {
+if (countDownActive) return;
 countDownActive = true;
 countdownOverlay.style.display = 'flex';
 let count = 3;
@@ -1447,6 +1457,8 @@ startGame();
 function startGame() {
 gameRunning = true;
 gamePaused = false;
+// 重置遊戲狀態
+initGame();
 // 遊戲主循環
 gameLoop();
 }
@@ -1533,20 +1545,22 @@ break;
 
 // 按鈕事件
 startButton.addEventListener('click', () => {
+if (!gameInitialized) {
+alert('遊戲資源尚未完全加載，請稍等...');
+return;
+}
 if (!gameRunning && !countDownActive) {
-initGame();
 startCountdown();
 startButton.textContent = '重新開始';
 } else if (gameOverScreen.style.display === 'flex') {
-initGame();
 startCountdown();
-} else {
+} else if (gameRunning) {
 // 如果遊戲正在運行但點擊了重新開始
 gameRunning = false;
 if (gameFrameId) {
 cancelAnimationFrame(gameFrameId);
+gameFrameId = null;
 }
-initGame();
 startCountdown();
 }
 });
@@ -1562,20 +1576,16 @@ restartButton.addEventListener('click', () => {
 gameRunning = false;
 if (gameFrameId) {
 cancelAnimationFrame(gameFrameId);
+gameFrameId = null;
 }
 initGame();
 startCountdown();
 gameOverScreen.style.display = 'none';
 });
 
-// 初始設定
-initGame();
-
-// 添加窗口大小變化時重新繪製
-window.addEventListener('resize', () => {
-if (!gameRunning) {
+// 頁面加載完成後繪製初始場景
+window.addEventListener('load', () => {
 drawInitialScene();
-}
 });
 </script>
 </body>
