@@ -278,6 +278,35 @@ border-radius: 50%;
 .double-icon { background-color: #9C27B0; }
 .magnet-icon { background-color: #2196F3; }
 .speed-icon { background-color: #FFD700; }
+
+/* 倒計時樣式 */
+.countdown-overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.7);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 100;
+display: none;
+}
+
+.countdown-number {
+font-size: 8rem;
+color: #FFD700;
+text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+0% { transform: scale(1); opacity: 1; }
+50% { transform: scale(1.2); opacity: 0.8; }
+100% { transform: scale(1); opacity: 1; }
+}
+
 @media (max-width: 768px) {
 .controls {
 flex-direction: column;
@@ -302,6 +331,9 @@ flex-wrap: wrap;
 position: static;
 margin-top: 15px;
 }
+.countdown-number {
+font-size: 6rem;
+}
 }
 </style>
 </head>
@@ -316,6 +348,9 @@ margin-top: 15px;
 <div class="mini-map-container">
 <canvas id="miniMap" width="150" height="150"></canvas>
 <div style="text-align: center; margin-top: 5px; font-size: 0.8rem; color: #FFD700;">賽道地圖</div>
+</div>
+<div class="countdown-overlay" id="countdownOverlay">
+<div class="countdown-number" id="countdownNumber">3</div>
 </div>
 <div class="top-controls">
 <button id="startButton">開始遊戲</button>
@@ -403,6 +438,9 @@ const finalScoreElement = document.getElementById('finalScore');
 const statusEffectsElement = document.getElementById('statusEffects');
 const progressFillElement = document.getElementById('progressFill');
 const lapProgressElement = document.getElementById('lapProgress');
+const countdownOverlay = document.getElementById('countdownOverlay');
+const countdownNumber = document.getElementById('countdownNumber');
+
 // 控制鍵元素
 const keyUp = document.getElementById('keyUp');
 const keyDown = document.getElementById('keyDown');
@@ -411,6 +449,7 @@ const keyRight = document.getElementById('keyRight');
 // 遊戲狀態
 let gameRunning = false;
 let gamePaused = false;
+let countDownActive = false;
 let score = 0;
 let lives = 3;
 let speed = 0;
@@ -420,6 +459,7 @@ let currentLap = 0;
 let maxSpeed = 15;
 let acceleration = 0.2;
 let deceleration = 0.1;
+let gameFrameId = null; // 用於存儲requestAnimationFrame的ID
 // 定義F1賽道控制點
 const trackPoints = [
 { x: canvas.width / 2, y: -100 },       // 起點
@@ -551,8 +591,25 @@ playerEffects[effect].active = false;
 playerEffects[effect].endTime = 0;
 }
 gameOverScreen.style.display = 'none';
+countdownOverlay.style.display = 'none';
 updateUI();
 updateStatusEffects();
+// 初始化時就繪製賽道和車輛
+drawInitialScene();
+}
+
+// 繪製初始場景
+function drawInitialScene() {
+// 清除畫布
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+// 計算垂直偏移
+const offsetY = playerCar.y - (canvas.height - 150);
+// 繪製賽道
+drawTrack(offsetY);
+// 繪製玩家車輛
+drawPlayerCar();
+// 初始化小地圖
+drawMiniMap();
 }
 
 // 獲取賽道上某個位置的點
@@ -1358,14 +1415,46 @@ statusEffectsElement.appendChild(effectElement);
 // 結束遊戲
 function endGame() {
 gameRunning = false;
+if (gameFrameId) {
+cancelAnimationFrame(gameFrameId);
+}
 finalScoreElement.textContent = score;
 gameOverScreen.style.display = 'flex';
 }
 
+// 開始倒計時
+function startCountdown() {
+countDownActive = true;
+countdownOverlay.style.display = 'flex';
+let count = 3;
+countdownNumber.textContent = count;
+
+const countdownInterval = setInterval(() => {
+count--;
+if (count > 0) {
+countdownNumber.textContent = count;
+} else {
+// 倒計時結束
+clearInterval(countdownInterval);
+countdownOverlay.style.display = 'none';
+countDownActive = false;
+startGame();
+}
+}, 1000);
+}
+
+// 開始遊戲
+function startGame() {
+gameRunning = true;
+gamePaused = false;
+// 遊戲主循環
+gameLoop();
+}
+
 // 遊戲主循環
 function gameLoop() {
-if (!gameRunning || gamePaused) {
-requestAnimationFrame(gameLoop);
+if (!gameRunning || gamePaused || countDownActive) {
+gameFrameId = requestAnimationFrame(gameLoop);
 return;
 }
 // 清除畫布
@@ -1396,7 +1485,7 @@ drawMiniMap();
 // 更新UI
 updateUI();
 // 請求下一幀
-requestAnimationFrame(gameLoop);
+gameFrameId = requestAnimationFrame(gameLoop);
 }
 
 // 事件監聽
@@ -1444,42 +1533,50 @@ break;
 
 // 按鈕事件
 startButton.addEventListener('click', () => {
-if (!gameRunning) {
+if (!gameRunning && !countDownActive) {
 initGame();
-gameRunning = true;
-gamePaused = false;
-gameLoop();
+startCountdown();
 startButton.textContent = '重新開始';
-} else {
+} else if (gameOverScreen.style.display === 'flex') {
 initGame();
-gameRunning = true;
-gamePaused = false;
-gameLoop();
+startCountdown();
+} else {
+// 如果遊戲正在運行但點擊了重新開始
+gameRunning = false;
+if (gameFrameId) {
+cancelAnimationFrame(gameFrameId);
+}
+initGame();
+startCountdown();
 }
 });
 
 pauseButton.addEventListener('click', () => {
-if (gameRunning) {
+if (gameRunning && !countDownActive) {
 gamePaused = !gamePaused;
 pauseButton.textContent = gamePaused ? '繼續遊戲' : '暫停遊戲';
 }
 });
 
 restartButton.addEventListener('click', () => {
+gameRunning = false;
+if (gameFrameId) {
+cancelAnimationFrame(gameFrameId);
+}
 initGame();
-gameRunning = true;
-gamePaused = false;
-gameLoop();
+startCountdown();
 gameOverScreen.style.display = 'none';
 });
 
 // 初始設定
 initGame();
-drawTrack(0);
-drawPlayerCar();
-drawMiniMap();
-updateUI();
-updateStatusEffects();
+
+// 添加窗口大小變化時重新繪製
+window.addEventListener('resize', () => {
+if (!gameRunning) {
+drawInitialScene();
+}
+});
 </script>
 </body>
 </html>

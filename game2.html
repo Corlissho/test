@@ -1,1489 +1,965 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>極速F1賽道 - 第一視角射擊</title>
-<style>
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
-body {
-font-family: 'Arial', sans-serif;
-background: linear-gradient(to bottom, #1a1a2e, #16213e);
-color: #fff;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-padding: 20px;
-position: relative;
-}
-.container {
-max-width: 900px;
-width: 100%;
-text-align: center;
-}
-header {
-margin-bottom: 20px;
-}
-h1 {
-font-size: 2.8rem;
-margin-bottom: 10px;
-background: linear-gradient(to right, #FFD700, #FFA500);
-background-clip: text;
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-letter-spacing: 2px;
-}
-.subtitle {
-font-size: 1.2rem;
-color: #aaa;
-margin-bottom: 20px;
-}
-.game-container {
-position: relative;
-margin: 0 auto 30px;
-overflow: hidden;
-border-radius: 10px;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-}
-#gameCanvas {
-background-color: #0f3460;
-display: block;
-width: 100%;
-}
-.top-controls {
-position: absolute;
-top: 20px;
-right: 20px;
-z-index: 100;
-display: flex;
-gap: 10px;
-}
-.top-controls button {
-background: linear-gradient(to right, #FF416C, #FF4B2B);
-background-clip: border-box;
--webkit-background-clip: border-box;
-border: none;
-border-radius: 50px;
-color: white;
-padding: 10px 20px;
-font-size: 1rem;
-font-weight: bold;
-cursor: pointer;
-transition: all 0.3s;
-box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
-}
-.top-controls button:hover {
-transform: translateY(-3px);
-box-shadow: 0 8px 20px rgba(255, 65, 108, 0.6);
-}
-.top-controls button:active {
-transform: translateY(1px);
-}
-.controls {
-display: flex;
-justify-content: space-between;
-width: 100%;
-max-width: 800px;
-margin-bottom: 30px;
-}
-.control-panel {
-background: rgba(255, 255, 255, 0.1);
-border-radius: 10px;
-padding: 20px;
-flex: 1;
-margin: 0 10px;
-}
-.control-panel h2 {
-color: #4FC3F7;
-margin-bottom: 15px;
-font-size: 1.5rem;
-}
-.key-controls {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-grid-template-rows: repeat(3, 1fr);
-gap: 10px;
-max-width: 200px;
-margin: 0 auto;
-}
-.key {
-background: rgba(0, 0, 0, 0.5);
-border: 2px solid #4FC3F7;
-border-radius: 8px;
-padding: 15px;
-font-size: 1.5rem;
-font-weight: bold;
-display: flex;
-align-items: center;
-justify-content: center;
-color: white;
-user-select: none;
-transition: all 0.1s;
-}
-.key.active {
-background: #4FC3F7;
-transform: scale(0.95);
-box-shadow: 0 0 15px #4FC3F7;
-}
-.key-up {
-grid-column: 2;
-grid-row: 1;
-}
-.key-left {
-grid-column: 1;
-grid-row: 2;
-}
-.key-down {
-grid-column: 2;
-grid-row: 2;
-}
-.key-right {
-grid-column: 3;
-grid-row: 2;
-}
-.game-info {
-display: flex;
-justify-content: space-around;
-margin-top: 20px;
-flex-wrap: wrap;
-}
-.info-box {
-background: rgba(255, 255, 255, 0.1);
-border-radius: 10px;
-padding: 15px 25px;
-min-width: 150px;
-margin: 10px;
-}
-.info-title {
-color: #FFD700;
-font-size: 1rem;
-margin-bottom: 5px;
-}
-.info-value {
-font-size: 2rem;
-font-weight: bold;
-color: white;
-}
-.race-progress {
-background: rgba(255, 255, 255, 0.1);
-border-radius: 10px;
-padding: 15px;
-margin-top: 10px;
-}
-.progress-bar {
-height: 20px;
-background: rgba(0, 0, 0, 0.5);
-border-radius: 10px;
-overflow: hidden;
-margin-top: 8px;
-position: relative;
-}
-.progress-fill {
-height: 100%;
-background: linear-gradient(to right, #4FC3F7, #FFD700);
-border-radius: 10px;
-width: 0%;
-transition: width 0.3s;
-}
-.mini-map-container {
-position: absolute;
-bottom: 20px;
-right: 20px;
-background: rgba(0, 0, 0, 0.7);
-border-radius: 10px;
-padding: 10px;
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-z-index: 50;
-}
-#miniMap {
-width: 150px;
-height: 150px;
-display: block;
-}
-.instructions {
-background: rgba(255, 255, 255, 0.1);
-border-radius: 10px;
-padding: 20px;
-margin-top: 30px;
-text-align: left;
-max-width: 800px;
-}
-.instructions h2 {
-color: #4FC3F7;
-margin-bottom: 15px;
-text-align: center;
-}
-.instructions ul {
-padding-left: 20px;
-margin-bottom: 15px;
-}
-.instructions li {
-margin-bottom: 8px;
-line-height: 1.5;
-}
-.instructions p {
-color: #aaa;
-font-style: italic;
-text-align: center;
-}
-.game-over {
-position: absolute;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.85);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-z-index: 10;
-display: none;
-}
-.game-over h2 {
-font-size: 3.5rem;
-color: #FF416C;
-margin-bottom: 20px;
-}
-.game-over p {
-font-size: 1.5rem;
-margin-bottom: 30px;
-}
-.status-effects {
-display: flex;
-justify-content: center;
-gap: 15px;
-margin-top: 10px;
-flex-wrap: wrap;
-}
-.status-effect {
-background: rgba(255, 255, 255, 0.15);
-border-radius: 8px;
-padding: 8px 15px;
-font-size: 0.9rem;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-.status-effect-icon {
-width: 20px;
-height: 20px;
-border-radius: 50%;
-}
-.shield-icon { background-color: #4CAF50; }
-.slow-icon { background-color: #FFC107; }
-.double-icon { background-color: #9C27B0; }
-.magnet-icon { background-color: #2196F3; }
-.speed-icon { background-color: #FFD700; }
-@media (max-width: 768px) {
-.controls {
-flex-direction: column;
-}
-.control-panel {
-margin: 10px 0;
-}
-.game-info {
-flex-direction: column;
-align-items: center;
-}
-.status-effects {
-flex-direction: column;
-align-items: center;
-}
-.top-controls {
-position: static;
-margin-bottom: 15px;
-flex-wrap: wrap;
-}
-.mini-map-container {
-position: static;
-margin-top: 15px;
-}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 第一視角射箭大師 🎯</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0e17, #1a1a2e, #0a0e17);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 900px;
+            max-width: 95%;
+            background: rgba(5, 8, 15, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            padding: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ffcc00, #ff9900, #ff6600);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(15, 25, 45, 0.8);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        .stat-box {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #ffcc00, #ff9900);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        canvas {
+            background: #0a0e17;
+            border-radius: 15px;
+            display: block;
+            margin: 0 auto;
+            cursor: none;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(100, 150, 255, 0.4);
+        }
+        
+        .instructions {
+            color: #e0e0e0;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(15, 25, 45, 0.8);
+            border-radius: 15px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+        }
+        
+        .instructions p {
+            margin: 8px 0;
+        }
+        
+        .highlight {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        .power-bar {
+            height: 25px;
+            background: rgba(20, 30, 50, 0.8);
+            border-radius: 15px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(100, 150, 255, 0.3);
+        }
+        
+        .power-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #ff3300, #ffcc00, #4db6ac);
+            border-radius: 15px;
+            transition: width 0.1s;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .power-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 0 3px black;
+            font-size: 1.1rem;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 8, 15, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 20px;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        
+        .game-over h2 {
+            color: #ffcc00;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+            background: linear-gradient(to right, #ffcc00, #ff6600);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .final-score {
+            color: white;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #4db6ac, #4fc3f7);
+            background-clip: border-box;
+            -webkit-background-clip: border-box;
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            font-size: 1.3rem;
+            border-radius: 60px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            box-shadow: 0 5px 20px rgba(0, 150, 200, 0.4);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 150, 200, 0.6);
+            background: linear-gradient(to right, #4fc3f7, #5e81ac);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+        
+        .btn:hover::after {
+            opacity: 1;
+            transform: rotate(30deg) translate(40%, 40%);
+        }
+        
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 2px;
+        }
+        
+        .crosshair::before {
+            width: 30px;
+            height: 3px;
+            top: 13.5px;
+            left: 0;
+        }
+        
+        .crosshair::after {
+            width: 3px;
+            height: 30px;
+            top: 0;
+            left: 13.5px;
+        }
+        
+        .scope-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            border: 2px solid rgba(100, 200, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 4;
+            box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
+        }
+        
+        .scope-ring::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 1px dashed rgba(150, 220, 255, 0.5);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @media (max-width: 600px) {
+            .game-container {
+                width: 100%;
+            }
+            
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stat-value {
+                font-size: 1.8rem;
+            }
+            
+            .instructions {
+                font-size: 0.95rem;
+            }
+            
+            .crosshair::before,
+            .crosshair::after {
+                background: rgba(255, 255, 255, 0.9);
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<header>
-<h1>極速F1賽道</h1>
-<p class="subtitle">使用方向鍵控制跑車，征服彎曲賽道，爭取最快圈速！</p>
-</header>
-<div class="game-container">
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-<div class="mini-map-container">
-<canvas id="miniMap" width="150" height="150"></canvas>
-<div style="text-align: center; margin-top: 5px; font-size: 0.8rem; color: #FFD700;">賽道地圖</div>
-</div>
-<div class="top-controls">
-<button id="startButton">開始遊戲</button>
-<button id="pauseButton">暫停遊戲</button>
-</div>
-<div class="game-over" id="gameOverScreen">
-<h2>遊戲結束！</h2>
-<p>你的分數：<span id="finalScore">0</span></p>
-<button id="restartButton">重新開始</button>
-</div>
-</div>
-<div class="controls">
-<div class="control-panel">
-<h2>控制鍵</h2>
-<div class="key-controls">
-<div class="key key-up" id="keyUp">↑</div>
-<div class="key key-left" id="keyLeft">←</div>
-<div class="key key-down" id="keyDown">↓</div>
-<div class="key key-right" id="keyRight">→</div>
-</div>
-</div>
-<div class="control-panel">
-<h2>遊戲狀態</h2>
-<div class="game-info">
-<div class="info-box">
-<div class="info-title">分數</div>
-<div class="info-value" id="score">0</div>
-</div>
-<div class="info-box">
-<div class="info-title">速度</div>
-<div class="info-value" id="speed">0 km/h</div>
-</div>
-<div class="info-box">
-<div class="info-title">生命值</div>
-<div class="info-value" id="lives">3</div>
-</div>
-</div>
-<div class="race-progress">
-<div class="info-title">賽道進度</div>
-<div class="progress-bar">
-<div class="progress-fill" id="progressFill"></div>
-</div>
-<div style="text-align: right; font-size: 0.9rem; margin-top: 5px; color: #FFD700;">
-<span id="lapProgress">0</span>% / 100%
-</div>
-</div>
-<div class="status-effects" id="statusEffects">
-<!-- 狀態效果將在這裡動態生成 -->
-</div>
-</div>
-</div>
-<div class="instructions">
-<h2>遊戲說明</h2>
-<ul>
-<li>使用 <strong>↑ 下鍵</strong> 加速/減速</li>
-<li>使用 <strong>← → 鍵</strong> 左右轉向控制方向</li>
-<li>在彎道處提前減速，避免衝出賽道</li>
-<li>保持在賽道上以獲得持續加分</li>
-<li><strong>新道具系統：</strong></li>
-<li style="margin-left: 20px;">🟢 <strong>護盾</strong>：綠色圓圈，3秒無敵</li>
-<li style="margin-left: 20px;">🟡 <strong>減速</strong>：黃色圓圈，5秒內所有敵車減速</li>
-<li style="margin-left: 20px;">🟣 <strong>分數加倍</strong>：紫色星星，30秒內分數加倍</li>
-<li style="margin-left: 20px;">🔵 <strong>磁鐵</strong>：藍色磁鐵，自動吸引附近道具</li>
-<li style="margin-left: 20px;">🟡 <strong>加速</strong>：黃色閃電，3秒內速度提升</li>
-<li>完成一圈賽道可獲得獎勵分數</li>
-<li>遊戲目標：在一圈內獲得最高分！</li>
-</ul>
-<p>注意：車速越快，轉彎越困難！</p>
-</div>
-</div>
-<script>
-// 遊戲變數
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const miniMapCanvas = document.getElementById('miniMap');
-const miniMapCtx = miniMapCanvas.getContext('2d');
-const scoreElement = document.getElementById('score');
-const speedElement = document.getElementById('speed');
-const livesElement = document.getElementById('lives');
-const startButton = document.getElementById('startButton');
-const pauseButton = document.getElementById('pauseButton');
-const restartButton = document.getElementById('restartButton');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const finalScoreElement = document.getElementById('finalScore');
-const statusEffectsElement = document.getElementById('statusEffects');
-const progressFillElement = document.getElementById('progressFill');
-const lapProgressElement = document.getElementById('lapProgress');
-// 控制鍵元素
-const keyUp = document.getElementById('keyUp');
-const keyDown = document.getElementById('keyDown');
-const keyLeft = document.getElementById('keyLeft');
-const keyRight = document.getElementById('keyRight');
-// 遊戲狀態
-let gameRunning = false;
-let gamePaused = false;
-let score = 0;
-let lives = 3;
-let speed = 0;
-let trackProgress = 0; // 賽道進度 (0-100%)
-const totalTrackLength = 3000; // 總賽道長度（單位）
-let currentLap = 0;
-let maxSpeed = 15;
-let acceleration = 0.2;
-let deceleration = 0.1;
-// 定義F1賽道控制點
-const trackPoints = [
-{ x: canvas.width / 2, y: -100 },       // 起點
-{ x: canvas.width / 2, y: 100 },        // 直道
-{ x: canvas.width / 2 + 150, y: 300 },  // 第一個右彎
-{ x: canvas.width / 2 + 300, y: 400 },  // 彎心
-{ x: canvas.width / 2 + 200, y: 550 },  // 彎道出口
-{ x: canvas.width / 2, y: 700 },        // 直道
-{ x: canvas.width / 2 - 200, y: 900 },  // 左彎
-{ x: canvas.width / 2 - 300, y: 1000 }, // 彎心
-{ x: canvas.width / 2 - 150, y: 1150 }, // 彎道出口
-{ x: canvas.width / 2, y: 1300 },       // 直道
-{ x: canvas.width / 2 + 100, y: 1500 }, // 右彎
-{ x: canvas.width / 2, y: 1700 },       // 終點直道
-];
-// 計算賽道總長度
-function calculateTrackLength() {
-let length = 0;
-for (let i = 1; i < trackPoints.length; i++) {
-const dx = trackPoints[i].x - trackPoints[i-1].x;
-const dy = trackPoints[i].y - trackPoints[i-1].y;
-length += Math.sqrt(dx * dx + dy * dy);
-}
-return length;
-}
-const actualTrackLength = calculateTrackLength();
-// 道具類型定義
-const POWERUP_TYPES = {
-SHIELD: {
-id: 'shield',
-name: '護盾',
-color: '#4CAF50',
-duration: 3000,
-icon: '🛡️',
-drawFunction: drawShieldPowerUp
-},
-SLOW_ENEMY: {
-id: 'slow',
-name: '減速',
-color: '#FFC107',
-duration: 5000,
-icon: '🐢',
-drawFunction: drawSlowPowerUp
-},
-DOUBLE_SCORE: {
-id: 'double',
-name: '分數加倍',
-color: '#9C27B0',
-duration: 30000,
-icon: '⭐',
-drawFunction: drawDoubleScorePowerUp
-},
-MAGNET: {
-id: 'magnet',
-name: '磁鐵',
-color: '#2196F3',
-duration: 10000,
-icon: '🧲',
-drawFunction: drawMagnetPowerUp
-},
-SPEED_BOOST: {
-id: 'speed',
-name: '加速',
-color: '#FFD700',
-duration: 3000,
-icon: '⚡',
-drawFunction: drawSpeedPowerUp
-}
-};
-// 玩家狀態效果
-let playerEffects = {
-shield: { active: false, endTime: 0 },
-slowEnemy: { active: false, endTime: 0 },
-doubleScore: { active: false, endTime: 0 },
-magnet: { active: false, endTime: 0, range: 200 },
-speedBoost: { active: false, endTime: 0 }
-};
-// 玩家車輛
-const playerCar = {
-x: canvas.width / 2,
-y: canvas.height - 150,
-width: 40,
-height: 70,
-color: '#FF416C',
-angle: 0, // 車輛角度（用於轉向）
-speed: 0,
-maxSpeed: maxSpeed,
-acceleration: acceleration,
-deceleration: deceleration,
-steering: 0, // 轉向角度
-steeringSpeed: 0.05, // 轉向速度
-isInvulnerable: false,
-trackPosition: 0 // 車輛在賽道上的位置 (0-1)
-};
-// 敵方車輛陣列
-let enemyCars = [];
-// 道具陣列
-let powerUps = [];
-// 控制狀態
-const keys = {
-ArrowUp: false,
-ArrowDown: false,
-ArrowLeft: false,
-ArrowRight: false
-};
-// 賽道寬度
-const trackWidth = 200;
-// 轉彎係數（用於模擬轉彎時的離心力）
-const turnFactor = 0.5;
+    <div class="game-container">
+        <div class="header">
+            <h1>🎯 射箭大師 - 第一視角 🎯</h1>
+            <div class="subtitle">體驗真實的射箭感受，瞄準靶心，創造最高分數！</div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">得分</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="arrows">10</div>
+                <div class="stat-label">剩餘箭數</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">命中率</div>
+            </div>
+        </div>
+        
+        <div class="power-bar">
+            <div class="power-fill" id="powerFill"></div>
+            <div class="power-text" id="powerText">拉弓力度: 0%</div>
+        </div>
+        
+        <div style="position: relative; overflow: hidden; border-radius: 15px;">
+            <canvas id="gameCanvas" width="880" height="500"></canvas>
+            <div class="crosshair"></div>
+            <div class="scope-ring"></div>
+        </div>
+        
+        <div class="instructions">
+            <p>🎯 <span class="highlight">按住滑鼠左鍵</span> 拉弓並調整力度（垂直拖動）</p>
+            <p>🎯 <span class="highlight">釋放滑鼠左鍵</span> 發射箭矢</p>
+            <p>🎯 靶心（黃色）得分最高，<span class="highlight">10分</span>！每輪有<span class="highlight">10支箭</span></p>
+            <p>🎯 環境風速會影響箭的軌跡，注意瞄準微調</p>
+        </div>
+        
+        <div class="game-over" id="gameOver">
+            <h2>🎯 遊戲結束！🎯</h2>
+            <div class="final-score">最終得分: <span id="finalScore">0</span></div>
+            <button class="btn" id="restartBtn">再玩一次</button>
+        </div>
+    </div>
 
-// 初始化遊戲
-function initGame() {
-score = 0;
-lives = 3;
-speed = 0;
-trackProgress = 0;
-currentLap = 0;
-playerCar.x = canvas.width / 2;
-playerCar.y = canvas.height - 150;
-playerCar.angle = 0;
-playerCar.speed = 0;
-playerCar.trackPosition = 0;
-playerCar.isInvulnerable = false;
-enemyCars = [];
-powerUps = [];
-// 重置所有效果
-for (let effect in playerEffects) {
-playerEffects[effect].active = false;
-playerEffects[effect].endTime = 0;
-}
-gameOverScreen.style.display = 'none';
-updateUI();
-updateStatusEffects();
-}
-
-// 獲取賽道上某個位置的點
-function getTrackPoint(position) {
-// position: 0-1 之間的值，表示賽道上的相對位置
-const totalPoints = trackPoints.length - 1;
-const segment = Math.floor(position * totalPoints);
-const t = (position * totalPoints) - segment;
-const p0 = trackPoints[segment];
-const p1 = trackPoints[segment + 1];
-return {
-x: p0.x + (p1.x - p0.x) * t,
-y: p0.y + (p1.y - p0.y) * t
-};
-}
-
-// 獲取賽道上某個位置的方向（用於轉向）
-function getTrackDirection(position) {
-const delta = 0.01;
-const p0 = getTrackPoint(position);
-const p1 = getTrackPoint(position + delta);
-return Math.atan2(p1.y - p0.y, p1.x - p0.x);
-}
-
-// 繪製彎曲賽道
-function drawTrack(offsetY) {
-// 清除背景
-ctx.fillStyle = '#0f3460';
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-// 繪製背景元素
-drawBackground();
-// 計算需要繪製的賽道點
-const points = [];
-const leftPoints = [];
-const rightPoints = [];
-const resolution = 150; // 賽道細分度
-for (let i = 0; i <= resolution; i++) {
-const t = i / resolution;
-const point = getTrackPoint(t);
-const direction = getTrackDirection(t);
-// 計算賽道左右邊界
-const perpendicularAngle = direction + Math.PI/2;
-const leftX = point.x + Math.cos(perpendicularAngle) * trackWidth/2;
-const leftY = point.y + Math.sin(perpendicularAngle) * trackWidth/2;
-const rightX = point.x - Math.cos(perpendicularAngle) * trackWidth/2;
-const rightY = point.y - Math.sin(perpendicularAngle) * trackWidth/2;
-// 應用垂直偏移（滾動效果）
-const visibleY = point.y - offsetY;
-const visibleLeftY = leftY - offsetY;
-const visibleRightY = rightY - offsetY;
-points.push({x: point.x, y: visibleY});
-leftPoints.push({x: leftX, y: visibleLeftY});
-rightPoints.push({x: rightX, y: visibleRightY});
-}
-// 繪製賽道路面
-ctx.beginPath();
-ctx.moveTo(leftPoints[0].x, leftPoints[0].y);
-for (let i = 1; i < leftPoints.length; i++) {
-ctx.lineTo(leftPoints[i].x, leftPoints[i].y);
-}
-for (let i = rightPoints.length - 1; i >= 0; i--) {
-ctx.lineTo(rightPoints[i].x, rightPoints[i].y);
-}
-ctx.closePath();
-ctx.fillStyle = '#333';
-ctx.fill();
-// 繪製賽道邊線
-ctx.beginPath();
-for (let i = 0; i < leftPoints.length; i++) {
-if (i === 0) ctx.moveTo(leftPoints[i].x, leftPoints[i].y);
-else ctx.lineTo(leftPoints[i].x, leftPoints[i].y);
-}
-ctx.strokeStyle = '#FF0000';
-ctx.lineWidth = 3;
-ctx.stroke();
-ctx.beginPath();
-for (let i = 0; i < rightPoints.length; i++) {
-if (i === 0) ctx.moveTo(rightPoints[i].x, rightPoints[i].y);
-else ctx.lineTo(rightPoints[i].x, rightPoints[i].y);
-}
-ctx.strokeStyle = '#FF0000';
-ctx.lineWidth = 3;
-ctx.stroke();
-// 繪製中線標記
-ctx.setLineDash([20, 20]); // 虛線
-ctx.beginPath();
-for (let i = 0; i < points.length; i++) {
-if (i === 0) ctx.moveTo(points[i].x, points[i].y);
-else ctx.lineTo(points[i].x, points[i].y);
-}
-ctx.strokeStyle = '#FFFFFF';
-ctx.lineWidth = 2;
-ctx.stroke();
-ctx.setLineDash([]); // 重置虛線
-// 繪製起終點線
-drawStartFinishLine(offsetY);
-// 繪製彎道提示標誌
-drawCurveMarkers(offsetY);
-}
-
-// 繪製起終點線
-function drawStartFinishLine(offsetY) {
-const startPoint = getTrackPoint(0);
-const finishPoint = getTrackPoint(1);
-const direction = getTrackDirection(1);
-const perpendicularAngle = direction + Math.PI/2;
-const leftX = finishPoint.x + Math.cos(perpendicularAngle) * trackWidth/2;
-const leftY = finishPoint.y + Math.sin(perpendicularAngle) * trackWidth/2;
-const rightX = finishPoint.x - Math.cos(perpendicularAngle) * trackWidth/2;
-const rightY = finishPoint.y - Math.sin(perpendicularAngle) * trackWidth/2;
-// 起終點線
-ctx.beginPath();
-ctx.moveTo(leftX, leftY - offsetY);
-ctx.lineTo(rightX, rightY - offsetY);
-ctx.strokeStyle = '#FFFFFF';
-ctx.lineWidth = 6;
-ctx.stroke();
-// 棋盤格紋理
-ctx.fillStyle = '#FFFFFF';
-for (let i = 0; i < 10; i++) {
-for (let j = 0; j < 4; j++) {
-const x = leftX + (rightX - leftX) * (i/10);
-const y = leftY - offsetY + (rightY - leftY) * (j/4);
-if ((i + j) % 2 === 0) {
-ctx.fillRect(x - 5, y - 5, 10, 10);
-}
-}
-}
-}
-
-// 繪製彎道提示標誌
-function drawCurveMarkers(offsetY) {
-// 在彎道處繪製提示標誌
-const curvePoints = [
-{ position: 0.15, type: 'right', marker: '⮞' },  // 第一個右彎
-{ position: 0.45, type: 'left', marker: '⮟' },   // 左彎
-{ position: 0.75, type: 'right', marker: '⮞' }   // 右彎
-];
-curvePoints.forEach(point => {
-const trackPoint = getTrackPoint(point.position);
-const direction = getTrackDirection(point.position);
-// 計算標誌位置（在賽道上方）
-const markerX = trackPoint.x;
-const markerY = trackPoint.y - offsetY - 50;
-// 繪製標誌
-ctx.font = '24px Arial';
-ctx.fillStyle = '#FFD700';
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-ctx.fillText(point.marker, markerX, markerY);
-// 繪製箭頭指向彎道
-ctx.beginPath();
-ctx.moveTo(markerX, markerY + 20);
-ctx.lineTo(trackPoint.x, trackPoint.y - offsetY);
-ctx.strokeStyle = 'rgba(255, 215, 0, 0.7)';
-ctx.lineWidth = 2;
-ctx.stroke();
-});
-}
-
-// 繪製背景
-function drawBackground() {
-// 遠處山脈
-ctx.fillStyle = 'rgba(15, 52, 96, 0.7)';
-ctx.beginPath();
-ctx.moveTo(0, 100);
-ctx.lineTo(150, 50);
-ctx.lineTo(300, 120);
-ctx.lineTo(500, 80);
-ctx.lineTo(700, 130);
-ctx.lineTo(800, 90);
-ctx.lineTo(800, 0);
-ctx.lineTo(0, 0);
-ctx.closePath();
-ctx.fill();
-// 雲朵
-ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-drawCloud(100, 60, 40);
-drawCloud(400, 40, 30);
-drawCloud(600, 80, 50);
-}
-
-// 繪製雲朵
-function drawCloud(x, y, size) {
-ctx.beginPath();
-ctx.arc(x, y, size, 0, Math.PI * 2);
-ctx.arc(x + size * 0.8, y - size * 0.3, size * 0.7, 0, Math.PI * 2);
-ctx.arc(x + size * 1.5, y, size * 0.8, 0, Math.PI * 2);
-ctx.arc(x + size * 0.8, y + size * 0.3, size * 0.7, 0, Math.PI * 2);
-ctx.fill();
-}
-
-// 繪製玩家車輛（旋轉版）
-function drawPlayerCar() {
-ctx.save();
-// 將原點移到車輛中心
-ctx.translate(playerCar.x, playerCar.y);
-// 旋轉畫布
-ctx.rotate(playerCar.angle);
-// 如果有護盾效果，繪製護盾
-if (playerEffects.shield.active) {
-ctx.strokeStyle = '#4CAF50';
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.arc(0, 0, Math.max(playerCar.width, playerCar.height)/2 + 15, 0, Math.PI * 2);
-ctx.stroke();
-// 護盾脈衝效果
-const pulse = (Date.now() % 1000) / 1000;
-ctx.globalAlpha = 0.3 + 0.2 * Math.sin(pulse * Math.PI * 2);
-ctx.fillStyle = '#4CAF50';
-ctx.beginPath();
-ctx.arc(0, 0, Math.max(playerCar.width, playerCar.height)/2 + 10, 0, Math.PI * 2);
-ctx.fill();
-ctx.globalAlpha = 1.0;
-}
-// 車身
-ctx.fillStyle = playerCar.color;
-ctx.fillRect(-playerCar.width/2, -playerCar.height/2, playerCar.width, playerCar.height);
-// 車窗
-ctx.fillStyle = '#4FC3F7';
-ctx.fillRect(-playerCar.width/2 + 5, -playerCar.height/2 + 10, playerCar.width - 10, playerCar.height/3);
-// 車燈
-ctx.fillStyle = '#FFD700';
-ctx.fillRect(-playerCar.width/2 + 5, playerCar.height/2 - 15, 10, 10);
-ctx.fillRect(playerCar.width/2 - 15, playerCar.height/2 - 15, 10, 10);
-// 輪胎
-ctx.fillStyle = '#222';
-ctx.fillRect(-playerCar.width/2 - 5, -playerCar.height/2 + 15, 5, 25);
-ctx.fillRect(playerCar.width/2, -playerCar.height/2 + 15, 5, 25);
-ctx.fillRect(-playerCar.width/2 - 5, playerCar.height/2 - 40, 5, 25);
-ctx.fillRect(playerCar.width/2, playerCar.height/2 - 40, 5, 25);
-// 車頂
-ctx.fillStyle = '#333';
-ctx.fillRect(-playerCar.width/2 + 8, -playerCar.height/2 - 5, playerCar.width - 16, 10);
-ctx.restore();
-// 如果有磁鐵效果，繪製磁力範圍
-if (playerEffects.magnet.active) {
-ctx.strokeStyle = '#2196F3';
-ctx.lineWidth = 2;
-ctx.setLineDash([5, 5]);
-ctx.beginPath();
-ctx.arc(
-playerCar.x,
-playerCar.y,
-playerEffects.magnet.range,
-0, Math.PI * 2
-);
-ctx.stroke();
-ctx.setLineDash([]);
-}
-}
-
-// 繪製敵方車輛
-function drawEnemyCars(offsetY) {
-enemyCars.forEach(car => {
-ctx.save();
-ctx.translate(car.x, car.y - offsetY);
-ctx.rotate(car.angle);
-// 如果有減速效果，改變車輛顏色
-if (playerEffects.slowEnemy.active) {
-ctx.fillStyle = '#666'; // 變灰表示減速
-} else {
-ctx.fillStyle = car.color;
-}
-ctx.fillRect(-car.width/2, -car.height/2, car.width, car.height);
-// 車窗
-ctx.fillStyle = '#999';
-ctx.fillRect(-car.width/2 + 5, -car.height/2 + 10, car.width - 10, car.height/3);
-// 輪胎
-ctx.fillStyle = '#222';
-ctx.fillRect(-car.width/2 - 5, -car.height/2 + 15, 5, 20);
-ctx.fillRect(car.width/2, -car.height/2 + 15, 5, 20);
-ctx.fillRect(-car.width/2 - 5, car.height/2 - 35, 5, 20);
-ctx.fillRect(car.width/2, car.height/2 - 35, 5, 20);
-ctx.restore();
-});
-}
-
-// 繪製護盾道具
-function drawShieldPowerUp(x, y, size) {
-// 外圈
-ctx.strokeStyle = '#4CAF50';
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.arc(x, y, size/2, 0, Math.PI * 2);
-ctx.stroke();
-// 內圈
-ctx.fillStyle = '#4CAF50';
-ctx.beginPath();
-ctx.arc(x, y, size/3, 0, Math.PI * 2);
-ctx.fill();
-// 護盾圖標
-ctx.fillStyle = '#FFFFFF';
-ctx.beginPath();
-// 繪製簡單的盾牌形狀
-ctx.moveTo(x, y - size/4);
-ctx.lineTo(x - size/4, y);
-ctx.lineTo(x, y + size/4);
-ctx.lineTo(x + size/4, y);
-ctx.closePath();
-ctx.fill();
-}
-
-// 繪製減速道具
-function drawSlowPowerUp(x, y, size) {
-// 黃色圓圈
-ctx.fillStyle = '#FFC107';
-ctx.beginPath();
-ctx.arc(x, y, size/2, 0, Math.PI * 2);
-ctx.fill();
-// 烏龜圖標
-ctx.fillStyle = '#795548';
-// 烏龜身體
-ctx.beginPath();
-ctx.ellipse(x, y, size/3, size/4, 0, 0, Math.PI * 2);
-ctx.fill();
-// 烏龜頭
-ctx.beginPath();
-ctx.arc(x, y - size/6, size/8, 0, Math.PI * 2);
-ctx.fill();
-}
-
-// 繪製分數加倍道具
-function drawDoubleScorePowerUp(x, y, size) {
-// 紫色星星背景
-ctx.fillStyle = '#9C27B0';
-ctx.beginPath();
-ctx.arc(x, y, size/2, 0, Math.PI * 2);
-ctx.fill();
-// 星星
-ctx.fillStyle = '#FFFFFF';
-drawStar(ctx, x, y, 5, size/4, size/8);
-}
-
-// 繪製磁鐵道具
-function drawMagnetPowerUp(x, y, size) {
-// 藍色背景
-ctx.fillStyle = '#2196F3';
-ctx.beginPath();
-ctx.arc(x, y, size/2, 0, Math.PI * 2);
-ctx.fill();
-// 磁鐵圖標
-ctx.fillStyle = '#FFFFFF';
-// 磁鐵的U形
-ctx.beginPath();
-ctx.arc(x, y, size/3, Math.PI * 0.25, Math.PI * 0.75);
-ctx.arc(x, y, size/3, Math.PI * 1.25, Math.PI * 1.75);
-ctx.closePath();
-ctx.fill();
-}
-
-// 繪製加速道具
-function drawSpeedPowerUp(x, y, size) {
-// 道具外框
-ctx.fillStyle = '#4FC3F7';
-ctx.beginPath();
-ctx.arc(x, y, size/2 + 2, 0, Math.PI * 2);
-ctx.fill();
-// 道具內部
-ctx.fillStyle = '#FFD700';
-ctx.beginPath();
-ctx.arc(x, y, size/2 - 2, 0, Math.PI * 2);
-ctx.fill();
-// 閃電圖標
-ctx.fillStyle = '#4FC3F7';
-ctx.beginPath();
-ctx.moveTo(x, y - size/3);
-ctx.lineTo(x - size/6, y);
-ctx.lineTo(x, y);
-ctx.lineTo(x + size/6, y + size/6);
-ctx.lineTo(x, y + size/6);
-ctx.lineTo(x + size/6, y - size/6);
-ctx.closePath();
-ctx.fill();
-}
-
-// 繪製星星的輔助函數
-function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
-let rot = Math.PI / 2 * 3;
-let x = cx;
-let y = cy;
-let step = Math.PI / spikes;
-ctx.beginPath();
-ctx.moveTo(cx, cy - outerRadius);
-for (let i = 0; i < spikes; i++) {
-x = cx + Math.cos(rot) * outerRadius;
-y = cy + Math.sin(rot) * outerRadius;
-ctx.lineTo(x, y);
-rot += step;
-x = cx + Math.cos(rot) * innerRadius;
-y = cy + Math.sin(rot) * innerRadius;
-ctx.lineTo(x, y);
-rot += step;
-}
-ctx.lineTo(cx, cy - outerRadius);
-ctx.closePath();
-ctx.fill();
-}
-
-// 繪製所有道具
-function drawPowerUps(offsetY) {
-powerUps.forEach(powerUp => {
-ctx.save();
-ctx.translate(0, -offsetY);
-const powerUpType = POWERUP_TYPES[powerUp.type];
-if (powerUpType && powerUpType.drawFunction) {
-powerUpType.drawFunction(powerUp.x, powerUp.y, powerUp.size);
-}
-ctx.restore();
-});
-}
-
-// 繪製路線圖（Mini Map）
-function drawMiniMap() {
-// 清除小地圖
-miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
-// 設置縮放和偏移
-const scaleX = miniMapCanvas.width / canvas.width;
-const scaleY = miniMapCanvas.height / canvas.height;
-const scale = Math.min(scaleX, scaleY) * 0.8;
-// 重置變換
-miniMapCtx.setTransform(1, 0, 0, 1, 0, 0);
-// 將原點移至中心
-miniMapCtx.translate(miniMapCanvas.width / 2, miniMapCanvas.height / 2);
-// 繪製賽道輪廓
-miniMapCtx.beginPath();
-for (let i = 0; i < trackPoints.length; i++) {
-const point = trackPoints[i];
-const x = (point.x - canvas.width / 2) * scale;
-const y = (point.y - canvas.height) * scale * 0.3; // 壓縮Y軸
-if (i === 0) miniMapCtx.moveTo(x, y);
-else miniMapCtx.lineTo(x, y);
-}
-miniMapCtx.strokeStyle = '#333';
-miniMapCtx.lineWidth = trackWidth * scale;
-miniMapCtx.stroke();
-// 繪製賽道中心線
-miniMapCtx.beginPath();
-for (let i = 0; i < trackPoints.length; i++) {
-const point = trackPoints[i];
-const x = (point.x - canvas.width / 2) * scale;
-const y = (point.y - canvas.height) * scale * 0.3;
-if (i === 0) miniMapCtx.moveTo(x, y);
-else miniMapCtx.lineTo(x, y);
-}
-miniMapCtx.setLineDash([5, 3]);
-miniMapCtx.strokeStyle = '#FFFFFF';
-miniMapCtx.lineWidth = 2;
-miniMapCtx.stroke();
-miniMapCtx.setLineDash([]);
-// 繪製玩家位置
-const playerTrackPos = playerCar.trackPosition;
-const playerPoint = getTrackPoint(playerTrackPos);
-const playerX = (playerPoint.x - canvas.width / 2) * scale;
-const playerY = (playerPoint.y - canvas.height) * scale * 0.3;
-miniMapCtx.fillStyle = '#FF416C';
-miniMapCtx.beginPath();
-miniMapCtx.arc(playerX, playerY, 5, 0, Math.PI * 2);
-miniMapCtx.fill();
-// 繪製終點位置
-const finishPoint = getTrackPoint(1);
-const finishX = (finishPoint.x - canvas.width / 2) * scale;
-const finishY = (finishPoint.y - canvas.height) * scale * 0.3;
-miniMapCtx.fillStyle = '#FFD700';
-miniMapCtx.beginPath();
-miniMapCtx.arc(finishX, finishY, 5, 0, Math.PI * 2);
-miniMapCtx.fill();
-// 繪製方向箭頭
-miniMapCtx.fillStyle = '#FFFFFF';
-miniMapCtx.font = '8px Arial';
-miniMapCtx.textAlign = 'center';
-miniMapCtx.fillText('↑', 0, -miniMapCanvas.height / 2 + 15);
-}
-
-// 生成敵方車輛
-function generateEnemyCar() {
-if (Math.random() < 0.02) { // 2% 機率生成敵車
-const trackPos = Math.random() * 0.3; // 敵車出現在賽道前30%
-const point = getTrackPoint(trackPos);
-const direction = getTrackDirection(trackPos);
-const perpendicularAngle = direction + Math.PI/2;
-// 隨機選擇賽道左側或右側
-const offsetX = (Math.random() - 0.5) * trackWidth * 0.7;
-const x = point.x + Math.cos(perpendicularAngle) * offsetX;
-const y = point.y;
-const colors = ['#FF9800', '#9C27B0', '#2196F3', '#F44336'];
-const color = colors[Math.floor(Math.random() * colors.length)];
-let enemySpeed = 2 + Math.random() * 3;
-// 如果有減速效果，降低敵車速度
-if (playerEffects.slowEnemy.active) {
-enemySpeed *= 0.5;
-}
-enemyCars.push({
-x: x,
-y: y,
-width: 40,
-height: 70,
-color: color,
-angle: direction,
-trackPosition: trackPos,
-speed: enemySpeed
-});
-}
-}
-
-// 生成道具
-function generatePowerUp() {
-if (Math.random() < 0.01) { // 1% 機率生成道具
-const trackPos = 0.1 + Math.random() * 0.8; // 道具出現在賽道10%-90%處
-const point = getTrackPoint(trackPos);
-const direction = getTrackDirection(trackPos);
-const perpendicularAngle = direction + Math.PI/2;
-// 隨機選擇賽道左側或右側
-const offsetX = (Math.random() - 0.5) * trackWidth * 0.8;
-const x = point.x + Math.cos(perpendicularAngle) * offsetX;
-const y = point.y;
-// 隨機選擇道具類型
-const powerUpTypes = Object.keys(POWERUP_TYPES);
-const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
-powerUps.push({
-x: x,
-y: y,
-size: 30,
-trackPosition: trackPos,
-type: randomType
-});
-}
-}
-
-// 更新敵方車輛位置
-function updateEnemyCars() {
-for (let i = enemyCars.length - 1; i >= 0; i--) {
-const car = enemyCars[i];
-// 沿著賽道前進
-car.trackPosition += car.speed / totalTrackLength;
-if (car.trackPosition > 1) {
-car.trackPosition = 0;
-}
-// 獲取新的位置和方向
-const point = getTrackPoint(car.trackPosition);
-const direction = getTrackDirection(car.trackPosition);
-car.x = point.x;
-car.y = point.y;
-car.angle = direction;
-// 移除太遠的車輛（在畫面外）
-if (car.y > playerCar.y + canvas.height) {
-enemyCars.splice(i, 1);
-}
-}
-}
-
-// 更新道具位置
-function updatePowerUps() {
-for (let i = powerUps.length - 1; i >= 0; i--) {
-const powerUp = powerUps[i];
-// 沿著賽道前進
-powerUp.trackPosition += 0.001; // 道具隨賽道移動
-if (powerUp.trackPosition > 1) {
-powerUp.trackPosition = 0;
-}
-// 獲取新的位置
-const point = getTrackPoint(powerUp.trackPosition);
-powerUp.x = point.x;
-powerUp.y = point.y;
-// 如果有磁鐵效果且道具在範圍內，向玩家移動
-if (playerEffects.magnet.active) {
-const dx = playerCar.x - powerUp.x;
-const dy = playerCar.y - powerUp.y;
-const distance = Math.sqrt(dx * dx + dy * dy);
-if (distance < playerEffects.magnet.range) {
-// 向玩家移動
-const speed = 2;
-powerUp.x += (dx / distance) * speed;
-powerUp.y += (dy / distance) * speed;
-}
-}
-// 移除太遠的道具
-if (powerUp.y > playerCar.y + canvas.height) {
-powerUps.splice(i, 1);
-}
-}
-}
-
-// 檢測碰撞
-function checkCollisions() {
-// 檢測與敵方車輛的碰撞
-for (let i = enemyCars.length - 1; i >= 0; i--) {
-const car = enemyCars[i];
-const dx = playerCar.x - car.x;
-const dy = playerCar.y - car.y;
-const distance = Math.sqrt(dx * dx + dy * dy);
-if (distance < (playerCar.width + car.width) / 2) {
-// 如果有護盾效果，不損失生命值，摧毀敵車
-if (playerEffects.shield.active) {
-enemyCars.splice(i, 1);
-score += 20; // 摧毀敵車獎勵
-} else {
-// 碰撞發生
-enemyCars.splice(i, 1);
-lives--;
-speed = Math.max(0, speed - 5); // 碰撞後減速
-updateUI();
-// 如果生命值耗盡，遊戲結束
-if (lives <= 0) {
-endGame();
-}
-}
-}
-}
-// 檢測與道具的碰撞
-for (let i = powerUps.length - 1; i >= 0; i--) {
-const powerUp = powerUps[i];
-const dx = playerCar.x - powerUp.x;
-const dy = playerCar.y - powerUp.y;
-const distance = Math.sqrt(dx * dx + dy * dy);
-if (distance < (playerCar.width + powerUp.size) / 2) {
-// 收集道具
-const powerUpType = POWERUP_TYPES[powerUp.type];
-powerUps.splice(i, 1);
-// 根據道具類型應用效果
-applyPowerUpEffect(powerUpType);
-updateUI();
-}
-}
-// 檢測是否偏離賽道
-checkOffTrack();
-}
-
-// 檢測是否偏離賽道
-function checkOffTrack() {
-const direction = getTrackDirection(playerCar.trackPosition);
-const perpendicularAngle = direction + Math.PI/2;
-const trackCenter = getTrackPoint(playerCar.trackPosition);
-const dx = playerCar.x - trackCenter.x;
-const dy = playerCar.y - trackCenter.y;
-const distanceToCenter = Math.abs(Math.cos(perpendicularAngle) * dx + Math.sin(perpendicularAngle) * dy);
-// 如果偏離賽道中心太遠
-if (distanceToCenter > trackWidth/2 - playerCar.width/2) {
-if (!playerEffects.shield.active) {
-speed = Math.max(0, speed - 0.5); // 減速
-lives--;
-updateUI();
-if (lives <= 0) {
-endGame();
-}
-}
-}
-}
-
-// 應用道具效果
-function applyPowerUpEffect(powerUpType) {
-if (!powerUpType) return;
-const now = Date.now();
-const endTime = now + powerUpType.duration;
-// 根據道具類型設置效果
-switch(powerUpType.id) {
-case 'shield':
-playerEffects.shield.active = true;
-playerEffects.shield.endTime = endTime;
-playerCar.isInvulnerable = true;
-break;
-case 'slow':
-playerEffects.slowEnemy.active = true;
-playerEffects.slowEnemy.endTime = endTime;
-break;
-case 'double':
-playerEffects.doubleScore.active = true;
-playerEffects.doubleScore.endTime = endTime;
-break;
-case 'magnet':
-playerEffects.magnet.active = true;
-playerEffects.magnet.endTime = endTime;
-break;
-case 'speed':
-playerEffects.speedBoost.active = true;
-playerEffects.speedBoost.endTime = endTime;
-playerCar.maxSpeed = maxSpeed + 5;
-break;
-}
-// 更新狀態效果顯示
-updateStatusEffects();
-// 設置定時器移除效果
-setTimeout(() => {
-removePowerUpEffect(powerUpType.id);
-}, powerUpType.duration);
-}
-
-// 移除道具效果
-function removePowerUpEffect(effectId) {
-switch(effectId) {
-case 'shield':
-playerEffects.shield.active = false;
-playerCar.isInvulnerable = false;
-break;
-case 'slow':
-playerEffects.slowEnemy.active = false;
-break;
-case 'double':
-playerEffects.doubleScore.active = false;
-break;
-case 'magnet':
-playerEffects.magnet.active = false;
-break;
-case 'speed':
-playerEffects.speedBoost.active = false;
-playerCar.maxSpeed = maxSpeed;
-break;
-}
-updateStatusEffects();
-}
-
-// 檢查效果是否過期
-function checkEffectsExpiry() {
-const now = Date.now();
-for (let effect in playerEffects) {
-if (playerEffects[effect].active && now > playerEffects[effect].endTime) {
-removePowerUpEffect(effect);
-}
-}
-}
-
-// 更新玩家車輛位置
-function updatePlayerCar() {
-// 加速/減速
-if (keys.ArrowUp && playerCar.speed < playerCar.maxSpeed) {
-playerCar.speed += playerCar.acceleration;
-if (playerCar.speed > playerCar.maxSpeed) playerCar.speed = playerCar.maxSpeed;
-} else if (keys.ArrowDown) {
-playerCar.speed -= playerCar.deceleration * 3;
-if (playerCar.speed < 0) playerCar.speed = 0;
-} else if (playerCar.speed > 0) {
-playerCar.speed -= playerCar.deceleration;
-if (playerCar.speed < 0) playerCar.speed = 0;
-}
-// 轉向控制
-if (keys.ArrowLeft) {
-playerCar.steering = -0.1;
-} else if (keys.ArrowRight) {
-playerCar.steering = 0.1;
-} else {
-playerCar.steering *= 0.9; // 平滑回正
-}
-// 更新車輛在賽道上的位置
-const distance = playerCar.speed * 2;
-playerCar.trackPosition += distance / totalTrackLength;
-if (playerCar.trackPosition >= 1) {
-playerCar.trackPosition = 0;
-currentLap++;
-score += 100 * currentLap; // 完成一圈的獎勵
-}
-// 取得賽道上對應的位置
-const trackPoint = getTrackPoint(playerCar.trackPosition);
-const direction = getTrackDirection(playerCar.trackPosition);
-// 應用轉彎效果 - 車輛角度跟隨賽道方向
-playerCar.angle = direction + playerCar.steering * 2;
-// 計算偏移（轉彎時車輛可能會偏離賽道中心）
-const perpendicularAngle = direction + Math.PI/2;
-const offset = Math.sin(playerCar.steering * 5) * trackWidth * 0.3;
-// 計算車輛位置
-playerCar.x = trackPoint.x + Math.cos(perpendicularAngle) * offset;
-playerCar.y = canvas.height - 150; // 固定在畫面底部附近
-// 計算賽道進度百分比
-trackProgress = (playerCar.trackPosition * 100);
-// 計算分數（根據速度和在賽道上的時間）
-if (playerCar.speed > 0) {
-let points = Math.floor(playerCar.speed * 0.5);
-if (playerEffects.doubleScore.active) points *= 2;
-score += points;
-}
-// 更新速度顯示
-speed = Math.round(playerCar.speed * 10);
-}
-
-// 更新UI
-function updateUI() {
-scoreElement.textContent = score;
-speedElement.textContent = speed + ' km/h';
-livesElement.textContent = lives;
-// 更新進度條
-progressFillElement.style.width = trackProgress + '%';
-lapProgressElement.textContent = Math.floor(trackProgress);
-}
-
-// 更新狀態效果顯示
-function updateStatusEffects() {
-statusEffectsElement.innerHTML = '';
-for (let effectKey in playerEffects) {
-const effect = playerEffects[effectKey];
-if (effect.active && POWERUP_TYPES[effectKey.toUpperCase()]) {
-const powerUpType = POWERUP_TYPES[effectKey.toUpperCase()];
-const timeLeft = Math.max(0, Math.ceil((effect.endTime - Date.now()) / 1000));
-const effectElement = document.createElement('div');
-effectElement.className = 'status-effect';
-effectElement.innerHTML = `
-<div class="status-effect-icon ${effectKey}-icon"></div>
-<span>${powerUpType.icon} ${powerUpType.name}: ${timeLeft}s</span>
-`;
-statusEffectsElement.appendChild(effectElement);
-}
-}
-}
-
-// 結束遊戲
-function endGame() {
-gameRunning = false;
-finalScoreElement.textContent = score;
-gameOverScreen.style.display = 'flex';
-}
-
-// 遊戲主循環
-function gameLoop() {
-if (!gameRunning || gamePaused) {
-requestAnimationFrame(gameLoop);
-return;
-}
-// 清除畫布
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-// 計算垂直偏移，使賽道滾動
-const offsetY = playerCar.y - (canvas.height - 150);
-// 繪製彎曲賽道
-drawTrack(offsetY);
-// 檢查效果是否過期
-checkEffectsExpiry();
-// 更新和繪製敵方車輛
-updateEnemyCars();
-drawEnemyCars(offsetY);
-// 更新和繪製道具
-updatePowerUps();
-drawPowerUps(offsetY);
-// 更新玩家車輛
-updatePlayerCar();
-drawPlayerCar();
-// 檢測碰撞
-checkCollisions();
-// 隨機生成敵方車輛
-generateEnemyCar();
-// 隨機生成道具
-generatePowerUp();
-// 繪製小地圖
-drawMiniMap();
-// 更新UI
-updateUI();
-// 請求下一幀
-requestAnimationFrame(gameLoop);
-}
-
-// 事件監聽
-document.addEventListener('keydown', (e) => {
-if (keys.hasOwnProperty(e.key)) {
-keys[e.key] = true;
-// 高亮顯示按下的鍵
-switch(e.key) {
-case 'ArrowUp':
-keyUp.classList.add('active');
-break;
-case 'ArrowDown':
-keyDown.classList.add('active');
-break;
-case 'ArrowLeft':
-keyLeft.classList.add('active');
-break;
-case 'ArrowRight':
-keyRight.classList.add('active');
-break;
-}
-}
-});
-
-document.addEventListener('keyup', (e) => {
-if (keys.hasOwnProperty(e.key)) {
-keys[e.key] = false;
-// 移除高亮
-switch(e.key) {
-case 'ArrowUp':
-keyUp.classList.remove('active');
-break;
-case 'ArrowDown':
-keyDown.classList.remove('active');
-break;
-case 'ArrowLeft':
-keyLeft.classList.remove('active');
-break;
-case 'ArrowRight':
-keyRight.classList.remove('active');
-break;
-}
-}
-});
-
-// 按鈕事件
-startButton.addEventListener('click', () => {
-if (!gameRunning) {
-initGame();
-gameRunning = true;
-gamePaused = false;
-gameLoop();
-startButton.textContent = '重新開始';
-} else {
-initGame();
-gameRunning = true;
-gamePaused = false;
-gameLoop();
-}
-});
-
-pauseButton.addEventListener('click', () => {
-if (gameRunning) {
-gamePaused = !gamePaused;
-pauseButton.textContent = gamePaused ? '繼續遊戲' : '暫停遊戲';
-}
-});
-
-restartButton.addEventListener('click', () => {
-initGame();
-gameRunning = true;
-gamePaused = false;
-gameLoop();
-gameOverScreen.style.display = 'none';
-});
-
-// 初始設定
-initGame();
-drawTrack(0);
-drawPlayerCar();
-drawMiniMap();
-updateUI();
-updateStatusEffects();
-</script>
+    <script>
+        // 遊戲變數
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const arrowsElement = document.getElementById('arrows');
+        const accuracyElement = document.getElementById('accuracy');
+        const powerFill = document.getElementById('powerFill');
+        const powerText = document.getElementById('powerText');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        // 遊戲狀態
+        let score = 0;
+        let arrowsLeft = 10; // 增加箭數
+        let hits = 0;
+        let gameActive = true;
+        let isDragging = false;
+        let power = 0;
+        let arrows = [];
+        let wind = { x: 0, y: 0 };
+        let lastShotTime = 0;
+        let environment = [];
+        
+        // 初始化遊戲
+        function initGame() {
+            score = 0;
+            arrowsLeft = 10;
+            hits = 0;
+            gameActive = true;
+            isDragging = false;
+            power = 0;
+            arrows = [];
+            lastShotTime = 0;
+            
+            // 初始化環境元素
+            initEnvironment();
+            
+            updateUI();
+            gameOverScreen.style.display = 'none';
+            updateWind();
+            draw();
+            
+            // 每5秒更新一次風向
+            setInterval(updateWind, 5000);
+        }
+        
+        // 初始化環境
+        function initEnvironment() {
+            environment = [];
+            
+            // 添加樹木
+            for (let i = 0; i < 15; i++) {
+                environment.push({
+                    type: 'tree',
+                    x: Math.random() * canvas.width,
+                    y: canvas.height - 100 + Math.random() * 50,
+                    height: 80 + Math.random() * 40,
+                    width: 30 + Math.random() * 20,
+                    color: `hsl(${Math.random() * 30 + 80}, 40%, ${25 + Math.random() * 15}%)`
+                });
+            }
+            
+            // 添加遠山
+            for (let i = 0; i < 5; i++) {
+                environment.push({
+                    type: 'mountain',
+                    x: i * (canvas.width / 5) + Math.random() * 50,
+                    y: canvas.height - 150,
+                    height: 80 + Math.random() * 70,
+                    color: `hsl(${Math.random() * 10 + 180}, 30%, ${10 + Math.random() * 15}%)`
+                });
+            }
+        }
+        
+        // 更新UI
+        function updateUI() {
+            scoreElement.textContent = score;
+            arrowsElement.textContent = arrowsLeft;
+            const accuracy = arrowsLeft === 10 ? 0 : Math.round((hits / (10 - arrowsLeft)) * 100);
+            accuracyElement.textContent = `${accuracy}%`;
+        }
+        
+        // 更新風向
+        function updateWind() {
+            wind = {
+                x: (Math.random() - 0.5) * 0.3,
+                y: (Math.random() - 0.7) * 0.1 // 輕微向上風
+            };
+        }
+        
+        // 繪製遊戲元素 - 第一視角
+        function draw() {
+            // 清除畫布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 繪製背景
+            drawBackground();
+            
+            // 繪製靶子 - 第一視角
+            drawTargetFirstPerson();
+            
+            // 繪製環境
+            drawEnvironment();
+            
+            // 繪製箭
+            drawArrows();
+            
+            // 繪製風向指示器
+            drawWindIndicator();
+            
+            // 繪製準星和瞄準鏡
+            drawSights();
+            
+            // 如果遊戲結束
+            if (!gameActive && arrowsLeft === 0) {
+                showGameOver();
+            }
+        }
+        
+        // 繪製背景 - 第一視角射箭場
+        function drawBackground() {
+            // 天空漸層
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
+            skyGradient.addColorStop(0, '#1a237e');
+            skyGradient.addColorStop(0.5, '#283593');
+            skyGradient.addColorStop(1, '#3949ab');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.6);
+            
+            // 遠山
+            ctx.fillStyle = '#1a237e';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.6);
+            ctx.lineTo(canvas.width * 0.3, canvas.height * 0.45);
+            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.55);
+            ctx.lineTo(canvas.width, canvas.height * 0.4);
+            ctx.lineTo(canvas.width, canvas.height * 0.6);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 中景草地
+            const grassGradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
+            grassGradient.addColorStop(0, '#2e7d32');
+            grassGradient.addColorStop(1, '#1b5e20');
+            ctx.fillStyle = grassGradient;
+            ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
+            
+            // 添加草地紋理
+            ctx.fillStyle = 'rgba(46, 125, 50, 0.1)';
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = canvas.height * 0.6 + Math.random() * canvas.height * 0.4;
+                const size = 2 + Math.random() * 4;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // 繪製環境元素
+        function drawEnvironment() {
+            // 繪製樹木
+            environment.filter(obj => obj.type === 'tree').forEach(tree => {
+                // 樹幹
+                ctx.fillStyle = '#5d4037';
+                ctx.fillRect(tree.x - tree.width/4, tree.y - tree.height, tree.width/2, tree.height * 0.7);
+                
+                // 樹冠
+                ctx.fillStyle = tree.color;
+                ctx.beginPath();
+                ctx.arc(tree.x, tree.y - tree.height * 0.9, tree.width * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 樹葉陰影
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.arc(tree.x + 5, tree.y - tree.height * 0.9 + 5, tree.width * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // 繪製遠山
+            environment.filter(obj => obj.type === 'mountain').forEach(mountain => {
+                ctx.fillStyle = mountain.color;
+                ctx.beginPath();
+                ctx.moveTo(mountain.x - 50, mountain.y + mountain.height);
+                ctx.lineTo(mountain.x, mountain.y);
+                ctx.lineTo(mountain.x + 50, mountain.y + mountain.height);
+                ctx.closePath();
+                ctx.fill();
+            });
+        }
+        
+        // 繪製靶子 - 第一視角
+        function drawTargetFirstPerson() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2 - 30; // 靶子位置略高於中心
+            const baseRadius = 120;
+            
+            // 靶架
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(centerX - 10, centerY + baseRadius + 20, 20, canvas.height - (centerY + baseRadius + 20));
+            
+            // 靶環 - 第一視角更近，所以更大
+            const rings = [
+                { radius: baseRadius, color: '#f44336' },
+                { radius: baseRadius * 0.85, color: '#ff9800' },
+                { radius: baseRadius * 0.7, color: '#ffeb3b' },
+                { radius: baseRadius * 0.55, color: '#4caf50' },
+                { radius: baseRadius * 0.4, color: '#2196f3' },
+                { radius: baseRadius * 0.25, color: '#9c27b0' },
+                { radius: baseRadius * 0.12, color: '#ffffff' }
+            ];
+            
+            rings.forEach(ring => {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, ring.radius, 0, Math.PI * 2);
+                ctx.fillStyle = ring.color;
+                ctx.fill();
+            });
+            
+            // 靶心陰影
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, baseRadius * 0.15, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // 靶子距離標示
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('70m', centerX, centerY + baseRadius + 40);
+        }
+        
+        // 繪製箭
+        function drawArrows() {
+            arrows.forEach(arrow => {
+                // 計算箭的角度
+                const angle = Math.atan2(arrow.vy, arrow.vx);
+                
+                ctx.save();
+                ctx.translate(arrow.x, arrow.y);
+                ctx.rotate(angle);
+                
+                // 箭桿
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(0, -1.5, 35, 3);
+                
+                // 箭頭
+                ctx.fillStyle = '#777';
+                ctx.beginPath();
+                ctx.moveTo(35, -3);
+                ctx.lineTo(45, 0);
+                ctx.lineTo(35, 3);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 箭羽
+                ctx.fillStyle = '#f44336';
+                ctx.fillRect(-5, -4, 5, 2);
+                ctx.fillRect(-5, 2, 5, 2);
+                
+                ctx.restore();
+            });
+        }
+        
+        // 繪製風向指示器
+        function drawWindIndicator() {
+            const indicatorX = 50;
+            const indicatorY = 50;
+            const size = 30;
+            
+            // 風向背景
+            ctx.fillStyle = 'rgba(20, 30, 50, 0.7)';
+            ctx.beginPath();
+            ctx.arc(indicatorX, indicatorY, size + 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 風向箭頭
+            ctx.save();
+            ctx.translate(indicatorX, indicatorY);
+            ctx.rotate(Math.atan2(wind.y, wind.x));
+            
+            // 箭頭主體
+            ctx.fillStyle = '#4fc3f7';
+            ctx.beginPath();
+            ctx.moveTo(-size, 0);
+            ctx.lineTo(size, 0);
+            ctx.lineTo(size * 0.7, -size * 0.3);
+            ctx.lineTo(size * 0.7, size * 0.3);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 箭頭尖端
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath();
+            ctx.moveTo(size * 0.7, -size * 0.3);
+            ctx.lineTo(size * 1.2, 0);
+            ctx.lineTo(size * 0.7, size * 0.3);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 風速標示
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`風: ${Math.sqrt(wind.x**2 + wind.y**2).toFixed(2)}`, 0, size + 15);
+            
+            ctx.restore();
+        }
+        
+        // 繪製瞄準鏡和準星
+        function drawSights() {
+            // 繪製瞄準鏡邊框
+            ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2, 180, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // 繪製瞄準刻度
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            // 水平刻度
+            for (let i = -3; i <= 3; i++) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + i * 40;
+                const y = canvas.height/2 + 160;
+                ctx.fillText(`${i*10}cm`, x, y);
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y - 5);
+                ctx.lineTo(x, y - 10);
+                ctx.stroke();
+            }
+            
+            // 垂直刻度
+            for (let i = -2; i <= 2; i++) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + 160;
+                const y = canvas.height/2 + i * 30;
+                ctx.fillText(`${i*5}cm`, x, y);
+                
+                ctx.beginPath();
+                ctx.moveTo(x - 5, y);
+                ctx.lineTo(x - 10, y);
+                ctx.stroke();
+            }
+        }
+        
+        // 發射箭
+        function shootArrow() {
+            if (!gameActive || arrowsLeft <= 0) return;
+            if (Date.now() - lastShotTime < 300) return; // 防止快速連發
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height - 80; // 從底部發射
+            
+            // 計算箭的初速度（基於拉弓力度）
+            const baseSpeed = 15 + power * 0.25;
+            
+            // 計算方向向量 (指向靶心)
+            const targetX = canvas.width / 2;
+            const targetY = canvas.height / 2 - 30;
+            const dx = targetX - centerX;
+            const dy = targetY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // 正規化方向向量
+            let vx = (dx / distance) * baseSpeed;
+            let vy = (dy / distance) * baseSpeed;
+            
+            // 添加風向影響
+            vx += wind.x * 3;
+            vy += wind.y * 3;
+            
+            // 添加微小隨機偏移模擬不完美瞄準
+            vx += (Math.random() - 0.5) * 0.5;
+            vy += (Math.random() - 0.5) * 0.5;
+            
+            // 創建箭物件
+            arrows.push({
+                x: centerX,
+                y: centerY,
+                vx: vx,
+                vy: vy,
+                gravity: 0.25,
+                rotation: Math.atan2(vy, vx)
+            });
+            
+            // 減少箭數
+            arrowsLeft--;
+            lastShotTime = Date.now();
+            updateUI();
+            
+            // 重置拉弓狀態
+            isDragging = false;
+            power = 0;
+            updatePowerBar();
+            
+            // 檢查是否擊中靶子
+            setTimeout(checkArrowHit, 1000);
+        }
+        
+        // 檢查箭是否擊中靶子
+        function checkArrowHit() {
+            arrows.forEach((arrow, index) => {
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2 - 30;
+                const dx = arrow.x - centerX;
+                const dy = arrow.y - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // 靶子半徑
+                const maxRadius = 120;
+                
+                if (distance <= maxRadius) {
+                    // 計算得分
+                    let points = 0;
+                    if (distance <= 15) points = 10;   // 靶心 - 10分
+                    else if (distance <= 30) points = 9;
+                    else if (distance <= 45) points = 8;
+                    else if (distance <= 60) points = 7;
+                    else if (distance <= 75) points = 6;
+                    else if (distance <= 90) points = 5;
+                    else if (distance <= 105) points = 4;
+                    else if (distance <= 120) points = 3;
+                    
+                    if (points > 0) {
+                        score += points;
+                        hits++;
+                        showScorePopup(arrow.x, arrow.y, points);
+                    }
+                }
+                
+                // 移除箭
+                arrows.splice(index, 1);
+                updateUI();
+            });
+        }
+        
+        // 顯示得分動畫
+        function showScorePopup(x, y, points) {
+            const popup = document.createElement('div');
+            popup.textContent = `+${points}`;
+            popup.style.position = 'absolute';
+            popup.style.left = `${x + canvas.offsetLeft - 30}px`;
+            popup.style.top = `${y + canvas.offsetTop - 20}px`;
+            popup.style.color = points >= 8 ? '#ffeb3b' : points >= 5 ? '#4caf50' : '#2196f3';
+            popup.style.fontSize = '28px';
+            popup.style.fontWeight = 'bold';
+            popup.style.textShadow = '0 0 8px black, 0 0 15px rgba(255,255,255,0.7)';
+            popup.style.pointerEvents = 'none';
+            popup.style.zIndex = '100';
+            popup.style.transition = 'all 1.2s ease-out';
+            popup.style.transform = 'translate(-50%, -50%) scale(1)';
+            
+            document.body.appendChild(popup);
+            
+            // 動畫效果
+            setTimeout(() => {
+                popup.style.transform = 'translate(-50%, -50%) scale(1.5) translateY(-30px)';
+                popup.style.opacity = '0';
+            }, 100);
+            
+            // 移除元素
+            setTimeout(() => {
+                document.body.removeChild(popup);
+            }, 1300);
+        }
+        
+        // 箭的動畫
+        function animateArrows() {
+            arrows.forEach((arrow, index) => {
+                // 更新箭的位置
+                arrow.x += arrow.vx;
+                arrow.y += arrow.vy;
+                arrow.vy += arrow.gravity; // 重力影響
+                
+                // 更新旋轉角度
+                arrow.rotation = Math.atan2(arrow.vy, arrow.vx);
+                
+                // 檢查是否超出邊界
+                if (arrow.x < 0 || arrow.x > canvas.width || arrow.y > canvas.height) {
+                    arrows.splice(index, 1);
+                }
+            });
+            
+            draw();
+            if (arrows.length > 0) {
+                requestAnimationFrame(animateArrows);
+            }
+        }
+        
+        // 更新拉弓力度條
+        function updatePowerBar() {
+            powerFill.style.width = `${power}%`;
+            powerText.textContent = `拉弓力度: ${Math.round(power)}%`;
+        }
+        
+        // 顯示遊戲結束畫面
+        function showGameOver() {
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // 事件監聽器
+        canvas.addEventListener('mousedown', (e) => {
+            if (!gameActive || arrowsLeft <= 0) return;
+            isDragging = true;
+            
+            // 播放拉弓音效 (模擬)
+            const audio = new Audio();
+            audio.volume = 0.1;
+            audio.src = 'data:audio/mp3;base64,SUQzAwAAAAAAJlRQRTEAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAADQgD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAAA5TEFNRTMuOThyAZQAAAAALgAAAQgAAAaFc/umAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+xDEAAPAAAGkAAAAIAAANIAAAARMQU1FMy45OHIAZgAAAC4AAAEIAAAGhXP7pgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7kMQvA8AAAaQAAAAgAAA0gAAABEVFQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//sQxB8DwAABpAAAAAgAAA0gAAAAEVFRQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMAAP/7kMQ/A8AAAaQAAAAIAAANIAAAABFQVAAQAAAAgAAAGlVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+            audio.play().catch(() => {});
+        });
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging || !gameActive || arrowsLeft <= 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const startY = rect.top + canvas.height - 100; // 從底部開始測量
+            const currentY = e.clientY;
+            
+            // 計算拉弓力度 (從底部向上拉)
+            const pullDistance = startY - currentY;
+            power = Math.min(100, Math.max(0, pullDistance * 0.8)); // 調整靈敏度
+            updatePowerBar();
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            if (isDragging && gameActive && arrowsLeft > 0) {
+                shootArrow();
+                animateArrows();
+            }
+            isDragging = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            if (isDragging && gameActive && arrowsLeft > 0) {
+                shootArrow();
+                animateArrows();
+            }
+            isDragging = false;
+        });
+        
+        // 觸控設備支援
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameActive || arrowsLeft <= 0) return;
+            isDragging = true;
+            
+            // 播放拉弓音效 (模擬)
+            const audio = new Audio();
+            audio.volume = 0.1;
+            audio.src = 'data:audio/mp3;base64,SUQzAwAAAAAAJlRQRTEAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//uQxAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAADQgD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAAA5TEFNRTMuOThyAZQAAAAALgAAAQgAAAaFc/umAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/+xDEAAPAAAGkAAAAIAAANIAAAARMQU1FMy45OHIAZgAAAC4AAAEIAAAGhXP7pgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7kMQvA8AAAaQAAAAgAAA0gAAABEVFQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMA//sQxB8DwAABpAAAAAgAAA0gAAAAEVFRQUQAAAAcAAAAU291bmRKYXkuY29tIFNvdW5kIEVmZmVjdHMAAP/7kMQ/A8AAAaQAAAAIAAANIAAAABFQVAAQAAAAgAAAGlVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+            audio.play().catch(() => {});
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDragging || !gameActive || arrowsLeft <= 0) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const startY = rect.top + canvas.height - 100;
+            const currentY = e.touches[0].clientY;
+            
+            // 計算拉弓力度
+            const pullDistance = startY - currentY;
+            power = Math.min(100, Math.max(0, pullDistance * 0.8));
+            updatePowerBar();
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (isDragging && gameActive && arrowsLeft > 0) {
+                shootArrow();
+                animateArrows();
+            }
+            isDragging = false;
+        });
+        
+        // 重新開始按鈕
+        restartBtn.addEventListener('click', initGame);
+        
+        // 初始化遊戲
+        initGame();
+    </script>
 </body>
 </html>
