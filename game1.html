@@ -440,6 +440,7 @@ const keyUp = document.getElementById('keyUp');
 const keyDown = document.getElementById('keyDown');
 const keyLeft = document.getElementById('keyLeft');
 const keyRight = document.getElementById('keyRight');
+
 // 遊戲狀態
 let gameRunning = false;
 let gamePaused = false;
@@ -453,73 +454,72 @@ let currentLap = 0;
 let maxSpeed = 15;
 let acceleration = 0.2;
 let deceleration = 0.1;
-let gameFrameId = null; // 用於存儲requestAnimationFrame的ID
-let gameInitialized = false; // 標記遊戲是否已初始化
+let gameFrameId = null;
+let gameInitialized = false;
 
 // 簡單賽道設定
 const trackCount = 3;
 const trackWidth = canvas.width / trackCount;
 const trackColors = ['#2E8B57', '#228B22', '#006400'];
 const laneMarkings = [];
-// 初始化車道標記
 for (let i = 1; i < trackCount; i++) {
-laneMarkings.push({
-x: i * trackWidth,
-y: 0,
-width: 10,
-height: 40,
-gap: 20
-});
+    laneMarkings.push({
+        x: i * trackWidth,
+        y: 0,
+        width: 10,
+        height: 40,
+        gap: 20
+    });
 }
 
-// 道具類型定義（已刪減，只保留3種）
+// 道具類型定義
 const POWERUP_TYPES = {
-SHIELD: {
-id: 'shield',
-name: '護盾',
-color: '#4CAF50',
-duration: 3000,
-icon: '🛡️',
-drawFunction: drawShieldPowerUp
-},
-DOUBLE_SCORE: {
-id: 'double',
-name: '分數加倍',
-color: '#9C27B0',
-duration: 30000,
-icon: '⭐',
-drawFunction: drawDoubleScorePowerUp
-},
-MAGNET: {
-id: 'magnet',
-name: '磁鐵',
-color: '#2196F3',
-duration: 10000,
-icon: '🧲',
-drawFunction: drawMagnetPowerUp
-}
+    SHIELD: {
+        id: 'shield',
+        name: '護盾',
+        color: '#4CAF50',
+        duration: 3000,
+        icon: '🛡️',
+        drawFunction: drawShieldPowerUp
+    },
+    DOUBLE_SCORE: {
+        id: 'double',
+        name: '分數加倍',
+        color: '#9C27B0',
+        duration: 30000,
+        icon: '⭐',
+        drawFunction: drawDoubleScorePowerUp
+    },
+    MAGNET: {
+        id: 'magnet',
+        name: '磁鐵',
+        color: '#2196F3',
+        duration: 10000,
+        icon: '🧲',
+        drawFunction: drawMagnetPowerUp
+    }
 };
 
 // 玩家狀態效果
 let playerEffects = {
-shield: { active: false, endTime: 0 },
-doubleScore: { active: false, endTime: 0 },
-magnet: { active: false, endTime: 0, range: 200 }
+    shield: { active: false, endTime: 0 },
+    doubleScore: { active: false, endTime: 0 },
+    magnet: { active: false, endTime: 0, range: 200 }
 };
 
 // 玩家車輛
 const playerCar = {
-x: canvas.width / 2 - 25,
-y: canvas.height - 120,
-width: 50,
-height: 100,
-color: '#FF416C',
-track: 1, // 0, 1, 2
-speed: 0,
-maxSpeed: maxSpeed,
-acceleration: acceleration,
-deceleration: deceleration,
-isInvulnerable: false
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 120,
+    width: 50,
+    height: 100,
+    color: '#FF416C',
+    track: 1,
+    speed: 0,
+    maxSpeed: maxSpeed,
+    acceleration: acceleration,
+    deceleration: deceleration,
+    isInvulnerable: false
 };
 
 // 敵方車輛陣列
@@ -528,820 +528,708 @@ let enemyCars = [];
 let powerUps = [];
 // 控制狀態
 const keys = {
-ArrowUp: false,
-ArrowDown: false,
-ArrowLeft: false,
-ArrowRight: false
+    ArrowUp: false,
+    ArrowDown: false,
+    ArrowLeft: false,
+    ArrowRight: false
 };
 
-// 確保遊戲資源加載完畢後才開始
+// 初始化遊戲資源
 window.addEventListener('load', () => {
-initGame();
-drawInitialScene();
-gameInitialized = true;
+    initGame(); // 此函數內部已包含 drawInitialScene()
+    gameInitialized = true;
 });
 
 // 初始化遊戲
 function initGame() {
-score = 0;
-lives = 3;
-speed = 0;
-trackProgress = 0;
-currentLap = 0;
-playerCar.x = canvas.width / 2 - 25;
-playerCar.y = canvas.height - 120;
-playerCar.track = 1;
-playerCar.speed = 0;
-playerCar.isInvulnerable = false;
-enemyCars = [];
-powerUps = [];
-// 重置所有效果
-for (let effect in playerEffects) {
-playerEffects[effect].active = false;
-playerEffects[effect].endTime = 0;
-}
-gameOverScreen.style.display = 'none';
-countdownOverlay.style.display = 'none';
-updateUI();
-updateStatusEffects();
-// 重置按鈕狀態
-startButton.textContent = '開始遊戲';
-pauseButton.textContent = '暫停遊戲';
+    score = 0;
+    lives = 3;
+    speed = 0;
+    trackProgress = 0;
+    currentLap = 0;
+    playerCar.x = canvas.width / 2 - 25;
+    playerCar.y = canvas.height - 120;
+    playerCar.track = 1;
+    playerCar.speed = 0;
+    playerCar.isInvulnerable = false;
+    enemyCars = [];
+    powerUps = [];
+    // 重置所有效果
+    for (let effect in playerEffects) {
+        playerEffects[effect].active = false;
+        playerEffects[effect].endTime = 0;
+    }
+    gameOverScreen.style.display = 'none';
+    countdownOverlay.style.display = 'none';
+    updateUI();
+    updateStatusEffects();
+    
+    // ✅ 關鍵修復：確保畫布立即顯示賽車
+    drawInitialScene();
+    
+    // 重置按鈕狀態
+    startButton.textContent = '開始遊戲';
+    pauseButton.textContent = '暫停遊戲';
 }
 
 // 繪製初始場景
 function drawInitialScene() {
-// 清除畫布
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-// 繪製賽道
-drawTracks();
-// 繪製玩家車輛
-drawPlayerCar();
-// 初始化小地圖
-drawMiniMap();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawTracks();
+    drawPlayerCar();
+    drawMiniMap();
 }
 
 // 繪製賽道
 function drawTracks() {
-// 繪製賽道背景
-for (let i = 0; i < trackCount; i++) {
-ctx.fillStyle = trackColors[i];
-ctx.fillRect(i * trackWidth, 0, trackWidth, canvas.height);
-// 賽道邊緣
-ctx.fillStyle = '#FFFFFF';
-ctx.fillRect(i * trackWidth, 0, 5, canvas.height);
-ctx.fillRect((i + 1) * trackWidth - 5, 0, 5, canvas.height);
-}
+    for (let i = 0; i < trackCount; i++) {
+        ctx.fillStyle = trackColors[i];
+        ctx.fillRect(i * trackWidth, 0, trackWidth, canvas.height);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(i * trackWidth, 0, 5, canvas.height);
+        ctx.fillRect((i + 1) * trackWidth - 5, 0, 5, canvas.height);
+    }
 
-// 繪製車道標記
-laneMarkings.forEach(marking => {
-for (let y = 0; y < canvas.height; y += marking.height + marking.gap) {
-ctx.fillStyle = '#FFFFFF';
-ctx.fillRect(marking.x - marking.width/2, y, marking.width, marking.height);
-}
-});
+    laneMarkings.forEach(marking => {
+        for (let y = 0; y < canvas.height; y += marking.height + marking.gap) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(marking.x - marking.width/2, y, marking.width, marking.height);
+        }
+    });
 
-// 繪製背景
-drawBackground();
+    drawBackground();
 }
 
 // 繪製背景
 function drawBackground() {
-// 遠處山脈
-ctx.fillStyle = 'rgba(15, 52, 96, 0.7)';
-ctx.beginPath();
-ctx.moveTo(0, 100);
-ctx.lineTo(150, 50);
-ctx.lineTo(300, 120);
-ctx.lineTo(500, 80);
-ctx.lineTo(700, 130);
-ctx.lineTo(800, 90);
-ctx.lineTo(800, 0);
-ctx.lineTo(0, 0);
-ctx.closePath();
-ctx.fill();
+    ctx.fillStyle = 'rgba(15, 52, 96, 0.7)';
+    ctx.beginPath();
+    ctx.moveTo(0, 100);
+    ctx.lineTo(150, 50);
+    ctx.lineTo(300, 120);
+    ctx.lineTo(500, 80);
+    ctx.lineTo(700, 130);
+    ctx.lineTo(800, 90);
+    ctx.lineTo(800, 0);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
+    ctx.fill();
 
-// 雲朵
-ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-drawCloud(100, 60, 40);
-drawCloud(400, 40, 30);
-drawCloud(600, 80, 50);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    drawCloud(100, 60, 40);
+    drawCloud(400, 40, 30);
+    drawCloud(600, 80, 50);
 }
 
 // 繪製雲朵
 function drawCloud(x, y, size) {
-ctx.beginPath();
-ctx.arc(x, y, size, 0, Math.PI * 2);
-ctx.arc(x + size * 0.8, y - size * 0.3, size * 0.7, 0, Math.PI * 2);
-ctx.arc(x + size * 1.5, y, size * 0.8, 0, Math.PI * 2);
-ctx.arc(x + size * 0.8, y + size * 0.3, size * 0.7, 0, Math.PI * 2);
-ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.8, y - size * 0.3, size * 0.7, 0, Math.PI * 2);
+    ctx.arc(x + size * 1.5, y, size * 0.8, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.8, y + size * 0.3, size * 0.7, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 // 繪製玩家車輛
 function drawPlayerCar() {
-// 如果有護盾效果，繪製護盾
-if (playerEffects.shield.active) {
-ctx.strokeStyle = '#4CAF50';
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.arc(
-playerCar.x + playerCar.width/2,
-playerCar.y + playerCar.height/2,
-Math.max(playerCar.width, playerCar.height)/2 + 15,
-0, Math.PI * 2
-);
-ctx.stroke();
-// 護盾脈衝效果
-const pulse = (Date.now() % 1000) / 1000;
-ctx.globalAlpha = 0.3 + 0.2 * Math.sin(pulse * Math.PI * 2);
-ctx.fillStyle = '#4CAF50';
-ctx.beginPath();
-ctx.arc(
-playerCar.x + playerCar.width/2,
-playerCar.y + playerCar.height/2,
-Math.max(playerCar.width, playerCar.height)/2 + 10,
-0, Math.PI * 2
-);
-ctx.fill();
-ctx.globalAlpha = 1.0;
-}
+    if (playerEffects.shield.active) {
+        ctx.strokeStyle = '#4CAF50';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(
+            playerCar.x + playerCar.width/2,
+            playerCar.y + playerCar.height/2,
+            Math.max(playerCar.width, playerCar.height)/2 + 15,
+            0, Math.PI * 2
+        );
+        ctx.stroke();
+        const pulse = (Date.now() % 1000) / 1000;
+        ctx.globalAlpha = 0.3 + 0.2 * Math.sin(pulse * Math.PI * 2);
+        ctx.fillStyle = '#4CAF50';
+        ctx.beginPath();
+        ctx.arc(
+            playerCar.x + playerCar.width/2,
+            playerCar.y + playerCar.height/2,
+            Math.max(playerCar.width, playerCar.height)/2 + 10,
+            0, Math.PI * 2
+        );
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
 
-// 車身
-ctx.fillStyle = playerCar.color;
-ctx.fillRect(playerCar.x, playerCar.y, playerCar.width, playerCar.height);
+    ctx.fillStyle = playerCar.color;
+    ctx.fillRect(playerCar.x, playerCar.y, playerCar.width, playerCar.height);
 
-// 如果有磁鐵效果，繪製磁力範圍
-if (playerEffects.magnet.active) {
-ctx.strokeStyle = '#2196F3';
-ctx.lineWidth = 2;
-ctx.setLineDash([5, 5]);
-ctx.beginPath();
-ctx.arc(
-playerCar.x + playerCar.width/2,
-playerCar.y + playerCar.height/2,
-playerEffects.magnet.range,
-0, Math.PI * 2
-);
-ctx.stroke();
-ctx.setLineDash([]);
-}
+    if (playerEffects.magnet.active) {
+        ctx.strokeStyle = '#2196F3';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.arc(
+            playerCar.x + playerCar.width/2,
+            playerCar.y + playerCar.height/2,
+            playerEffects.magnet.range,
+            0, Math.PI * 2
+        );
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
 
-// 車窗
-ctx.fillStyle = '#4FC3F7';
-ctx.fillRect(playerCar.x + 5, playerCar.y + 10, playerCar.width - 10, 30);
+    ctx.fillStyle = '#4FC3F7';
+    ctx.fillRect(playerCar.x + 5, playerCar.y + 10, playerCar.width - 10, 30);
 
-// 車燈
-ctx.fillStyle = '#FFD700';
-ctx.fillRect(playerCar.x + 5, playerCar.y + playerCar.height - 15, 10, 10);
-ctx.fillRect(playerCar.x + playerCar.width - 15, playerCar.y + playerCar.height - 15, 10, 10);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(playerCar.x + 5, playerCar.y + playerCar.height - 15, 10, 10);
+    ctx.fillRect(playerCar.x + playerCar.width - 15, playerCar.y + playerCar.height - 15, 10, 10);
 
-// 輪胎
-ctx.fillStyle = '#222';
-ctx.fillRect(playerCar.x - 5, playerCar.y + 15, 5, 25);
-ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + 15, 5, 25);
-ctx.fillRect(playerCar.x - 5, playerCar.y + playerCar.height - 40, 5, 25);
-ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + playerCar.height - 40, 5, 25);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(playerCar.x - 5, playerCar.y + 15, 5, 25);
+    ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + 15, 5, 25);
+    ctx.fillRect(playerCar.x - 5, playerCar.y + playerCar.height - 40, 5, 25);
+    ctx.fillRect(playerCar.x + playerCar.width, playerCar.y + playerCar.height - 40, 5, 25);
 }
 
 // 繪製敵方車輛
 function drawEnemyCars() {
-enemyCars.forEach(car => {
-// 如果有減速效果，改變車輛顏色
-if (playerEffects.slowEnemy.active) {
-ctx.fillStyle = '#666'; // 變灰表示減速
-} else {
-ctx.fillStyle = car.color;
-}
-ctx.fillRect(car.x, car.y, car.width, car.height);
+    enemyCars.forEach(car => {
+        ctx.fillStyle = car.color;
+        ctx.fillRect(car.x, car.y, car.width, car.height);
 
-// 車窗
-ctx.fillStyle = '#999';
-ctx.fillRect(car.x + 5, car.y + 10, car.width - 10, 20);
+        ctx.fillStyle = '#999';
+        ctx.fillRect(car.x + 5, car.y + 10, car.width - 10, 20);
 
-// 輪胎
-ctx.fillStyle = '#222';
-ctx.fillRect(car.x - 5, car.y + 15, 5, 20);
-ctx.fillRect(car.x + car.width, car.y + 15, 5, 20);
-ctx.fillRect(car.x - 5, car.y + car.height - 35, 5, 20);
-ctx.fillRect(car.x + car.width, car.y + car.height - 35, 5, 20);
-});
+        ctx.fillStyle = '#222';
+        ctx.fillRect(car.x - 5, car.y + 15, 5, 20);
+        ctx.fillRect(car.x + car.width, car.y + 15, 5, 20);
+        ctx.fillRect(car.x - 5, car.y + car.height - 35, 5, 20);
+        ctx.fillRect(car.x + car.width, car.y + car.height - 35, 5, 20);
+    });
 }
 
 // 繪製護盾道具
 function drawShieldPowerUp(x, y, size) {
-// 外圈
-ctx.strokeStyle = '#4CAF50';
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
-ctx.stroke();
+    ctx.strokeStyle = '#4CAF50';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+    ctx.stroke();
 
-// 內圈
-ctx.fillStyle = '#4CAF50';
-ctx.beginPath();
-ctx.arc(x + size/2, y + size/2, size/3, 0, Math.PI * 2);
-ctx.fill();
+    ctx.fillStyle = '#4CAF50';
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, size/3, 0, Math.PI * 2);
+    ctx.fill();
 
-// 護盾圖標
-ctx.fillStyle = '#FFFFFF';
-ctx.beginPath();
-// 繪製簡單的盾牌形狀
-ctx.moveTo(x + size/2, y + size/4);
-ctx.lineTo(x + size/4, y + size/2);
-ctx.lineTo(x + size/2, y + size*3/4);
-ctx.lineTo(x + size*3/4, y + size/2);
-ctx.closePath();
-ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(x + size/2, y + size/4);
+    ctx.lineTo(x + size/4, y + size/2);
+    ctx.lineTo(x + size/2, y + size*3/4);
+    ctx.lineTo(x + size*3/4, y + size/2);
+    ctx.closePath();
+    ctx.fill();
 }
 
 // 繪製分數加倍道具
 function drawDoubleScorePowerUp(x, y, size) {
-// 紫色星星背景
-ctx.fillStyle = '#9C27B0';
-ctx.beginPath();
-ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
-ctx.fill();
+    ctx.fillStyle = '#9C27B0';
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+    ctx.fill();
 
-// 星星
-ctx.fillStyle = '#FFFFFF';
-drawStar(ctx, x + size/2, y + size/2, 5, size/4, size/8);
+    ctx.fillStyle = '#FFFFFF';
+    drawStar(ctx, x + size/2, y + size/2, 5, size/4, size/8);
 }
 
 // 繪製磁鐵道具
 function drawMagnetPowerUp(x, y, size) {
-// 藍色背景
-ctx.fillStyle = '#2196F3';
-ctx.beginPath();
-ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
-ctx.fill();
+    ctx.fillStyle = '#2196F3';
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+    ctx.fill();
 
-// 磁鐵圖標
-ctx.fillStyle = '#FFFFFF';
-// 磁鐵的U形
-ctx.beginPath();
-ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 0.25, Math.PI * 0.75);
-ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 1.25, Math.PI * 1.75);
-ctx.closePath();
-ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 0.25, Math.PI * 0.75);
+    ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 1.25, Math.PI * 1.75);
+    ctx.closePath();
+    ctx.fill();
 }
 
-// 繪製星星的輔助函數
+// 繪製星星
 function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
-let rot = Math.PI / 2 * 3;
-let x = cx;
-let y = cy;
-let step = Math.PI / spikes;
-ctx.beginPath();
-ctx.moveTo(cx, cy - outerRadius);
-for (let i = 0; i < spikes; i++) {
-x = cx + Math.cos(rot) * outerRadius;
-y = cy + Math.sin(rot) * outerRadius;
-ctx.lineTo(x, y);
-rot += step;
-x = cx + Math.cos(rot) * innerRadius;
-y = cy + Math.sin(rot) * innerRadius;
-ctx.lineTo(x, y);
-rot += step;
-}
-ctx.lineTo(cx, cy - outerRadius);
-ctx.closePath();
-ctx.fill();
+    let rot = Math.PI / 2 * 3;
+    let step = Math.PI / spikes;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+        let x = cx + Math.cos(rot) * outerRadius;
+        let y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+    }
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+    ctx.fill();
 }
 
 // 繪製所有道具
 function drawPowerUps() {
-powerUps.forEach(powerUp => {
-const powerUpType = POWERUP_TYPES[powerUp.type];
-if (powerUpType && powerUpType.drawFunction) {
-powerUpType.drawFunction(powerUp.x, powerUp.y, powerUp.size);
-}
-});
+    powerUps.forEach(powerUp => {
+        const powerUpType = POWERUP_TYPES[powerUp.type];
+        if (powerUpType && powerUpType.drawFunction) {
+            powerUpType.drawFunction(powerUp.x, powerUp.y, powerUp.size);
+        }
+    });
 }
 
 // 生成敵方車輛
 function generateEnemyCar() {
-const track = Math.floor(Math.random() * trackCount);
-const x = track * trackWidth + (trackWidth - 50) / 2;
-const y = -100;
-const colors = ['#FF9800', '#9C27B0', '#2196F3', '#F44336'];
-const color = colors[Math.floor(Math.random() * colors.length)];
-let enemySpeed = 3 + Math.random() * 5;
-enemyCars.push({
-x: x,
-y: y,
-width: 50,
-height: 100,
-color: color,
-track: track,
-speed: enemySpeed
-});
+    const track = Math.floor(Math.random() * trackCount);
+    const x = track * trackWidth + (trackWidth - 50) / 2;
+    const y = -100;
+    const colors = ['#FF9800', '#9C27B0', '#2196F3', '#F44336'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    let enemySpeed = 3 + Math.random() * 5;
+    enemyCars.push({
+        x: x,
+        y: y,
+        width: 50,
+        height: 100,
+        color: color,
+        track: track,
+        speed: enemySpeed
+    });
 }
 
 // 生成道具
 function generatePowerUp() {
-if (Math.random() < 0.015) { // 1.5% 機率生成道具
-const track = Math.floor(Math.random() * trackCount);
-const x = track * trackWidth + (trackWidth - 30) / 2;
-const y = -30;
-// 隨機選擇道具類型
-const powerUpTypes = Object.keys(POWERUP_TYPES);
-const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
-powerUps.push({
-x: x,
-y: y,
-size: 30,
-track: track,
-type: randomType
-});
-}
+    if (Math.random() < 0.015) {
+        const track = Math.floor(Math.random() * trackCount);
+        const x = track * trackWidth + (trackWidth - 30) / 2;
+        const y = -30;
+        const powerUpTypes = Object.keys(POWERUP_TYPES);
+        const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        powerUps.push({
+            x: x,
+            y: y,
+            size: 30,
+            track: track,
+            type: randomType
+        });
+    }
 }
 
-// 更新敵方車輛位置
+// 更新敵方車輛
 function updateEnemyCars() {
-for (let i = enemyCars.length - 1; i >= 0; i--) {
-enemyCars[i].y += enemyCars[i].speed;
-// 移除超出畫布的車輛
-if (enemyCars[i].y > canvas.height) {
-enemyCars.splice(i, 1);
-// 基礎分數
-let points = 10;
-// 如果有分數加倍效果
-if (playerEffects.doubleScore.active) {
-points *= 2;
-}
-score += points;
-}
-}
+    for (let i = enemyCars.length - 1; i >= 0; i--) {
+        enemyCars[i].y += enemyCars[i].speed;
+        if (enemyCars[i].y > canvas.height) {
+            enemyCars.splice(i, 1);
+            let points = 10;
+            if (playerEffects.doubleScore.active) {
+                points *= 2;
+            }
+            score += points;
+        }
+    }
 }
 
-// 更新道具位置
+// 更新道具
 function updatePowerUps() {
-for (let i = powerUps.length - 1; i >= 0; i--) {
-const powerUp = powerUps[i];
-// 如果有磁鐵效果且道具在範圍內，向玩家移動
-if (playerEffects.magnet.active) {
-const dx = (playerCar.x + playerCar.width/2) - (powerUp.x + powerUp.size/2);
-const dy = (playerCar.y + playerCar.height/2) - (powerUp.y + powerUp.size/2);
-const distance = Math.sqrt(dx * dx + dy * dy);
-if (distance < playerEffects.magnet.range) {
-// 向玩家移動
-const speed = 8;
-powerUp.x += (dx / distance) * speed;
-powerUp.y += (dy / distance) * speed;
-} else {
-powerUp.y += 5;
-}
-} else {
-powerUp.y += 5;
-}
-// 移除超出畫布的道具
-if (powerUp.y > canvas.height) {
-powerUps.splice(i, 1);
-}
-}
+    for (let i = powerUps.length - 1; i >= 0; i--) {
+        const powerUp = powerUps[i];
+        if (playerEffects.magnet.active) {
+            const dx = (playerCar.x + playerCar.width/2) - (powerUp.x + powerUp.size/2);
+            const dy = (playerCar.y + playerCar.height/2) - (powerUp.y + powerUp.size/2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < playerEffects.magnet.range) {
+                const speed = 8;
+                powerUp.x += (dx / distance) * speed;
+                powerUp.y += (dy / distance) * speed;
+            } else {
+                powerUp.y += 5;
+            }
+        } else {
+            powerUp.y += 5;
+        }
+        if (powerUp.y > canvas.height) {
+            powerUps.splice(i, 1);
+        }
+    }
 }
 
 // 檢測碰撞
 function checkCollisions() {
-// 檢測與敵方車輛的碰撞
-for (let i = enemyCars.length - 1; i >= 0; i--) {
-const car = enemyCars[i];
-if (
-playerCar.x < car.x + car.width &&
-playerCar.x + playerCar.width > car.x &&
-playerCar.y < car.y + car.height &&
-playerCar.y + playerCar.height > car.y
-) {
-// 如果有護盾效果，不損失生命值
-if (playerEffects.shield.active) {
-enemyCars.splice(i, 1);
-score += 20; // 摧毀敵車獎勵
-} else {
-// 碰撞發生
-enemyCars.splice(i, 1);
-lives--;
-updateUI();
-// 如果生命值耗盡，遊戲結束
-if (lives <= 0) {
-endGame();
-}
-}
-return;
-}
-}
+    for (let i = enemyCars.length - 1; i >= 0; i--) {
+        const car = enemyCars[i];
+        if (
+            playerCar.x < car.x + car.width &&
+            playerCar.x + playerCar.width > car.x &&
+            playerCar.y < car.y + car.height &&
+            playerCar.y + playerCar.height > car.y
+        ) {
+            if (playerEffects.shield.active) {
+                enemyCars.splice(i, 1);
+                score += 20;
+            } else {
+                enemyCars.splice(i, 1);
+                lives--;
+                updateUI();
+                if (lives <= 0) {
+                    endGame();
+                }
+            }
+            return;
+        }
+    }
 
-// 檢測與道具的碰撞
-for (let i = powerUps.length - 1; i >= 0; i--) {
-const powerUp = powerUps[i];
-if (
-playerCar.x < powerUp.x + powerUp.size &&
-playerCar.x + playerCar.width > powerUp.x &&
-playerCar.y < powerUp.y + powerUp.size &&
-playerCar.y + playerCar.height > powerUp.y
-) {
-// 收集道具
-const powerUpType = POWERUP_TYPES[powerUp.type];
-powerUps.splice(i, 1);
-// 根據道具類型應用效果
-applyPowerUpEffect(powerUpType);
-updateUI();
-}
-}
+    for (let i = powerUps.length - 1; i >= 0; i--) {
+        const powerUp = powerUps[i];
+        if (
+            playerCar.x < powerUp.x + powerUp.size &&
+            playerCar.x + playerCar.width > powerUp.x &&
+            playerCar.y < powerUp.y + powerUp.size &&
+            playerCar.y + playerCar.height > powerUp.y
+        ) {
+            const powerUpType = POWERUP_TYPES[powerUp.type];
+            powerUps.splice(i, 1);
+            applyPowerUpEffect(powerUpType);
+            updateUI();
+        }
+    }
 }
 
 // 應用道具效果
 function applyPowerUpEffect(powerUpType) {
-if (!powerUpType) return;
-const now = Date.now();
-const endTime = now + powerUpType.duration;
-// 根據道具類型設置效果
-switch(powerUpType.id) {
-case 'shield':
-playerEffects.shield.active = true;
-playerEffects.shield.endTime = endTime;
-playerCar.isInvulnerable = true;
-break;
-case 'double':
-playerEffects.doubleScore.active = true;
-playerEffects.doubleScore.endTime = endTime;
-break;
-case 'magnet':
-playerEffects.magnet.active = true;
-playerEffects.magnet.endTime = endTime;
-break;
-}
-// 更新狀態效果顯示
-updateStatusEffects();
-// 設置定時器移除效果
-setTimeout(() => {
-removePowerUpEffect(powerUpType.id);
-}, powerUpType.duration);
+    if (!powerUpType) return;
+    const now = Date.now();
+    const endTime = now + powerUpType.duration;
+    switch(powerUpType.id) {
+        case 'shield':
+            playerEffects.shield.active = true;
+            playerEffects.shield.endTime = endTime;
+            playerCar.isInvulnerable = true;
+            break;
+        case 'double':
+            playerEffects.doubleScore.active = true;
+            playerEffects.doubleScore.endTime = endTime;
+            break;
+        case 'magnet':
+            playerEffects.magnet.active = true;
+            playerEffects.magnet.endTime = endTime;
+            break;
+    }
+    updateStatusEffects();
+    setTimeout(() => {
+        removePowerUpEffect(powerUpType.id);
+    }, powerUpType.duration);
 }
 
 // 移除道具效果
 function removePowerUpEffect(effectId) {
-switch(effectId) {
-case 'shield':
-playerEffects.shield.active = false;
-playerCar.isInvulnerable = false;
-break;
-case 'double':
-playerEffects.doubleScore.active = false;
-break;
-case 'magnet':
-playerEffects.magnet.active = false;
-break;
-}
-updateStatusEffects();
+    switch(effectId) {
+        case 'shield':
+            playerEffects.shield.active = false;
+            playerCar.isInvulnerable = false;
+            break;
+        case 'double':
+            playerEffects.doubleScore.active = false;
+            break;
+        case 'magnet':
+            playerEffects.magnet.active = false;
+            break;
+    }
+    updateStatusEffects();
 }
 
 // 檢查效果是否過期
 function checkEffectsExpiry() {
-const now = Date.now();
-for (let effect in playerEffects) {
-if (playerEffects[effect].active && now > playerEffects[effect].endTime) {
-removePowerUpEffect(effect);
-}
-}
+    const now = Date.now();
+    for (let effect in playerEffects) {
+        if (playerEffects[effect].active && now > playerEffects[effect].endTime) {
+            removePowerUpEffect(effect);
+        }
+    }
 }
 
-// 更新玩家車輛位置
+// 更新玩家車輛
 function updatePlayerCar() {
-// 加速/減速
-if (keys.ArrowUp && playerCar.speed < playerCar.maxSpeed) {
-playerCar.speed += playerCar.acceleration;
-} else if (keys.ArrowDown && playerCar.speed > 0) {
-playerCar.speed -= playerCar.deceleration * 2;
-} else if (playerCar.speed > 0) {
-playerCar.speed -= playerCar.deceleration;
-} else if (playerCar.speed < 0) {
-playerCar.speed = 0;
-}
+    if (keys.ArrowUp && playerCar.speed < playerCar.maxSpeed) {
+        playerCar.speed += playerCar.acceleration;
+    } else if (keys.ArrowDown && playerCar.speed > 0) {
+        playerCar.speed -= playerCar.deceleration * 2;
+    } else if (playerCar.speed > 0) {
+        playerCar.speed -= playerCar.deceleration;
+    } else if (playerCar.speed < 0) {
+        playerCar.speed = 0;
+    }
 
-// 按左鍵且不在最左車道時，向左移動
-if (keys.ArrowLeft && playerCar.track > 0) {
-playerCar.track--;
-playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
-keys.ArrowLeft = false; // 防止連續切換
-}
-// 按右鍵且不在最右車道時，向右移動
-else if (keys.ArrowRight && playerCar.track < trackCount - 1) {
-playerCar.track++;
-playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
-keys.ArrowRight = false; // 防止連續切換
-}
+    if (keys.ArrowLeft && playerCar.track > 0) {
+        playerCar.track--;
+        playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+        keys.ArrowLeft = false;
+    } else if (keys.ArrowRight && playerCar.track < trackCount - 1) {
+        playerCar.track++;
+        playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+        keys.ArrowRight = false;
+    }
 
-// 更新速度顯示
-speed = Math.round(playerCar.speed * 10);
+    speed = Math.round(playerCar.speed * 10);
 }
 
 // 更新UI
 function updateUI() {
-scoreElement.textContent = score;
-speedElement.textContent = speed + ' km/h';
-livesElement.textContent = lives;
-// 更新進度條
-progressFillElement.style.width = trackProgress + '%';
-lapProgressElement.textContent = Math.floor(trackProgress);
+    scoreElement.textContent = score;
+    speedElement.textContent = speed + ' km/h';
+    livesElement.textContent = lives;
+    progressFillElement.style.width = trackProgress + '%';
+    lapProgressElement.textContent = Math.floor(trackProgress);
 }
 
-// 更新狀態效果顯示
+// 更新狀態效果
 function updateStatusEffects() {
-statusEffectsElement.innerHTML = '';
-for (let effectKey in playerEffects) {
-const effect = playerEffects[effectKey];
-if (effect.active && POWERUP_TYPES[effectKey]) {
-const powerUpType = POWERUP_TYPES[effectKey];
-const timeLeft = Math.max(0, Math.ceil((effect.endTime - Date.now()) / 1000));
-const effectElement = document.createElement('div');
-effectElement.className = 'status-effect';
-effectElement.innerHTML = `
-<div class="status-effect-icon ${effectKey}-icon"></div>
-<span>${powerUpType.icon} ${powerUpType.name}: ${timeLeft}s</span>
-`;
-statusEffectsElement.appendChild(effectElement);
-}
-}
+    statusEffectsElement.innerHTML = '';
+    for (let effectKey in playerEffects) {
+        const effect = playerEffects[effectKey];
+        if (effect.active && POWERUP_TYPES[effectKey]) {
+            const powerUpType = POWERUP_TYPES[effectKey];
+            const timeLeft = Math.max(0, Math.ceil((effect.endTime - Date.now()) / 1000));
+            const effectElement = document.createElement('div');
+            effectElement.className = 'status-effect';
+            effectElement.innerHTML = `
+                <div class="status-effect-icon ${effectKey}-icon"></div>
+                <span>${powerUpType.icon} ${powerUpType.name}: ${timeLeft}s</span>
+            `;
+            statusEffectsElement.appendChild(effectElement);
+        }
+    }
 }
 
 // 結束遊戲
 function endGame() {
-gameRunning = false;
-if (gameFrameId) {
-cancelAnimationFrame(gameFrameId);
-gameFrameId = null;
-}
-finalScoreElement.textContent = score;
-gameOverScreen.style.display = 'flex';
+    gameRunning = false;
+    if (gameFrameId) {
+        cancelAnimationFrame(gameFrameId);
+        gameFrameId = null;
+    }
+    finalScoreElement.textContent = score;
+    gameOverScreen.style.display = 'flex';
 }
 
 // 遊戲主循環
 function gameLoop() {
-if (!gameRunning || gamePaused || countDownActive) {
-gameFrameId = requestAnimationFrame(gameLoop);
-return;
+    if (!gameRunning || gamePaused || countDownActive) {
+        gameFrameId = requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawTracks();
+    checkEffectsExpiry();
+    updateEnemyCars();
+    drawEnemyCars();
+    updatePowerUps();
+    drawPowerUps();
+    updatePlayerCar();
+    drawPlayerCar();
+    checkCollisions();
+
+    if (Math.random() < 0.03) {
+        generateEnemyCar();
+    }
+    generatePowerUp();
+
+    updateUI();
+    if (Date.now() % 1000 < 16) {
+        updateStatusEffects();
+    }
+
+    gameFrameId = requestAnimationFrame(gameLoop);
 }
 
-// 清除畫布
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-// 繪製賽道
-drawTracks();
-
-// 檢查效果是否過期
-checkEffectsExpiry();
-
-// 更新和繪製敵方車輛
-updateEnemyCars();
-drawEnemyCars();
-
-// 更新和繪製道具
-updatePowerUps();
-drawPowerUps();
-
-// 更新玩家車輛
-updatePlayerCar();
-drawPlayerCar();
-
-// 檢測碰撞
-checkCollisions();
-
-// 隨機生成敵方車輛
-if (Math.random() < 0.03) {
-generateEnemyCar();
-}
-
-// 隨機生成道具
-generatePowerUp();
-
-// 更新UI
-updateUI();
-
-// 定期更新狀態效果顯示（每秒更新一次）
-if (Date.now() % 1000 < 16) { // 大約每秒更新一次
-updateStatusEffects();
-}
-
-// 請求下一幀
-gameFrameId = requestAnimationFrame(gameLoop);
-}
-
-// 事件監聽
+// 鍵盤事件
 document.addEventListener('keydown', (e) => {
-if (keys.hasOwnProperty(e.key)) {
-keys[e.key] = true;
-// 高亮顯示按下的鍵
-switch(e.key) {
-case 'ArrowUp':
-keyUp.classList.add('active');
-break;
-case 'ArrowDown':
-keyDown.classList.add('active');
-break;
-case 'ArrowLeft':
-keyLeft.classList.add('active');
-break;
-case 'ArrowRight':
-keyRight.classList.add('active');
-break;
-}
-}
+    if (keys.hasOwnProperty(e.key)) {
+        keys[e.key] = true;
+        switch(e.key) {
+            case 'ArrowUp': keyUp.classList.add('active'); break;
+            case 'ArrowDown': keyDown.classList.add('active'); break;
+            case 'ArrowLeft': keyLeft.classList.add('active'); break;
+            case 'ArrowRight': keyRight.classList.add('active'); break;
+        }
+    }
 });
 
 document.addEventListener('keyup', (e) => {
-if (keys.hasOwnProperty(e.key)) {
-keys[e.key] = false;
-// 移除高亮
-switch(e.key) {
-case 'ArrowUp':
-keyUp.classList.remove('active');
-break;
-case 'ArrowDown':
-keyDown.classList.remove('active');
-break;
-case 'ArrowLeft':
-keyLeft.classList.remove('active');
-break;
-case 'ArrowRight':
-keyRight.classList.remove('active');
-break;
-}
-}
+    if (keys.hasOwnProperty(e.key)) {
+        keys[e.key] = false;
+        switch(e.key) {
+            case 'ArrowUp': keyUp.classList.remove('active'); break;
+            case 'ArrowDown': keyDown.classList.remove('active'); break;
+            case 'ArrowLeft': keyLeft.classList.remove('active'); break;
+            case 'ArrowRight': keyRight.classList.remove('active'); break;
+        }
+    }
 });
 
-// 觸控控制（用於移動設備）
+// 觸控控制
 let touchStartX = 0;
 let touchStartY = 0;
 let lastLaneChangeTime = 0;
-const laneChangeCooldown = 200; // 200毫秒冷卻時間防止連續切換
+const laneChangeCooldown = 200;
 document.addEventListener('touchstart', (e) => {
-touchStartX = e.touches[0].clientX;
-touchStartY = e.touches[0].clientY;
-e.preventDefault();
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    e.preventDefault();
 });
 
 document.addEventListener('touchmove', (e) => {
-if (!gameRunning || gamePaused) return;
-const touchX = e.touches[0].clientX;
-const touchY = e.touches[0].clientY;
-const deltaX = touchX - touchStartX;
-const deltaY = touchY - touchStartY;
-const now = Date.now();
+    if (!gameRunning || gamePaused) return;
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const deltaX = touchX - touchStartX;
+    const deltaY = touchY - touchStartY;
+    const now = Date.now();
 
-// 水平移動 - 車道切換
-if (Math.abs(deltaX) > 30 && now - lastLaneChangeTime > laneChangeCooldown) {
-if (deltaX > 0 && playerCar.track < trackCount - 1) {
-playerCar.track++;
-playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
-touchStartX = touchX;
-lastLaneChangeTime = now;
-} else if (deltaX < 0 && playerCar.track > 0) {
-playerCar.track--;
-playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
-touchStartX = touchX;
-lastLaneChangeTime = now;
-}
-}
+    if (Math.abs(deltaX) > 30 && now - lastLaneChangeTime > laneChangeCooldown) {
+        if (deltaX > 0 && playerCar.track < trackCount - 1) {
+            playerCar.track++;
+            playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+            touchStartX = touchX;
+            lastLaneChangeTime = now;
+        } else if (deltaX < 0 && playerCar.track > 0) {
+            playerCar.track--;
+            playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+            touchStartX = touchX;
+            lastLaneChangeTime = now;
+        }
+    }
 
-// 垂直移動（加速/減速）
-if (Math.abs(deltaY) > 20) {
-if (deltaY > 0 && playerCar.speed > 0) {
-playerCar.speed -= playerCar.deceleration * 3;
-touchStartY = touchY;
-} else if (deltaY < 0 && playerCar.speed < playerCar.maxSpeed) {
-playerCar.speed += playerCar.acceleration * 2;
-touchStartY = touchY;
-}
-}
-e.preventDefault();
+    if (Math.abs(deltaY) > 20) {
+        if (deltaY > 0 && playerCar.speed > 0) {
+            playerCar.speed -= playerCar.deceleration * 3;
+            touchStartY = touchY;
+        } else if (deltaY < 0 && playerCar.speed < playerCar.maxSpeed) {
+            playerCar.speed += playerCar.acceleration * 2;
+            touchStartY = touchY;
+        }
+    }
+    e.preventDefault();
 });
 
 // 按鈕事件
 startButton.addEventListener('click', () => {
-if (!gameInitialized) {
-alert('遊戲資源尚未完全加載，請稍等...');
-return;
-}
-if (!gameRunning && !countDownActive) {
-startCountdown();
-startButton.textContent = '重新開始';
-} else if (gameOverScreen.style.display === 'flex') {
-startCountdown();
-} else if (gameRunning) {
-// 如果遊戲正在運行但點擊了重新開始
-gameRunning = false;
-if (gameFrameId) {
-cancelAnimationFrame(gameFrameId);
-gameFrameId = null;
-}
-startCountdown();
-}
+    if (!gameInitialized) {
+        alert('遊戲資源尚未完全加載，請稍等...');
+        return;
+    }
+    if (!gameRunning && !countDownActive) {
+        startCountdown();
+        startButton.textContent = '重新開始';
+    } else if (gameOverScreen.style.display === 'flex') {
+        startCountdown();
+    } else if (gameRunning) {
+        gameRunning = false;
+        if (gameFrameId) {
+            cancelAnimationFrame(gameFrameId);
+            gameFrameId = null;
+        }
+        startCountdown();
+    }
 });
 
 pauseButton.addEventListener('click', () => {
-if (gameRunning && !countDownActive) {
-gamePaused = !gamePaused;
-pauseButton.textContent = gamePaused ? '繼續遊戲' : '暫停遊戲';
-if (!gamePaused) {
-gameLoop();
-}
-}
+    if (gameRunning && !countDownActive) {
+        gamePaused = !gamePaused;
+        pauseButton.textContent = gamePaused ? '繼續遊戲' : '暫停遊戲';
+        if (!gamePaused) {
+            gameLoop();
+        }
+    }
 });
 
 restartButton.addEventListener('click', () => {
-gameRunning = false;
-if (gameFrameId) {
-cancelAnimationFrame(gameFrameId);
-gameFrameId = null;
-}
-initGame();
-startCountdown();
-gameOverScreen.style.display = 'none';
+    gameRunning = false;
+    if (gameFrameId) {
+        cancelAnimationFrame(gameFrameId);
+        gameFrameId = null;
+    }
+    initGame();
+    startCountdown();
+    gameOverScreen.style.display = 'none';
 });
 
-// 開始倒計時
+// 倒數計時
 function startCountdown() {
-if (countDownActive) return;
-countDownActive = true;
-countdownOverlay.style.display = 'flex';
-let count = 3;
-countdownNumber.textContent = count;
+    if (countDownActive) return;
+    countDownActive = true;
+    countdownOverlay.style.display = 'flex';
+    let count = 3;
+    countdownNumber.textContent = count;
 
-const countdownInterval = setInterval(() => {
-count--;
-if (count > 0) {
-countdownNumber.textContent = count;
-} else {
-// 倒計時結束
-clearInterval(countdownInterval);
-countdownOverlay.style.display = 'none';
-countDownActive = false;
-startGame();
-}
-}, 1000);
+    const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownNumber.textContent = count;
+        } else {
+            clearInterval(countdownInterval);
+            countdownOverlay.style.display = 'none';
+            countDownActive = false;
+            startGame();
+        }
+    }, 1000);
 }
 
 // 開始遊戲
 function startGame() {
-gameRunning = true;
-gamePaused = false;
-// 重置遊戲狀態
-initGame();
-// 遊戲主循環
-gameLoop();
+    gameRunning = true;
+    gamePaused = false;
+    initGame(); // 會觸發 drawInitialScene()
+    gameLoop();
 }
 
 // 繪製小地圖
 function drawMiniMap() {
-// 清除小地圖
-miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
-// 設置縮放
-const scale = Math.min(miniMapCanvas.width / canvas.width, miniMapCanvas.height / canvas.height) * 0.8;
-// 繪製賽道
-for (let i = 0; i < trackCount; i++) {
-miniMapCtx.fillStyle = trackColors[i];
-miniMapCtx.fillRect(i * trackWidth * scale, 0, trackWidth * scale, miniMapCanvas.height);
+    miniMapCtx.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+    const scale = Math.min(miniMapCanvas.width / canvas.width, miniMapCanvas.height / canvas.height) * 0.8;
+    for (let i = 0; i < trackCount; i++) {
+        miniMapCtx.fillStyle = trackColors[i];
+        miniMapCtx.fillRect(i * trackWidth * scale, 0, trackWidth * scale, miniMapCanvas.height);
+    }
+    for (let i = 1; i < trackCount; i++) {
+        miniMapCtx.fillStyle = '#FFFFFF';
+        miniMapCtx.fillRect(i * trackWidth * scale - 2, 0, 4, miniMapCanvas.height);
+    }
+    miniMapCtx.fillStyle = '#FF416C';
+    miniMapCtx.beginPath();
+    miniMapCtx.arc(
+        (playerCar.x + playerCar.width/2) * scale,
+        miniMapCanvas.height - 20,
+        8,
+        0, Math.PI * 2
+    );
+    miniMapCtx.fill();
+    enemyCars.forEach(car => {
+        miniMapCtx.fillStyle = car.color;
+        miniMapCtx.beginPath();
+        miniMapCtx.arc(
+            car.x * scale,
+            miniMapCanvas.height - (car.y / canvas.height) * miniMapCanvas.height,
+            5,
+            0, Math.PI * 2
+        );
+        miniMapCtx.fill();
+    });
+    miniMapCtx.fillStyle = '#FFFFFF';
+    miniMapCtx.font = '10px Arial';
+    miniMapCtx.textAlign = 'center';
+    miniMapCtx.fillText('↑', miniMapCanvas.width / 2, 15);
 }
-// 繪製車道標記
-for (let i = 1; i < trackCount; i++) {
-miniMapCtx.fillStyle = '#FFFFFF';
-miniMapCtx.fillRect(i * trackWidth * scale - 2, 0, 4, miniMapCanvas.height);
-}
-// 繪製玩家位置
-miniMapCtx.fillStyle = '#FF416C';
-miniMapCtx.beginPath();
-miniMapCtx.arc(
-(playerCar.x + playerCar.width/2) * scale,
-miniMapCanvas.height - 20,
-8,
-0, Math.PI * 2
-);
-miniMapCtx.fill();
-// 繪製敵車位置
-enemyCars.forEach(car => {
-miniMapCtx.fillStyle = car.color;
-miniMapCtx.beginPath();
-miniMapCtx.arc(
-car.x * scale,
-miniMapCanvas.height - (car.y / canvas.height) * miniMapCanvas.height,
-5,
-0, Math.PI * 2
-);
-miniMapCtx.fill();
-});
-// 標示方向
-miniMapCtx.fillStyle = '#FFFFFF';
-miniMapCtx.font = '10px Arial';
-miniMapCtx.textAlign = 'center';
-miniMapCtx.fillText('↑', miniMapCanvas.width / 2, 15);
-}
-
-// 初始繪製
-drawTracks();
-drawPlayerCar();
-updateUI();
-updateStatusEffects();
 </script>
 </body>
 </html>

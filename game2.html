@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 擊靶射手大師 - 第一視角 🎯</title>
+    <title>井字過三關</title>
     <style>
         * {
             margin: 0;
@@ -13,1051 +13,386 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0a0e17, #1a1a2e, #0a0e17);
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: hidden;
-            position: relative;
         }
         
-        .game-container {
-            position: relative;
-            width: 900px;
-            max-width: 95%;
-            background: rgba(5, 8, 15, 0.85);
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-            overflow: hidden;
-            padding: 20px;
-            border: 1px solid rgba(100, 150, 255, 0.3);
-        }
-        
-        .header {
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
-            margin-bottom: 20px;
-            color: white;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
         
         h1 {
+            color: #fff;
             font-size: 2.8rem;
             margin-bottom: 10px;
-            background: linear-gradient(to right, #ffcc00, #ff9900, #ff6600);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .subtitle {
-            color: #aaa;
-            font-size: 1.1rem;
-            margin-top: 5px;
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            font-weight: 500;
         }
         
-        .stats {
+        .game-info {
             display: flex;
-            justify-content: space-around;
-            background: rgba(15, 25, 45, 0.8);
+            justify-content: space-between;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.2);
             padding: 15px;
             border-radius: 15px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(100, 150, 255, 0.2);
         }
         
-        .stat-box {
-            text-align: center;
-            color: white;
-        }
-        
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: bold;
-            background: linear-gradient(to right, #ffcc00, #ff9900);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
-        }
-        
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        canvas {
-            background: #0a0e17;
-            border-radius: 15px;
-            display: block;
-            margin: 0 auto;
-            cursor: crosshair;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(100, 150, 255, 0.4);
-        }
-        
-        .instructions {
-            color: #e0e0e0;
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(15, 25, 45, 0.8);
-            border-radius: 15px;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            border: 1px solid rgba(100, 150, 255, 0.2);
-        }
-        
-        .instructions p {
-            margin: 8px 0;
-        }
-        
-        .highlight {
-            color: #ffcc00;
-            font-weight: bold;
-        }
-        
-        .ammo-bar {
-            height: 25px;
-            background: rgba(20, 30, 50, 0.8);
-            border-radius: 15px;
-            margin: 15px 0;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(100, 150, 255, 0.3);
-        }
-        
-        .ammo-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(to right, #4db6ac, #4fc3f7, #5e81ac);
-            border-radius: 15px;
-            transition: width 0.1s;
-            box-shadow: 0 0 10px rgba(77, 182, 172, 0.5);
-        }
-        
-        .ammo-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 0 3px black;
-            font-size: 1.1rem;
-        }
-        
-        .game-over {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 8, 15, 0.9);
+        .player-info {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .current-player {
+            background: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 0 auto 30px;
+            max-width: 400px;
+        }
+        
+        .cell {
+            aspect-ratio: 1/1;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 10;
-            border-radius: 20px;
-            display: none;
-            backdrop-filter: blur(5px);
+            font-size: 4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
-        .game-over h2 {
-            color: #ffcc00;
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
-            background: linear-gradient(to right, #ffcc00, #ff6600);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
         }
         
-        .final-score {
-            color: white;
-            font-size: 2.2rem;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        .cell.x {
+            color: #FF5252;
+            text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
         }
         
-        .btn {
-            background: linear-gradient(to right, #4db6ac, #4fc3f7);
-            background-clip: border-box;
-            -webkit-background-clip: border-box;
+        .cell.o {
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .winning-cell {
+            animation: pulse 1.5s infinite;
+            background: rgba(255, 215, 0, 0.3);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4CAF50, #8BC34A);
             color: white;
             border: none;
-            padding: 14px 40px;
-            font-size: 1.3rem;
-            border-radius: 60px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
             cursor: pointer;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            box-shadow: 0 5px 20px rgba(0, 150, 200, 0.4);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
-        .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 150, 200, 0.6);
-            background: linear-gradient(to right, #4fc3f7, #5e81ac);
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
         
-        .btn:active {
+        button:active {
             transform: translateY(1px);
         }
         
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -60%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
-            transform: rotate(30deg);
-            transition: all 0.6s;
-            opacity: 0;
+        #resetBtn {
+            background: linear-gradient(to right, #FF5252, #FF4081);
         }
         
-        .btn:hover::after {
-            opacity: 1;
-            transform: rotate(30deg) translate(40%, 40%);
+        .message {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 20px 0;
+            min-height: 60px;
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
-        /* 擊靶瞄準十字線 */
-        .crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 2px;
-            height: 2px;
-            pointer-events: none;
-            z-index: 5;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 5px #ffcc00;
+        .rules {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: left;
         }
         
-        /* 擊靶瞄準鏡 */
-        .scope-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 180px;
-            height: 180px;
-            border: 2px solid rgba(100, 200, 255, 0.4);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 4;
-            box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
+        .rules h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
         }
         
-        .scope-ring::before {
-            content: '';
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border: 1px dashed rgba(150, 220, 255, 0.5);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .rules ul {
+            padding-left: 20px;
+            color: white;
         }
         
-        /* 枪械握把 */
-        .gun-handle {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 120px;
-            background: linear-gradient(to right, #333, #555);
-            border-radius: 10px 10px 5px 5px;
-            z-index: 3;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+        .rules li {
+            margin-bottom: 8px;
+            line-height: 1.5;
         }
         
-        .gun-barrel {
-            position: absolute;
-            bottom: 200px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 80px;
-            background: linear-gradient(to right, #222, #444);
-            border-radius: 15px 15px 0 0;
-            z-index: 3;
-            box-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
-        }
-        
-        .muzzle-flash {
-            position: absolute;
-            bottom: 280px;
-            left: 50%;
-            transform: translateX(-50%) scale(0);
+        .symbol {
+            display: inline-block;
             width: 30px;
             height: 30px;
-            background: radial-gradient(circle, #ff9900, #ff3300, transparent 70%);
             border-radius: 50%;
-            z-index: 3;
-            opacity: 0;
-        }
-        
-        /* 放大鏡樣式 */
-        .zoom-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 150px;
-            height: 150px;
-            background: rgba(10, 15, 30, 0.8);
-            border: 2px solid rgba(100, 200, 255, 0.6);
-            border-radius: 50%;
-            overflow: hidden;
-            z-index: 10;
-            box-shadow: 0 0 15px rgba(0, 100, 255, 0.4);
-        }
-        
-        #zoomCanvas {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .zoom-border {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            pointer-events: none;
-            z-index: 11;
-        }
-        
-        .zoom-label {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #4fc3f7;
-            font-size: 12px;
+            text-align: center;
+            line-height: 30px;
             font-weight: bold;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
-            z-index: 11;
-            pointer-events: none;
+            margin: 0 5px;
+        }
+        
+        .x-symbol {
+            background: #FF5252;
+            color: white;
+        }
+        
+        .o-symbol {
+            background: #4CAF50;
+            color: white;
         }
         
         @media (max-width: 600px) {
-            .game-container {
-                width: 100%;
-            }
-            
-            canvas {
-                width: 100%;
-                height: auto;
+            .container {
+                padding: 20px;
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             
-            .stat-value {
-                font-size: 1.8rem;
+            .cell {
+                font-size: 3rem;
             }
             
-            .instructions {
-                font-size: 0.95rem;
-            }
-            
-            .zoom-container {
-                width: 120px;
-                height: 120px;
-            }
-            
-            .gun-handle, .gun-barrel {
-                display: none;
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h1>🎯 擊靶射手大師 🎯</h1>
-            <div class="subtitle">體驗專業射擊訓練，精準瞄準靶心，爭取最高分數！</div>
-        </div>
+    <div class="container">
+        <h1>井字過三關</h1>
+        <p class="subtitle">第一個連成三個相同符號者勝！</p>
         
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-value" id="score">0</div>
-                <div class="stat-label">得分</div>
+        <div class="game-info">
+            <div class="player-info">
+                <div>玩家 1</div>
+                <div class="symbol x-symbol">X</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-value" id="bullets">30</div>
-                <div class="stat-label">剩餘子彈</div>
+            <div class="player-info">
+                <div>當前玩家</div>
+                <div class="current-player" id="currentPlayer">X</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-value" id="accuracy">0%</div>
-                <div class="stat-label">命中率</div>
+            <div class="player-info">
+                <div>玩家 2</div>
+                <div class="symbol o-symbol">O</div>
             </div>
         </div>
         
-        <div class="ammo-bar">
-            <div class="ammo-fill" id="ammoFill"></div>
-            <div class="ammo-text" id="ammoText">子彈: 30/30</div>
+        <div class="message" id="message">輪到 X 出手</div>
+        
+        <div class="game-board" id="gameBoard">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
         </div>
         
-        <div style="position: relative; overflow: hidden; border-radius: 15px;">
-            <canvas id="gameCanvas" width="880" height="500"></canvas>
-            
-            <!-- 枪械模型 -->
-            <div class="gun-barrel"></div>
-            <div class="gun-handle"></div>
-            <div class="muzzle-flash" id="muzzleFlash"></div>
-            
-            <!-- 放大鏡元素 -->
-            <div class="zoom-container">
-                <canvas id="zoomCanvas" width="150" height="150"></canvas>
-                <div class="zoom-border"></div>
-                <div class="zoom-label">瞄準鏡</div>
-            </div>
-            
-            <div class="crosshair"></div>
-            <div class="scope-ring"></div>
+        <div class="controls">
+            <button id="newGameBtn">新遊戲</button>
+            <button id="resetBtn">重置遊戲</button>
         </div>
         
-        <div class="instructions">
-            <p>🎯 <span class="highlight">移動滑鼠</span> 控制瞄準位置</p>
-            <p>🎯 <span class="highlight">點擊滑鼠左鍵</span> 射擊目標</p>
-            <p>🎯 靶心（黃色）得分最高，<span class="highlight">10分</span>！每輪有<span class="highlight">30顆子彈</span></p>
-            <p>🎯 射擊時會有後座力影響，瞄準需要更精準</p>
-        </div>
-        
-        <div class="game-over" id="gameOver">
-            <h2>🎯 訓練結束！🎯</h2>
-            <div class="final-score">最終得分: <span id="finalScore">0</span></div>
-            <button class="btn" id="restartBtn">再玩一次</button>
+        <div class="rules">
+            <h2>遊戲規則</h2>
+            <ul>
+                <li>兩名玩家輪流在 3×3 的格子中放置自己的符號（X 或 O）</li>
+                <li>玩家 1 使用 <span class="symbol x-symbol">X</span>，玩家 2 使用 <span class="symbol o-symbol">O</span></li>
+                <li>第一個成功將三個相同符號連成一線（橫、豎或對角線）的玩家獲勝</li>
+                <li>如果所有格子都被填滿且無人連成一線，則遊戲為和局</li>
+                <li>點擊任何空白格子即可放置您的符號</li>
+                <li>目標：在井字棋盤上「過三關」——連成三子一線！</li>
+            </ul>
         </div>
     </div>
 
     <script>
-        // 遊戲變數
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const zoomCanvas = document.getElementById('zoomCanvas');
-        const zoomCtx = zoomCanvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const bulletsElement = document.getElementById('bullets');
-        const accuracyElement = document.getElementById('accuracy');
-        const ammoFill = document.getElementById('ammoFill');
-        const ammoText = document.getElementById('ammoText');
-        const gameOverScreen = document.getElementById('gameOver');
-        const finalScoreElement = document.getElementById('finalScore');
-        const restartBtn = document.getElementById('restartBtn');
-        const muzzleFlash = document.getElementById('muzzleFlash');
-        
-        // 遊戲狀態
-        let score = 0;
-        let bulletsLeft = 30; // 子彈數
-        let hits = 0;
-        let gameActive = true;
-        let bullets = [];
-        let recoil = { x: 0, y: 0 }; // 後座力
-        let lastShotTime = 0;
-        let environment = [];
-        let aimingPoint = { x: canvas.width / 2, y: canvas.height / 2 - 30 }; // 儲存當前瞄準點
-        
-        // 初始化遊戲
-        function initGame() {
-            score = 0;
-            bulletsLeft = 30;
-            hits = 0;
-            gameActive = true;
-            bullets = [];
-            recoil = { x: 0, y: 0 };
-            lastShotTime = 0;
-            aimingPoint = { x: canvas.width / 2, y: canvas.height / 2 - 30 }; // 初始瞄準點在靶心
+        document.addEventListener('DOMContentLoaded', () => {
+            // 遊戲狀態變量
+            let currentPlayer = 'X';
+            let gameActive = true;
+            let gameState = ['', '', '', '', '', '', '', '', ''];
             
-            // 初始化環境元素
-            initEnvironment();
+            // 獲取DOM元素
+            const cells = document.querySelectorAll('.cell');
+            const messageElement = document.getElementById('message');
+            const currentPlayerElement = document.getElementById('currentPlayer');
+            const newGameBtn = document.getElementById('newGameBtn');
+            const resetBtn = document.getElementById('resetBtn');
             
-            updateUI();
-            gameOverScreen.style.display = 'none';
-            draw();
-        }
-        
-        // 初始化環境
-        function initEnvironment() {
-            environment = [];
-            
-            // 添加射擊場景元素
-            for (let i = 0; i < 10; i++) {
-                environment.push({
-                    type: 'range',
-                    x: Math.random() * canvas.width,
-                    y: canvas.height - 80 + Math.random() * 30,
-                    height: 50 + Math.random() * 30,
-                    width: 40 + Math.random() * 30,
-                    color: `hsl(${Math.random() * 10 + 180}, 30%, ${20 + Math.random() * 15}%)`
-                });
-            }
-            
-            // 添加遠處背景
-            for (let i = 0; i < 3; i++) {
-                environment.push({
-                    type: 'building',
-                    x: i * (canvas.width / 3) + Math.random() * 100,
-                    y: canvas.height - 150,
-                    height: 80 + Math.random() * 50,
-                    color: `hsl(${Math.random() * 10 + 180}, 20%, ${15 + Math.random() * 10}%)`
-                });
-            }
-        }
-        
-        // 更新UI
-        function updateUI() {
-            scoreElement.textContent = score;
-            bulletsElement.textContent = bulletsLeft;
-            const accuracy = bulletsLeft === 30 ? 0 : Math.round((hits / (30 - bulletsLeft)) * 100);
-            accuracyElement.textContent = `${accuracy}%`;
-            
-            // 更新子彈條
-            const ammoPercentage = (bulletsLeft / 30) * 100;
-            ammoFill.style.width = `${ammoPercentage}%`;
-            ammoText.textContent = `子彈: ${bulletsLeft}/30`;
-        }
-        
-        // 繪製遊戲元素 - 第一視角
-        function draw() {
-            // 清除畫布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 繪製背景
-            drawBackground();
-            
-            // 繪製靶子 - 第一視角
-            drawTargetFirstPerson();
-            
-            // 繪製環境
-            drawEnvironment();
-            
-            // 繪製子彈
-            drawBullets();
-            
-            // 繪製後座力效果
-            drawRecoilEffect();
-            
-            // 繪製瞄準鏡和準星
-            drawSights();
-            
-            // 繪製放大鏡視圖
-            drawZoomView();
-            
-            // 如果遊戲結束
-            if (!gameActive && bulletsLeft === 0) {
-                showGameOver();
-            }
-        }
-        
-        // 繪製背景 - 射擊場
-        function drawBackground() {
-            // 天空漸層
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.6);
-            skyGradient.addColorStop(0, '#1a237e');
-            skyGradient.addColorStop(0.5, '#283593');
-            skyGradient.addColorStop(1, '#3949ab');
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height * 0.6);
-            
-            // 遠處建築
-            ctx.fillStyle = '#1a237e';
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height * 0.6);
-            ctx.lineTo(canvas.width * 0.2, canvas.height * 0.5);
-            ctx.lineTo(canvas.width * 0.4, canvas.height * 0.55);
-            ctx.lineTo(canvas.width * 0.6, canvas.height * 0.48);
-            ctx.lineTo(canvas.width * 0.8, canvas.height * 0.52);
-            ctx.lineTo(canvas.width, canvas.height * 0.45);
-            ctx.lineTo(canvas.width, canvas.height * 0.6);
-            ctx.closePath();
-            ctx.fill();
-            
-            // 射擊場地面
-            const groundGradient = ctx.createLinearGradient(0, canvas.height * 0.6, 0, canvas.height);
-            groundGradient.addColorStop(0, '#4a4a4a');
-            groundGradient.addColorStop(1, '#2a2a2a');
-            ctx.fillStyle = groundGradient;
-            ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
-            
-            // 地面紋理
-            ctx.fillStyle = 'rgba(100, 100, 100, 0.2)';
-            for (let i = 0; i < 100; i++) {
-                const x = Math.random() * canvas.width;
-                const y = canvas.height * 0.6 + Math.random() * canvas.height * 0.4;
-                const size = 1 + Math.random() * 3;
-                ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // 射擊位置標線
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2 - 100, canvas.height * 0.9);
-            ctx.lineTo(canvas.width / 2 + 100, canvas.height * 0.9);
-            ctx.stroke();
-        }
-        
-        // 繪製環境元素
-        function drawEnvironment() {
-            // 繪製射擊場元素
-            environment.filter(obj => obj.type === 'range').forEach(obj => {
-                ctx.fillStyle = obj.color;
-                ctx.fillRect(obj.x - obj.width/2, obj.y - obj.height, obj.width, obj.height);
-                
-                // 添加陰影
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(obj.x - obj.width/2 + 5, obj.y - obj.height + 5, obj.width, obj.height);
-            });
-            
-            // 繪製遠處建築
-            environment.filter(obj => obj.type === 'building').forEach(building => {
-                ctx.fillStyle = building.color;
-                ctx.fillRect(building.x - 30, building.y - building.height, 60, building.height);
-                
-                // 建築窗戶
-                ctx.fillStyle = 'rgba(200, 220, 255, 0.3)';
-                for (let i = 0; i < 3; i++) {
-                    for (let j = 0; j < 2; j++) {
-                        ctx.fillRect(building.x - 20 + i * 15, building.y - building.height + 20 + j * 25, 8, 15);
-                    }
-                }
-            });
-        }
-        
-        // 繪製靶子 - 第一視角
-        function drawTargetFirstPerson() {
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2 - 30; // 靶子位置略高於中心
-            const baseRadius = 120;
-            
-            // 靶架
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(centerX - 10, centerY + baseRadius + 20, 20, canvas.height - (centerY + baseRadius + 20));
-            
-            // 靶環 - 第一視角更近，所以更大
-            const rings = [
-                { radius: baseRadius, color: '#f44336' },
-                { radius: baseRadius * 0.85, color: '#ff9800' },
-                { radius: baseRadius * 0.7, color: '#ffeb3b' },
-                { radius: baseRadius * 0.55, color: '#4caf50' },
-                { radius: baseRadius * 0.4, color: '#2196f3' },
-                { radius: baseRadius * 0.25, color: '#9c27b0' },
-                { radius: baseRadius * 0.12, color: '#ffffff' }
+            // 勝利條件（所有可能的三連線）
+            const winConditions = [
+                [0, 1, 2], // 第一行
+                [3, 4, 5], // 第二行
+                [6, 7, 8], // 第三行
+                [0, 3, 6], // 第一列
+                [1, 4, 7], // 第二列
+                [2, 5, 8], // 第三列
+                [0, 4, 8], // 主對角線
+                [2, 4, 6]  // 副對角線
             ];
             
-            rings.forEach(ring => {
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, ring.radius, 0, Math.PI * 2);
-                ctx.fillStyle = ring.color;
-                ctx.fill();
-            });
-            
-            // 靶心陰影
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, baseRadius * 0.15, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            
-            // 靶子距離標示
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('25m', centerX, centerY + baseRadius + 40);
-        }
-        
-        // 繪製子彈
-        function drawBullets() {
-            bullets.forEach(bullet => {
-                ctx.save();
-                ctx.translate(bullet.x, bullet.y);
+            // 初始化遊戲
+            function initGame() {
+                currentPlayer = 'X';
+                gameActive = true;
+                gameState = ['', '', '', '', '', '', '', '', ''];
                 
-                // 子彈軌跡
-                ctx.beginPath();
-                ctx.arc(0, 0, 3, 0, Math.PI * 2);
-                ctx.fillStyle = '#ffcc00';
-                ctx.fill();
+                // 清除所有格子
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x', 'o', 'winning-cell');
+                });
                 
-                ctx.restore();
-            });
-        }
-        
-        // 繪製瞄準鏡和準星
-        function drawSights() {
-            // 繪製瞄準鏡邊框
-            ctx.strokeStyle = 'rgba(100, 200, 255, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(canvas.width/2, canvas.height/2, 180, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            // 繪製瞄準刻度
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            
-            // 水平刻度
-            for (let i = -3; i <= 3; i++) {
-                if (i === 0) continue;
-                const x = canvas.width/2 + i * 40;
-                const y = canvas.height/2 + 160;
-                ctx.fillText(`${i*1}MOA`, x, y);
-                
-                ctx.beginPath();
-                ctx.moveTo(x, y - 5);
-                ctx.lineTo(x, y - 10);
-                ctx.stroke();
+                // 更新UI
+                updateMessage();
+                currentPlayerElement.textContent = currentPlayer;
+                currentPlayerElement.style.background = currentPlayer === 'X' ? '#FF5252' : '#4CAF50';
             }
             
-            // 垂直刻度
-            for (let i = -2; i <= 2; i++) {
-                if (i === 0) continue;
-                const x = canvas.width/2 + 160;
-                const y = canvas.height/2 + i * 30;
-                ctx.fillText(`${i*1}MOA`, x, y);
+            // 處理格子點擊
+            function handleCellClick(e) {
+                const cell = e.target;
+                const index = parseInt(cell.getAttribute('data-index'));
                 
-                ctx.beginPath();
-                ctx.moveTo(x - 5, y);
-                ctx.lineTo(x - 10, y);
-                ctx.stroke();
-            }
-        }
-        
-        // 繪製後座力效果
-        function drawRecoilEffect() {
-            if (Math.abs(recoil.x) > 0.1 || Math.abs(recoil.y) > 0.1) {
-                // 平滑恢復
-                recoil.x *= 0.9;
-                recoil.y *= 0.9;
+                // 檢查格子是否已被佔用或遊戲是否已結束
+                if (gameState[index] !== '' || !gameActive) {
+                    return;
+                }
                 
-                // 應用畫布變換
-                ctx.save();
-                ctx.translate(recoil.x, recoil.y);
-                ctx.restore();
-            }
-        }
-        
-        // 繪製放大鏡視圖
-        function drawZoomView() {
-            // 清除放大鏡畫布
-            zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
-            
-            // 設置放大鏡的中心點
-            const centerX = zoomCanvas.width / 2;
-            const centerY = zoomCanvas.height / 2;
-            const zoomScale = 4; // 放大倍率
-            
-            // 繪製靶心（放大版本）
-            const targetCenterX = canvas.width / 2;
-            const targetCenterY = canvas.height / 2 - 30;
-            const baseRadius = 120;
-            
-            // 計算瞄準點在靶心上的位置
-            const aimX = aimingPoint.x - targetCenterX;
-            const aimY = aimingPoint.y - targetCenterY;
-            
-            // 繪製靶環
-            const rings = [
-                { radius: baseRadius * 0.12 * zoomScale, color: '#ffffff' }, // 靶心
-                { radius: baseRadius * 0.25 * zoomScale, color: '#9c27b0' },
-                { radius: baseRadius * 0.4 * zoomScale, color: '#2196f3' },
-                { radius: baseRadius * 0.55 * zoomScale, color: '#4caf50' },
-                { radius: baseRadius * 0.7 * zoomScale, color: '#ffeb3b' },
-                { radius: baseRadius * 0.85 * zoomScale, color: '#ff9800' },
-                { radius: baseRadius * zoomScale, color: '#f44336' }
-            ];
-            
-            rings.forEach(ring => {
-                zoomCtx.beginPath();
-                zoomCtx.arc(centerX, centerY, ring.radius, 0, Math.PI * 2);
-                zoomCtx.fillStyle = ring.color;
-                zoomCtx.fill();
-            });
-            
-            // 繪製瞄準點
-            const aimXZoom = aimX * zoomScale;
-            const aimYZoom = aimY * zoomScale;
-            
-            // 確保瞄準點在靶子範圍內
-            const maxDistance = baseRadius * zoomScale;
-            const distance = Math.sqrt(aimXZoom * aimXZoom + aimYZoom * aimYZoom);
-            let finalAimX = aimXZoom;
-            let finalAimY = aimYZoom;
-            
-            if (distance > maxDistance) {
-                // 如果超出範圍，將點限制在邊界上
-                finalAimX = (aimXZoom / distance) * maxDistance;
-                finalAimY = (aimYZoom / distance) * maxDistance;
+                // 更新遊戲狀態
+                gameState[index] = currentPlayer;
+                cell.textContent = currentPlayer;
+                cell.classList.add(currentPlayer.toLowerCase());
+                
+                // 檢查遊戲結果
+                if (checkWin()) {
+                    endGame(false);
+                } else if (isDraw()) {
+                    endGame(true);
+                } else {
+                    // 切換玩家
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                    updateMessage();
+                    currentPlayerElement.textContent = currentPlayer;
+                    currentPlayerElement.style.background = currentPlayer === 'X' ? '#FF5252' : '#4CAF50';
+                }
             }
             
-            // 繪製瞄準點
-            zoomCtx.beginPath();
-            zoomCtx.arc(centerX + finalAimX, centerY + finalAimY, 3, 0, Math.PI * 2);
-            zoomCtx.fillStyle = '#ff0000';
-            zoomCtx.fill();
-            
-            // 繪製瞄準點外圈
-            zoomCtx.beginPath();
-            zoomCtx.arc(centerX + finalAimX, centerY + finalAimY, 6, 0, Math.PI * 2);
-            zoomCtx.strokeStyle = '#ffffff';
-            zoomCtx.lineWidth = 1.5;
-            zoomCtx.stroke();
-            
-            // 計算瞄準點所在的分數
-            const distanceFromCenter = Math.sqrt(finalAimX * finalAimX + finalAimY * finalAimY);
-            let scoreText = '0分';
-            
-            if (distanceFromCenter <= baseRadius * 0.12 * zoomScale) scoreText = '10分';
-            else if (distanceFromCenter <= baseRadius * 0.25 * zoomScale) scoreText = '8分';
-            else if (distanceFromCenter <= baseRadius * 0.4 * zoomScale) scoreText = '6分';
-            else if (distanceFromCenter <= baseRadius * 0.55 * zoomScale) scoreText = '4分';
-            else if (distanceFromCenter <= baseRadius * 0.7 * zoomScale) scoreText = '2分';
-            
-            // 顯示分數
-            zoomCtx.fillStyle = '#4fc3f7';
-            zoomCtx.font = '14px Arial';
-            zoomCtx.textAlign = 'center';
-            zoomCtx.textBaseline = 'middle';
-            zoomCtx.fillText(scoreText, centerX, centerY + baseRadius * zoomScale + 15);
-            
-            // 顯示瞄準座標
-            zoomCtx.fillStyle = '#ffcc00';
-            zoomCtx.font = '10px Arial';
-            zoomCtx.fillText(`X: ${Math.round(finalAimX/zoomScale)} Y: ${Math.round(finalAimY/zoomScale)}`, centerX, centerY - baseRadius * zoomScale - 10);
-        }
-        
-        // 擊發子彈
-        function shootBullet() {
-            if (!gameActive || bulletsLeft <= 0 || Date.now() - lastShotTime < 200) return;
-            
-            // 產生槍口火光效果
-            showMuzzleFlash();
-            
-            // 計算子彈軌跡
-            const bulletSpeed = 30;
-            const dx = aimingPoint.x - canvas.width/2;
-            const dy = aimingPoint.y - (canvas.height/2 - 30);
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // 正規化方向向量
-            const vx = (dx / distance) * bulletSpeed;
-            const vy = (dy / distance) * bulletSpeed;
-            
-            // 創建子彈物件
-            bullets.push({
-                x: canvas.width / 2,
-                y: canvas.height - 100,
-                vx: vx,
-                vy: vy
-            });
-            
-            // 應用後座力
-            applyRecoil();
-            
-            // 減少子彈數
-            bulletsLeft--;
-            lastShotTime = Date.now();
-            updateUI();
-            
-            // 檢查是否擊中靶子
-            setTimeout(checkBulletHit, 200);
-        }
-        
-        // 顯示槍口火光
-        function showMuzzleFlash() {
-            muzzleFlash.style.transform = 'translateX(-50%) scale(1, 0.5)';
-            muzzleFlash.style.opacity = '1';
-            
-            setTimeout(() => {
-                muzzleFlash.style.transform = 'translateX(-50%) scale(1.5, 0.8)';
-                muzzleFlash.style.opacity = '0.7';
-            }, 50);
-            
-            setTimeout(() => {
-                muzzleFlash.style.transform = 'translateX(-50%) scale(0)';
-                muzzleFlash.style.opacity = '0';
-            }, 100);
-        }
-        
-        // 應用後座力效果
-        function applyRecoil() {
-            // 隨機後座力方向（向上為主）
-            recoil.x = (Math.random() - 0.5) * 15;
-            recoil.y = -(10 + Math.random() * 10);
-        }
-        
-        // 檢查子彈是否擊中靶子
-        function checkBulletHit() {
-            bullets.forEach((bullet, index) => {
-                const centerX = canvas.width / 2;
-                const centerY = canvas.height / 2 - 30;
-                const dx = bullet.x - centerX;
-                const dy = bullet.y - centerY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // 靶子半徑
-                const maxRadius = 120;
-                
-                if (distance <= maxRadius) {
-                    // 計算得分
-                    let points = 0;
-                    if (distance <= 15) points = 10;   // 靶心 - 10分
-                    else if (distance <= 30) points = 9;
-                    else if (distance <= 45) points = 8;
-                    else if (distance <= 60) points = 7;
-                    else if (distance <= 75) points = 6;
-                    else if (distance <= 90) points = 5;
-                    else if (distance <= 105) points = 4;
-                    else if (distance <= 120) points = 3;
-                    
-                    if (points > 0) {
-                        score += points;
-                        hits++;
-                        showScorePopup(bullet.x, bullet.y, points);
+            // 檢查是否有玩家獲勝
+            function checkWin() {
+                for (let i = 0; i < winConditions.length; i++) {
+                    const [a, b, c] = winConditions[i];
+                    if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                        // 標記獲勝的格子
+                        cells[a].classList.add('winning-cell');
+                        cells[b].classList.add('winning-cell');
+                        cells[c].classList.add('winning-cell');
+                        return true;
                     }
                 }
-                
-                // 移除子彈
-                bullets.splice(index, 1);
-                updateUI();
-            });
-        }
-        
-        // 顯示得分動畫
-        function showScorePopup(x, y, points) {
-            const popup = document.createElement('div');
-            popup.textContent = `+${points}`;
-            popup.style.position = 'absolute';
-            popup.style.left = `${x + canvas.offsetLeft - 30}px`;
-            popup.style.top = `${y + canvas.offsetTop - 20}px`;
-            popup.style.color = points >= 8 ? '#ffeb3b' : points >= 5 ? '#4caf50' : '#2196f3';
-            popup.style.fontSize = '28px';
-            popup.style.fontWeight = 'bold';
-            popup.style.textShadow = '0 0 8px black, 0 0 15px rgba(255,255,255,0.7)';
-            popup.style.pointerEvents = 'none';
-            popup.style.zIndex = '100';
-            popup.style.transition = 'all 1.2s ease-out';
-            popup.style.transform = 'translate(-50%, -50%) scale(1)';
-            
-            document.body.appendChild(popup);
-            
-            // 動畫效果
-            setTimeout(() => {
-                popup.style.transform = 'translate(-50%, -50%) scale(1.5) translateY(-30px)';
-                popup.style.opacity = '0';
-            }, 100);
-            
-            // 移除元素
-            setTimeout(() => {
-                document.body.removeChild(popup);
-            }, 1300);
-        }
-        
-        // 子彈的動畫
-        function animateBullets() {
-            bullets.forEach((bullet, index) => {
-                // 更新子彈的位置
-                bullet.x += bullet.vx;
-                bullet.y += bullet.vy;
-                
-                // 檢查是否超出邊界
-                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y > canvas.height) {
-                    bullets.splice(index, 1);
-                }
-            });
-            
-            draw();
-            if (bullets.length > 0 || Math.abs(recoil.x) > 0.1 || Math.abs(recoil.y) > 0.1) {
-                requestAnimationFrame(animateBullets);
+                return false;
             }
-        }
-        
-        // 顯示遊戲結束畫面
-        function showGameOver() {
-            finalScoreElement.textContent = score;
-            gameOverScreen.style.display = 'flex';
-        }
-        
-        // 事件監聽器
-        canvas.addEventListener('mousemove', (e) => {
-            if (!gameActive || bulletsLeft <= 0) return;
             
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
+            // 檢查是否和局
+            function isDraw() {
+                return !gameState.includes('');
+            }
             
-            // 更新瞄準點位置
-            aimingPoint = {
-                x: mouseX,
-                y: mouseY
-            };
+            // 結束遊戲
+            function endGame(draw) {
+                gameActive = false;
+                if (draw) {
+                    messageElement.textContent = '遊戲和局！';
+                } else {
+                    messageElement.textContent = `玩家 ${currentPlayer} 過三關成功！`;
+                }
+            }
             
-            // 更新放大鏡視圖
-            drawZoomView();
+            // 更新消息
+            function updateMessage() {
+                messageElement.textContent = `輪到 ${currentPlayer} 出手`;
+            }
+            
+            // 事件監聽器
+            cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+            newGameBtn.addEventListener('click', initGame);
+            resetBtn.addEventListener('click', initGame);
+            
+            // 初始化遊戲
+            initGame();
         });
-        
-        canvas.addEventListener('mousedown', (e) => {
-            if (!gameActive || bulletsLeft <= 0) return;
-            shootBullet();
-            animateBullets();
-        });
-        
-        // 觸控設備支援
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (!gameActive || bulletsLeft <= 0) return;
-            shootBullet();
-            animateBullets();
-        });
-        
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (!gameActive || bulletsLeft <= 0) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            const touchY = e.touches[0].clientY - rect.top;
-            
-            // 更新瞄準點位置
-            aimingPoint = {
-                x: touchX,
-                y: touchY
-            };
-            
-            // 更新放大鏡視圖
-            drawZoomView();
-        });
-        
-        // 重新開始按鈕
-        restartBtn.addEventListener('click', initGame);
-        
-        // 初始化遊戲
-        initGame();
     </script>
 </body>
 </html>
