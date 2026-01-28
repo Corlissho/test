@@ -331,6 +331,66 @@ margin-top: 15px;
 .countdown-number {
 font-size: 6rem;
 }
+
+/* 移動端按鈕和觸控優化 */
+.top-controls button {
+min-height: 50px;
+min-width: 120px;
+font-size: 16px;
+margin: 5px;
+}
+
+.key {
+min-height: 60px;
+min-width: 60px;
+font-size: 1.8rem;
+margin: 4px;
+}
+
+.control-panel button {
+min-height: 44px;
+font-size: 14px;
+}
+
+/* 增大觸控目標 */
+.info-box {
+min-width: 120px;
+padding: 20px;
+margin: 8px;
+}
+
+.game-info {
+padding: 20px;
+}
+
+/* 防止移動端意外縮放 */
+body {
+touch-action: manipulation;
+-ms-touch-action: manipulation;
+}
+}
+
+/* 觸控設備專用樣式 */
+@media (hover: none) and (pointer: coarse) {
+.key:active {
+transform: scale(0.9);
+background: #4FC3F7;
+}
+
+.top-controls button:active {
+transform: scale(0.95);
+}
+
+.cell, .interactive-element {
+touch-action: manipulation;
+}
+
+/* 移除長按選單 */
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+-webkit-touch-callout: none;
 }
 </style>
 </head>
@@ -440,6 +500,242 @@ const keyUp = document.getElementById('keyUp');
 const keyDown = document.getElementById('keyDown');
 const keyLeft = document.getElementById('keyLeft');
 const keyRight = document.getElementById('keyRight');
+
+// 現代合成音效系統
+class GameAudio {
+    constructor() {
+        this.audioContext = null;
+        this.enabled = true;
+        this.volume = 0.3;
+        this.masterVolume = 0.3;
+        this.initAudioContext();
+    }
+
+    initAudioContext() {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.masterGainNode = this.audioContext.createGain();
+            this.masterGainNode.connect(this.audioContext.destination);
+            this.masterGainNode.gain.value = this.masterVolume;
+        } catch (e) {
+            console.warn('Audio not supported:', e);
+            this.enabled = false;
+        }
+    }
+
+    resumeAudio() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+    }
+
+    createSynthSound(frequency, duration, type = 'sine', modulation = null) {
+        if (!this.enabled || !this.audioContext) return;
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        const filter = this.audioContext.createBiquadFilter();
+        
+        // 連接音頻節點
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        // 基礎設置
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+        
+        // 現代合成器濾波器設置
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2000, this.audioContext.currentTime);
+        filter.Q.setValueAtTime(10, this.audioContext.currentTime);
+        
+        // ADSR包絡
+        const now = this.audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(this.volume, now + 0.01); // Attack
+        gainNode.gain.exponentialRampToValueAtTime(this.volume * 0.7, now + 0.1); // Decay/Sustain
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration); // Release
+        
+        // 添加調制效果
+        if (modulation) {
+            const lfo = this.audioContext.createOscillator();
+            const lfoGain = this.audioContext.createGain();
+            
+            lfo.frequency.value = modulation.frequency || 5;
+            lfoGain.gain.value = modulation.amount || 10;
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(oscillator.frequency);
+            lfo.start(now);
+            lfo.stop(now + duration);
+        }
+        
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+    }
+
+    // 具體音效方法
+    playEngineIdle() {
+        this.createSynthSound(80, 0.1, 'sawtooth', { frequency: 2, amount: 5 });
+    }
+
+    playEngineRev() {
+        this.createSynthSound(120, 0.2, 'sawtooth', { frequency: 8, amount: 15 });
+    }
+
+    playCollision() {
+        // 碰撞音效 - 噪音 + 低頻衝擊
+        this.createSynthSound(60, 0.3, 'square');
+        setTimeout(() => this.createSynthSound(30, 0.2, 'sawtooth'), 50);
+    }
+
+    playPowerUp(type) {
+        switch(type) {
+            case 'shield':
+                this.createSynthSound(440, 0.15, 'sine', { frequency: 6, amount: 20 });
+                setTimeout(() => this.createSynthSound(660, 0.15, 'sine'), 100);
+                break;
+            case 'double':
+                this.createSynthSound(523, 0.1, 'triangle', { frequency: 12, amount: 30 });
+                setTimeout(() => this.createSynthSound(784, 0.1, 'triangle'), 50);
+                setTimeout(() => this.createSynthSound(1047, 0.15, 'triangle'), 100);
+                break;
+            case 'magnet':
+                this.createSynthSound(200, 0.2, 'sine', { frequency: 3, amount: 50 });
+                break;
+        }
+    }
+
+    playButtonClick() {
+        this.createSynthSound(600, 0.08, 'sine');
+    }
+
+    playCountdown(number) {
+        const frequency = 800 - (number * 100);
+        this.createSynthSound(frequency, 0.2, 'square');
+    }
+
+    playGameOver() {
+        this.createSynthSound(300, 0.3, 'sawtooth');
+        setTimeout(() => this.createSynthSound(250, 0.3, 'sawtooth'), 150);
+        setTimeout(() => this.createSynthSound(200, 0.4, 'sawtooth'), 300);
+    }
+
+    playLapComplete() {
+        // 勝利旋律
+        const notes = [523, 659, 784, 1047]; // C, E, G, High C
+        notes.forEach((note, i) => {
+            setTimeout(() => this.createSynthSound(note, 0.2, 'triangle', { frequency: 8, amount: 15 }), i * 100);
+        });
+    }
+
+    playLaneChange() {
+        this.createSynthSound(400, 0.05, 'square');
+    }
+}
+
+// 初始化音效系統
+const gameAudio = new GameAudio();
+
+// 粒子效果系統
+class ParticleSystem {
+    constructor(canvas, ctx) {
+        this.canvas = canvas;
+        this.ctx = ctx;
+        this.particles = [];
+        this.maxParticles = 100;
+    }
+
+    createExplosion(x, y, color = '#FFD700', count = 20) {
+        if (this.particles.length + count > this.maxParticles) {
+            this.particles.splice(0, this.particles.length + count - this.maxParticles);
+        }
+
+        for (let i = 0; i < count; i++) {
+            const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+            const speed = 2 + Math.random() * 4;
+            const size = 2 + Math.random() * 4;
+            
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1.0,
+                color: color,
+                size: size,
+                gravity: 0.1
+            });
+        }
+    }
+
+    createPowerUpTrail(x, y, color) {
+        if (this.particles.length >= this.maxParticles - 5) return;
+        
+        for (let i = 0; i < 3; i++) {
+            this.particles.push({
+                x: x + Math.random() * 10 - 5,
+                y: y + Math.random() * 10 - 5,
+                vx: (Math.random() - 0.5) * 1,
+                vy: Math.random() * 1 + 1,
+                life: 0.8,
+                color: color,
+                size: 2,
+                gravity: 0
+            });
+        }
+    }
+
+    createSpeedLines(x, y) {
+        if (this.particles.length >= this.maxParticles - 10) return;
+        
+        for (let i = 0; i < 5; i++) {
+            this.particles.push({
+                x: x + Math.random() * 40 - 20,
+                y: y + Math.random() * 60,
+                vx: 0,
+                vy: -8 - Math.random() * 4,
+                life: 0.6,
+                color: 'rgba(79, 195, 247, 0.8)',
+                size: 1,
+                gravity: 0
+            });
+        }
+    }
+
+    update() {
+        this.particles = this.particles.filter(particle => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += particle.gravity;
+            particle.life -= 0.02;
+            particle.vx *= 0.98; // 空氣阻力
+            particle.vy *= 0.98;
+            
+            return particle.life > 0;
+        });
+    }
+
+    draw() {
+        this.particles.forEach(particle => {
+            this.ctx.save();
+            this.ctx.globalAlpha = particle.life;
+            this.ctx.fillStyle = particle.color;
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowColor = particle.color;
+            
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.size * particle.life, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            this.ctx.restore();
+        });
+    }
+}
+
+// 初始化粒子系統
+const particleSystem = new ParticleSystem(canvas, ctx);
 
 // 遊戲狀態
 let gameRunning = false;
@@ -873,14 +1169,19 @@ function checkCollisions() {
             playerCar.y < car.y + car.height &&
             playerCar.y + playerCar.height > car.y
         ) {
-            if (playerEffects.shield.active) {
+        if (playerEffects.shield.active) {
+                particleSystem.createExplosion(car.x + car.width/2, car.y + car.height/2, '#4CAF50', 15);
                 enemyCars.splice(i, 1);
                 score += 20;
+                gameAudio.playPowerUp('shield'); // 護盾碰撞音效
             } else {
+                particleSystem.createExplosion(car.x + car.width/2, car.y + car.height/2, '#FF416C', 25);
                 enemyCars.splice(i, 1);
                 lives--;
+                gameAudio.playCollision(); // 碰撞音效
                 updateUI();
                 if (lives <= 0) {
+                    gameAudio.playGameOver(); // 遊戲結束音效
                     endGame();
                 }
             }
@@ -898,6 +1199,8 @@ function checkCollisions() {
         ) {
             const powerUpType = POWERUP_TYPES[powerUp.type];
             powerUps.splice(i, 1);
+            gameAudio.playPowerUp(powerUp.type); // 道具拾取音效
+            particleSystem.createExplosion(powerUp.x + powerUp.size/2, powerUp.y + powerUp.size/2, powerUpType.color, 12);
             applyPowerUpEffect(powerUpType);
             updateUI();
         }
@@ -972,14 +1275,29 @@ function updatePlayerCar() {
     if (keys.ArrowLeft && playerCar.track > 0) {
         playerCar.track--;
         playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+        gameAudio.playLaneChange(); // 換道音效
         keys.ArrowLeft = false;
     } else if (keys.ArrowRight && playerCar.track < trackCount - 1) {
         playerCar.track++;
         playerCar.x = playerCar.track * trackWidth + (trackWidth - playerCar.width) / 2;
+        gameAudio.playLaneChange(); // 換道音效
         keys.ArrowRight = false;
     }
 
     speed = Math.round(playerCar.speed * 10);
+    
+    // 更新賽道進度
+    if (playerCar.speed > 0) {
+        trackProgress += (playerCar.speed / maxSpeed) * 0.05; // 根據速度更新進度
+        if (trackProgress >= 100) {
+            trackProgress = 0; // 完成一圈
+            currentLap++;
+            score += 100; // 完成圈速獎勵
+            gameAudio.playLapComplete(); // 圈速完成音效
+            showFloatingText(canvas.width/2, canvas.height/2, `+100 圈速獎勵!`, '#FFD700');
+        }
+        if (trackProgress > 100) trackProgress = 100;
+    }
 }
 
 // 更新UI
@@ -1036,8 +1354,18 @@ function gameLoop() {
     updatePowerUps();
     drawPowerUps();
     updatePlayerCar();
+    
+    // 添加速度線效果
+    if (playerCar.speed > maxSpeed * 0.8) {
+        particleSystem.createSpeedLines(playerCar.x + playerCar.width/2, playerCar.y + playerCar.height);
+    }
+    
     drawPlayerCar();
     checkCollisions();
+    
+    // 更新和繪製粒子效果
+    particleSystem.update();
+    particleSystem.draw();
 
     if (Math.random() < 0.03) {
         generateEnemyCar();
@@ -1124,6 +1452,8 @@ document.addEventListener('touchmove', (e) => {
 
 // 按鈕事件
 startButton.addEventListener('click', () => {
+    gameAudio.playButtonClick(); // 按鈕音效
+    gameAudio.resumeAudio(); // 恢復音頻上下文（用於移動端）
     if (!gameInitialized) {
         alert('遊戲資源尚未完全加載，請稍等...');
         return;
@@ -1144,6 +1474,7 @@ startButton.addEventListener('click', () => {
 });
 
 pauseButton.addEventListener('click', () => {
+    gameAudio.playButtonClick(); // 按鈕音效
     if (gameRunning && !countDownActive) {
         gamePaused = !gamePaused;
         pauseButton.textContent = gamePaused ? '繼續遊戲' : '暫停遊戲';
@@ -1154,6 +1485,7 @@ pauseButton.addEventListener('click', () => {
 });
 
 restartButton.addEventListener('click', () => {
+    gameAudio.playButtonClick(); // 按鈕音效
     gameRunning = false;
     if (gameFrameId) {
         cancelAnimationFrame(gameFrameId);
@@ -1176,6 +1508,7 @@ function startCountdown() {
         count--;
         if (count > 0) {
             countdownNumber.textContent = count;
+            gameAudio.playCountdown(count); // 倒數音效
         } else {
             clearInterval(countdownInterval);
             countdownOverlay.style.display = 'none';
@@ -1191,6 +1524,50 @@ function startGame() {
     gamePaused = false;
     initGame(); // 會觸發 drawInitialScene()
     gameLoop();
+}
+
+// 浮動文字效果
+function showFloatingText(x, y, text, color = '#FFD700') {
+    const floatText = document.createElement('div');
+    floatText.style.cssText = `
+        position: absolute;
+        left: ${x}px;
+        top: ${y}px;
+        color: ${color};
+        font-size: 24px;
+        font-weight: bold;
+        z-index: 1000;
+        pointer-events: none;
+        animation: floatUp 1.5s ease-out forwards;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    `;
+    floatText.textContent = text;
+    
+    // 添加動畫CSS
+    if (!document.querySelector('#floatTextStyles')) {
+        const style = document.createElement('style');
+        style.id = 'floatTextStyles';
+        style.textContent = `
+            @keyframes floatUp {
+                0% {
+                    transform: translateY(0) scale(0.5);
+                    opacity: 0;
+                }
+                20% {
+                    transform: translateY(-10px) scale(1.2);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-60px) scale(1);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.querySelector('.game-container').appendChild(floatText);
+    setTimeout(() => floatText.remove(), 1500);
 }
 
 // 繪製小地圖

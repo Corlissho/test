@@ -236,7 +236,7 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
         
-        @media (max-width: 768px) {
+@media (max-width: 768px) {
             .players-container {
                 flex-direction: column;
             }
@@ -251,13 +251,148 @@
             }
             
             .rps-btn {
-                width: 70px;
+                width: 80px;
+                height: 80px;
+                margin: 8px 0;
+                font-size: 2rem;
+                min-height: 80px; /* 更大的觸控目標 */
+                min-width: 80px;
+            }
+            
+            .action-btn {
+                min-height: 50px;
+                min-width: 120px;
+                font-size: 16px;
+                margin: 8px;
+                padding: 15px 25px;
+            }
+            
+            .fortress-cell {
                 height: 70px;
-                margin: 5px 0;
+                font-size: 1.8rem;
+                min-height: 70px;
             }
             
             h1 {
                 font-size: 2em;
+            }
+            
+            /* 防止移動端縮放 */
+            body {
+                touch-action: manipulation;
+                -ms-touch-action: manipulation;
+            }
+        }
+
+        /* 模態框樣式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .modal-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-option {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            text-align: left;
+        }
+
+        .modal-option:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-option:active {
+            transform: translateY(0);
+        }
+
+        .modal-cancel {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            margin-top: 10px;
+        }
+
+        .modal-cancel:hover {
+            background: rgba(231, 76, 60, 1);
+        }
+
+        /* 觸控設備專用樣式 */
+        @media (hover: none) and (pointer: coarse) {
+            .action-btn:active {
+                transform: scale(0.95);
+            }
+            
+            .rps-btn:active {
+                transform: scale(0.9);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            
+            .fortress-cell:active {
+                transform: scale(0.95);
+                background: rgba(255, 255, 255, 0.3);
+            }
+            
+            .modal-option:active {
+                transform: scale(0.95);
+            }
+            
+            /* 防止長按選單 */
+            * {
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                -webkit-touch-callout: none;
             }
         }
     </style>
@@ -608,8 +743,8 @@
             }
         }
 
-        // 玩家建設設施
-        function buildFacility() {
+// 玩家建設設施
+        async function buildFacility() {
             if (gameState.currentPlayer !== 1 || gameState.gameOver) return;
             
             const player = gameState.player1;
@@ -641,21 +776,19 @@
                     break;
                 case 3: // 武器
                     // 讓玩家選擇建設哪種武器
-                    const weaponChoice = prompt("選擇要建設的武器:\n1. 戰機 (攻擊力1)\n2. 大砲 (攻擊力2)\n3. 火箭 (攻擊力3)", "1");
-                    let weaponType = '';
-                    
-                    if (weaponChoice === "1") {
+                    const weaponChoice = await showChoiceModal("選擇要建設的武器", [
+                    { text: "戰機 (攻擊力1)", value: "aircrafts" },
+                    { text: "大砲 (攻擊力2)", value: "cannons" },
+                    { text: "火箭 (攻擊力3)", value: "rockets" }
+                ], "aircrafts");
+let weaponType = weaponChoice;
+                     
+                    if (weaponChoice === "aircrafts") {
                         player.aircrafts++;
-                        weaponType = 'aircrafts';
-                    } else if (weaponChoice === "2") {
+                    } else if (weaponChoice === "cannons") {
                         player.cannons++;
-                        weaponType = 'cannons';
-                    } else if (weaponChoice === "3") {
+                    } else if (weaponChoice === "rockets") {
                         player.rockets++;
-                        weaponType = 'rockets';
-                    } else {
-                        actionText = '無效選擇，未建設武器。';
-                        break;
                     }
                     
                     actionText = `你建造了${getWeaponName(weaponType)}！`;
@@ -672,32 +805,31 @@
             resetTurn();
         }
 
-        // 玩家攻擊敵人 - 核心修改：允許在插旗後（第二階段）攻擊
-        function attackEnemy() {
+// 玩家攻擊敵人 - 核心修改：允許在插旗後（第二階段）攻擊
+        async function attackEnemy() {
             if (gameState.currentPlayer !== 1 || gameState.gameOver || !canAttack()) return;
             
             const player2 = gameState.player2;
             const attackPower = getAttackPower(gameState.player1);
             
             // 選擇攻擊目標
-            const target = prompt("選擇攻擊目標:\n1. 保護罩\n2. 旗幟\n3. 堡壘", "1");
-            let attackTarget = '';
-            
-            if (target === "1" && player2.shields > 0) {
-                attackTarget = 'shields';
-            } else if (target === "2" && player2.flags > 0) {
-                attackTarget = 'flags';
-            } else if (target === "3" && player2.fortressIntact) {
-                attackTarget = 'fortress';
-            } else {
-                // 自動選擇有效目標
-                if (player2.shields > 0) attackTarget = 'shields';
-                else if (player2.flags > 0) attackTarget = 'flags';
-                else if (player2.fortressIntact) attackTarget = 'fortress';
-                else {
-                    document.getElementById('gameStatus').textContent = '沒有可攻擊的目標！';
-                    return;
-                }
+            const target = await showChoiceModal("選擇攻擊目標", [
+                    { text: "保護罩", value: "shields" },
+                    { text: "旗幟", value: "flags" },
+                    { text: "堡壘", value: "fortress" }
+                ], "shields");
+let attackTarget = target;
+             
+            // 驗證選擇的目標是否有效
+            if (attackTarget === 'shields' && player2.shields <= 0) {
+                document.getElementById('gameStatus').textContent = '對方沒有保護罩！';
+                return;
+            } else if (attackTarget === 'flags' && player2.flags <= 0) {
+                document.getElementById('gameStatus').textContent = '對方沒有旗幟！';
+                return;
+            } else if (attackTarget === 'fortress' && !player2.fortressIntact) {
+                document.getElementById('gameStatus').textContent = '對方的堡壘已被摧毀！';
+                return;
             }
             
             if (attackTarget === 'shields') {
@@ -725,23 +857,27 @@
             resetTurn();
         }
 
-        // 玩家修復設施
-        function repairFacility() {
+// 玩家修復設施
+        async function repairFacility() {
             if (gameState.currentPlayer !== 1 || gameState.gameOver || !canRepair(gameState.player1)) return;
             
             const player = gameState.player1;
             let actionText = '';
             
             // 讓玩家選擇修復什麼
-            const repairChoice = prompt("選擇修復項目:\n1. 旗幟 (每枝1點資源)\n2. 保護罩 (每層1點資源)\n3. 堡壘 (需要3點資源)", "1");
+            const repairChoice = await showChoiceModal("選擇修復項目", [
+                    { text: "旗幟 (每枝1點資源)", value: "flags" },
+                    { text: "保護罩 (每層1點資源)", value: "shields" },
+                    { text: "堡壘 (需要3點資源)", value: "fortress" }
+                ], "flags");
             
-            if (repairChoice === "1" && player.flags < 3) {
+if (repairChoice === "flags" && player.flags < 3) {
                 player.flags = Math.min(3, player.flags + 1);
                 actionText = '你修復了一枝旗幟！';
-            } else if (repairChoice === "2" && player.shields < 5) {
+            } else if (repairChoice === "shields" && player.shields < 5) {
                 player.shields = Math.min(5, player.shields + 1);
                 actionText = '你修復了一層保護罩！';
-            } else if (repairChoice === "3" && !player.fortressIntact) {
+            } else if (repairChoice === "fortress" && !player.fortressIntact) {
                 // 修復堡壘需要資源，此處簡化
                 player.fortressIntact = true;
                 document.getElementById('cell1-1').textContent = '天';
@@ -998,8 +1134,75 @@
             }
         }
 
+        // 模態框系統
+        class ModalSystem {
+            constructor() {
+                this.overlay = document.getElementById('modalOverlay');
+                this.title = document.getElementById('modalTitle');
+                this.options = document.getElementById('modalOptions');
+                this.currentCallback = null;
+            }
+
+            show(title, options, callback) {
+                this.title.textContent = title;
+                this.options.innerHTML = '';
+                this.currentCallback = callback;
+
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'modal-option';
+                    button.textContent = option.text;
+                    button.value = option.value;
+                    button.addEventListener('click', () => this.selectOption(option.value));
+                    this.options.appendChild(button);
+                });
+
+                this.overlay.style.display = 'flex';
+            }
+
+            selectOption(value) {
+                this.hide();
+                if (this.currentCallback) {
+                    this.currentCallback(value);
+                }
+            }
+
+            hide() {
+                this.overlay.style.display = 'none';
+                this.options.innerHTML = '';
+                this.currentCallback = null;
+            }
+        }
+
+        // 初始化模態框
+        const modalSystem = new ModalSystem();
+
+        // 替換prompt函數
+        function showChoiceModal(title, choices, defaultValue = null) {
+            return new Promise((resolve) => {
+                const options = choices.map(choice => ({
+                    text: choice.text || choice,
+                    value: choice.value || choice
+                }));
+
+                modalSystem.show(title, options, (value) => {
+                    resolve(value);
+                });
+            });
+        }
+
         // 初始化遊戲
         window.onload = initGame;
     </script>
+    
+    <!-- 模態框HTML -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modalTitle">請選擇</h3>
+            <div class="modal-options" id="modalOptions">
+                <!-- 選項將由JavaScript動態生成 -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
