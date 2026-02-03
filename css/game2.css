@@ -1,0 +1,337 @@
+/* 遊戲2：井字過三關 - Tic Tac Toe Styles */
+
+/* 遊戲容器 - Game Container */
+.tic-tac-toe-container {
+    max-width: 800px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.tic-tac-toe-title {
+    color: #fff;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tic-tac-toe-subtitle {
+    color: #ffd700;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
+/* 遊戲資訊 - Game Info */
+.tic-tac-toe-game-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.tic-tac-toe-player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.tic-tac-toe-current-player {
+    background: #4CAF50;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+/* 遊戲棋盤 - Game Board */
+.tic-tac-toe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 0 auto 30px;
+    max-width: 400px;
+}
+
+.tic-tac-toe-cell {
+    aspect-ratio: 1/1;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tic-tac-toe-cell:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+}
+
+.tic-tac-toe-cell.x {
+    color: #FF5252;
+    text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
+}
+
+.tic-tac-toe-cell.o {
+    color: #4CAF50;
+    text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.tic-tac-toe-winning-cell {
+    animation: tic-tac-toe-pulse 1.5s infinite;
+    background: rgba(255, 215, 0, 0.3);
+}
+
+@keyframes tic-tac-toe-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* 遊戲模式選擇 - Game Mode Selection */
+.tic-tac-toe-game-mode {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tic-tac-toe-game-mode h3 {
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.tic-tac-toe-mode-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tic-tac-toe-mode-btn {
+    padding: 10px 20px;
+    border: 2px solid #fff;
+    background: transparent;
+    color: #fff;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.tic-tac-toe-mode-btn.active {
+    background: #fff;
+    color: #1a2a6c;
+}
+
+.tic-tac-toe-mode-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tic-tac-toe-mode-btn.active:hover {
+    background: #fff;
+}
+
+/* AI難度選項 - AI Difficulty Options */
+.tic-tac-toe-ai-options {
+    margin-top: 15px;
+}
+
+.tic-tac-toe-ai-options h4 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.tic-tac-toe-difficulty-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tic-tac-toe-diff-btn {
+    padding: 8px 16px;
+    border: 1px solid #fff;
+    background: transparent;
+    color: #fff;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.tic-tac-toe-diff-btn.active {
+    background: #ffd700;
+    color: #1a2a6c;
+    border-color: #ffd700;
+}
+
+.tic-tac-toe-diff-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.tic-tac-toe-diff-btn.active:hover {
+    background: #ffd700;
+}
+
+/* 控制按鈕 - Control Buttons */
+.tic-tac-toe-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.tic-tac-toe-controls button {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tic-tac-toe-controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tic-tac-toe-reset-btn {
+    background: linear-gradient(to right, #FF5252, #FF4081) !important;
+}
+
+/* 遊戲消息 - Game Message */
+.tic-tac-toe-message {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 20px 0;
+    min-height: 60px;
+    color: #ffd700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 遊戲規則 - Game Rules */
+.tic-tac-toe-rules {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.tic-tac-toe-rules h2 {
+    color: #ffd700;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.tic-tac-toe-rules ul {
+    padding-left: 20px;
+    color: white;
+}
+
+.tic-tac-toe-rules li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* 符號顯示 - Symbol Display */
+.tic-tac-toe-symbol {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    margin: 0 5px;
+}
+
+.tic-tac-toe-x-symbol {
+    background: #FF5252;
+    color: white;
+}
+
+.tic-tac-toe-o-symbol {
+    background: #4CAF50;
+    color: white;
+}
+
+/* 響應式設計 - Responsive Design */
+@media (max-width: 600px) {
+    .tic-tac-toe-container {
+        padding: 20px;
+    }
+    
+    .tic-tac-toe-title {
+        font-size: 2.2rem;
+    }
+    
+    .tic-tac-toe-cell {
+        font-size: 3rem;
+        min-height: 80px;
+        min-width: 80px;
+    }
+    
+    .tic-tac-toe-game-info {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    /* 移動端按鈕優化 */
+    .tic-tac-toe-controls button {
+        min-height: 50px;
+        min-width: 120px;
+        font-size: 16px;
+        margin: 8px;
+    }
+    
+    .tic-tac-toe-mode-btn {
+        min-height: 44px;
+        min-width: 100px;
+    }
+    
+    .tic-tac-toe-diff-btn {
+        min-height: 40px;
+        min-width: 80px;
+    }
+}
+
+/* 移動設備專用樣式 - Mobile Device Styles */
+@media (hover: none) and (pointer: coarse) {
+    .tic-tac-toe-cell {
+        transition: transform 0.1s ease;
+    }
+    
+    .tic-tac-toe-cell:active {
+        transform: scale(0.95);
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .tic-tac-toe-cell:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .tic-tac-toe-mode-btn:active,
+    .tic-tac-toe-diff-btn:active,
+    .tic-tac-toe-controls button:active {
+        transform: scale(0.95);
+    }
+}

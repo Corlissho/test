@@ -1,0 +1,434 @@
+/* 遊戲1：卡通賽道賽車 - Racing Game Styles */
+
+/* 遊戲容器 - Game Container */
+.racing-game-container {
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.racing-header {
+    margin-bottom: 20px;
+}
+
+.racing-title {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    letter-spacing: 2px;
+}
+
+.racing-subtitle {
+    font-size: 1.2rem;
+    color: #aaa;
+    margin-bottom: 20px;
+}
+
+/* 遊戲畫布區域 - Game Canvas Area */
+.racing-game-area {
+    position: relative;
+    margin: 0 auto 30px;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.racing-canvas {
+    background-color: #0f3460;
+    display: block;
+    width: 100%;
+}
+
+/* 頂部控制按鈕 - Top Controls */
+.racing-top-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+
+.racing-top-controls button {
+    background: linear-gradient(to right, #FF416C, #FF4B2B);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+}
+
+.racing-top-controls button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 65, 108, 0.6);
+}
+
+.racing-top-controls button:active {
+    transform: translateY(1px);
+}
+
+/* 控制面板 - Control Panels */
+.racing-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 30px;
+}
+
+.racing-control-panel {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    flex: 1;
+    margin: 0 10px;
+}
+
+.racing-control-panel h2 {
+    color: #4FC3F7;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+/* 鍵盤控制按鈕 - Keyboard Controls */
+.racing-key-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.racing-key {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #4FC3F7;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    user-select: none;
+    transition: all 0.1s;
+}
+
+.racing-key.active {
+    background: #4FC3F7;
+    transform: scale(0.95);
+    box-shadow: 0 0 15px #4FC3F7;
+}
+
+.racing-key-up {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.racing-key-left {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.racing-key-down {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.racing-key-right {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+/* 遊戲資訊顯示 - Game Info Display */
+.racing-game-info {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.racing-info-box {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px 25px;
+    min-width: 150px;
+    margin: 10px;
+}
+
+.racing-info-title {
+    color: #FFD700;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.racing-info-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+/* 賽道進度條 - Race Progress Bar */
+.racing-progress-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.racing-progress-bar {
+    height: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+    position: relative;
+}
+
+.racing-progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #4FC3F7, #FFD700);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+/* 小地圖 - Mini Map */
+.racing-mini-map-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+.racing-mini-map {
+    width: 150px;
+    height: 150px;
+    display: block;
+}
+
+/* 狀態效果顯示 - Status Effects Display */
+.racing-status-effects {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.racing-status-effect {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.racing-status-effect-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.racing-shield-icon { background-color: #4CAF50; }
+.racing-double-icon { background-color: #9C27B0; }
+.racing-magnet-icon { background-color: #2196F3; }
+
+/* 倒數計時 - Countdown */
+.racing-countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    display: none;
+}
+
+.racing-countdown-number {
+    font-size: 8rem;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    animation: racing-pulse 1s infinite;
+}
+
+@keyframes racing-pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 遊戲結束畫面 - Game Over Screen */
+.racing-game-over {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    display: none;
+}
+
+.racing-game-over h2 {
+    font-size: 3.5rem;
+    color: #FF416C;
+    margin-bottom: 20px;
+}
+
+.racing-game-over p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+/* 遊戲說明 - Instructions */
+.racing-instructions {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 30px;
+    text-align: left;
+    max-width: 800px;
+}
+
+.racing-instructions h2 {
+    color: #4FC3F7;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.racing-instructions ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.racing-instructions li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.racing-instructions p {
+    color: #aaa;
+    font-style: italic;
+    text-align: center;
+}
+
+/* 浮動文字效果 - Floating Text Effect */
+@keyframes racing-float-up {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    20% {
+        transform: translateY(-10px) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-60px) scale(1);
+        opacity: 0;
+    }
+}
+
+/* 響應式設計 - Responsive Design */
+@media (max-width: 768px) {
+    .racing-controls {
+        flex-direction: column;
+    }
+    
+    .racing-control-panel {
+        margin: 10px 0;
+    }
+    
+    .racing-game-info {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .racing-status-effects {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .racing-top-controls {
+        position: static;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .racing-mini-map-container {
+        position: static;
+        margin-top: 15px;
+    }
+    
+    .racing-countdown-number {
+        font-size: 6rem;
+    }
+    
+    /* 移動端按鈕和觸控優化 */
+    .racing-top-controls button {
+        min-height: 50px;
+        min-width: 120px;
+        font-size: 16px;
+        margin: 5px;
+    }
+    
+    .racing-key {
+        min-height: 60px;
+        min-width: 60px;
+        font-size: 1.8rem;
+        margin: 4px;
+    }
+    
+    .racing-control-panel button {
+        min-height: 44px;
+        font-size: 14px;
+    }
+    
+    /* 增大觸控目標 */
+    .racing-info-box {
+        min-width: 120px;
+        padding: 20px;
+        margin: 8px;
+    }
+    
+    .racing-game-info {
+        padding: 20px;
+    }
+}
+
+/* 觸控設備專用樣式 - Touch Device Styles */
+@media (hover: none) and (pointer: coarse) {
+    .racing-key:active {
+        transform: scale(0.9);
+        background: #4FC3F7;
+    }
+    
+    .racing-top-controls button:active {
+        transform: scale(0.95);
+    }
+    
+    .racing-cell, .racing-interactive-element {
+        touch-action: manipulation;
+    }
+}
