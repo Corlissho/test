@@ -459,3 +459,462 @@ export class RacingGame {
     /**
      * 繪製磁鐵道具 - Draw magnet power-up
      */
+    drawMagnetPowerUp(x, y, size) {
+        this.ctx.fillStyle = '#2196F3';
+        this.ctx.beginPath();
+        this.ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.beginPath();
+        this.ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 0.25, Math.PI * 0.75);
+        this.ctx.arc(x + size/2, y + size/2, size/3, Math.PI * 1.25, Math.PI * 1.75);
+        this.ctx.closePath();
+        this.ctx.fill();
+    }
+    
+    /**
+     * 繪製星星 - Draw star
+     */
+    drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+        let rot = Math.PI / 2 * 3;
+        let step = Math.PI / spikes;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+            let x = cx + Math.cos(rot) * outerRadius;
+            let y = cy + Math.sin(rot) * outerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+            x = cx + Math.cos(rot) * innerRadius;
+            y = cy + Math.sin(rot) * innerRadius;
+            ctx.lineTo(x, y);
+            rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    /**
+     * 繪製小地圖 - Draw mini map
+     */
+    drawMiniMap() {
+        this.miniMapCtx.clearRect(0, 0, this.miniMapCanvas.width, this.miniMapCanvas.height);
+        const scale = Math.min(this.miniMapCanvas.width / this.canvas.width, this.miniMapCanvas.height / this.canvas.height) * 0.8;
+        
+        // 繪製賽道
+        for (let i = 0; i < this.trackCount; i++) {
+            this.miniMapCtx.fillStyle = this.trackColors[i];
+            this.miniMapCtx.fillRect(i * this.trackWidth * scale, 0, this.trackWidth * scale, this.miniMapCanvas.height);
+        }
+        
+        // 繪製車道標記
+        for (let i = 1; i < this.trackCount; i++) {
+            this.miniMapCtx.fillStyle = '#FFFFFF';
+            this.miniMapCtx.fillRect(i * this.trackWidth * scale - 2, 0, 4, this.miniMapCanvas.height);
+        }
+        
+        // 繪製玩家車輛
+        this.miniMapCtx.fillStyle = '#FF416C';
+        this.miniMapCtx.beginPath();
+        this.miniMapCtx.arc(
+            (this.playerCar.x + this.playerCar.width/2) * scale,
+            this.miniMapCanvas.height - 20,
+            8,
+            0, Math.PI * 2
+        );
+        this.miniMapCtx.fill();
+        
+        // 繪製敵方車輛
+        this.enemyCars.forEach(car => {
+            this.miniMapCtx.fillStyle = car.color;
+            this.miniMapCtx.beginPath();
+            this.miniMapCtx.arc(
+                car.x * scale,
+                this.miniMapCanvas.height - (car.y / this.canvas.height) * this.miniMapCanvas.height,
+                5,
+                0, Math.PI * 2
+            );
+            this.miniMapCtx.fill();
+        });
+        
+        // 繪製方向指示
+        this.miniMapCtx.fillStyle = '#FFFFFF';
+        this.miniMapCtx.font = '10px Arial';
+        this.miniMapCtx.textAlign = 'center';
+        this.miniMapCtx.fillText('↑', this.miniMapCanvas.width / 2, 15);
+    }
+    
+    /**
+     * 事件處理器 - Event handlers
+     */
+    handleKeyDown(e) {
+        if (this.keys.hasOwnProperty(e.key)) {
+            this.keys[e.key] = true;
+            switch(e.key) {
+                case 'ArrowUp': this.keyUp.classList.add('active'); break;
+                case 'ArrowDown': this.keyDown.classList.add('active'); break;
+                case 'ArrowLeft': this.keyLeft.classList.add('active'); break;
+                case 'ArrowRight': this.keyRight.classList.add('active'); break;
+            }
+        }
+    }
+    
+    handleKeyUp(e) {
+        if (this.keys.hasOwnProperty(e.key)) {
+            this.keys[e.key] = false;
+            switch(e.key) {
+                case 'ArrowUp': this.keyUp.classList.remove('active'); break;
+                case 'ArrowDown': this.keyDown.classList.remove('active'); break;
+                case 'ArrowLeft': this.keyLeft.classList.remove('active'); break;
+                case 'ArrowRight': this.keyRight.classList.remove('active'); break;
+            }
+        }
+    }
+    
+    handleTouchStart(e) {
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+        e.preventDefault();
+    }
+    
+    handleTouchMove(e) {
+        if (!this.gameRunning || this.gamePaused) return;
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const deltaX = touchX - this.touchStartX;
+        const deltaY = touchY - this.touchStartY;
+        const now = Date.now();
+        
+        if (Math.abs(deltaX) > 30 && now - this.lastLaneChangeTime > this.laneChangeCooldown) {
+            if (deltaX > 0 && this.playerCar.track < this.trackCount - 1) {
+                this.playerCar.track++;
+                this.playerCar.x = this.playerCar.track * this.trackWidth + (this.trackWidth - this.playerCar.width) / 2;
+                this.touchStartX = touchX;
+                this.lastLaneChangeTime = now;
+            } else if (deltaX < 0 && this.playerCar.track > 0) {
+                this.playerCar.track--;
+                this.playerCar.x = this.playerCar.track * this.trackWidth + (this.trackWidth - this.playerCar.width) / 2;
+                this.touchStartX = touchX;
+                this.lastLaneChangeTime = now;
+            }
+        }
+        
+        if (Math.abs(deltaY) > 20) {
+            if (deltaY > 0 && this.playerCar.speed > 0) {
+                this.playerCar.speed -= this.playerCar.deceleration * 3;
+                this.touchStartY = touchY;
+            } else if (deltaY < 0 && this.playerCar.speed < this.playerCar.maxSpeed) {
+                this.playerCar.speed += this.playerCar.acceleration * 2;
+                this.touchStartY = touchY;
+            }
+        }
+        e.preventDefault();
+    }
+    
+    handleStartButton() {
+        this.audioSystem.playButtonClick();
+        this.audioSystem.resumeAudio();
+        if (!this.gameInitialized) {
+            alert('遊戲資源尚未完全加載，請稍等...');
+            return;
+        }
+        if (!this.gameRunning && !this.countDownActive) {
+            this.startCountdown();
+            this.startButton.textContent = '重新開始';
+        } else if (this.gameOverScreen.style.display === 'flex') {
+            this.startCountdown();
+        } else if (this.gameRunning) {
+            this.gameRunning = false;
+            if (this.gameFrameId) {
+                cancelAnimationFrame(this.gameFrameId);
+                this.gameFrameId = null;
+            }
+            this.startCountdown();
+        }
+    }
+    
+    handlePauseButton() {
+        this.audioSystem.playButtonClick();
+        if (this.gameRunning && !this.countDownActive) {
+            this.gamePaused = !this.gamePaused;
+            this.pauseButton.textContent = this.gamePaused ? '繼續遊戲' : '暫停遊戲';
+            if (!this.gamePaused) {
+                this.gameLoop.start();
+            }
+        }
+    }
+    
+    handleRestartButton() {
+        this.audioSystem.playButtonClick();
+        this.gameRunning = false;
+        if (this.gameFrameId) {
+            cancelAnimationFrame(this.gameFrameId);
+            this.gameFrameId = null;
+        }
+        this.init();
+        this.startCountdown();
+        this.gameOverScreen.style.display = 'none';
+    }
+    
+    handleResize() {
+        // 處理窗口大小調整
+        console.log('窗口大小調整');
+    }
+    
+    handleWindowBlur() {
+        if (this.gameRunning && !this.gamePaused) {
+            this.gamePaused = true;
+            this.pauseButton.textContent = '繼續遊戲';
+        }
+    }
+    
+    handleWindowFocus() {
+        // 窗口獲得焦點
+    }
+    
+    /**
+     * 遊戲循環方法 - Game loop methods
+     */
+    update(deltaTime) {
+        // 更新遊戲邏輯
+        if (!this.gameRunning || this.gamePaused || this.countDownActive) {
+            return;
+        }
+        
+        // 更新玩家車輛
+        this.updatePlayerCar();
+        
+        // 更新敵方車輛
+        this.updateEnemyCars();
+        
+        // 更新道具
+        this.updatePowerUps();
+        
+        // 檢查碰撞
+        this.checkCollisions();
+        
+        // 檢查效果過期
+        this.checkEffectsExpiry();
+        
+        // 更新粒子系統
+        this.particleSystem.update(deltaTime);
+    }
+    
+    render() {
+        // 渲染遊戲畫面
+        if (!this.gameRunning || this.gamePaused || this.countDownActive) {
+            return;
+        }
+        
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawTracks();
+        this.drawEnemyCars();
+        this.drawPowerUps();
+        this.drawPlayerCar();
+        this.particleSystem.draw(this.ctx);
+        this.drawMiniMap();
+        
+        // 更新UI
+        this.updateUI();
+    }
+    
+    handleStateChange(state) {
+        console.log('遊戲狀態改變:', state);
+    }
+    
+    /**
+     * 遊戲邏輯方法 - Game logic methods
+     */
+    updatePlayerCar() {
+        const car = this.playerCar;
+        
+        if (this.keys.ArrowUp && car.speed < car.maxSpeed) {
+            car.speed += car.acceleration;
+        } else if (this.keys.ArrowDown && car.speed > 0) {
+            car.speed -= car.deceleration * 2;
+        } else if (car.speed > 0) {
+            car.speed -= car.deceleration;
+        } else if (car.speed < 0) {
+            car.speed = 0;
+        }
+        
+        if (this.keys.ArrowLeft && car.track > 0) {
+            car.track--;
+            car.x = car.track * this.trackWidth + (this.trackWidth - car.width) / 2;
+            this.keys.ArrowLeft = false;
+            this.audioSystem.playLaneChange();
+        } else if (this.keys.ArrowRight && car.track < this.trackCount - 1) {
+            car.track++;
+            car.x = car.track * this.trackWidth + (this.trackWidth - car.width) / 2;
+            this.keys.ArrowRight = false;
+            this.audioSystem.playLaneChange();
+        }
+        
+        this.speed = Math.round(car.speed * 10);
+        
+        // 更新賽道進度
+        if (car.speed > 0) {
+            this.trackProgress += (car.speed / this.maxSpeed) * 0.05;
+            if (this.trackProgress >= 100) {
+                this.trackProgress = 0;
+                this.currentLap++;
+                this.score += 100;
+                this.audioSystem.playLapComplete();
+                this.showFloatingText(this.canvas.width/2, this.canvas.height/2, `+100 圈速獎勵!`, '#FFD700');
+            }
+            if (this.trackProgress > 100) this.trackProgress = 100;
+        }
+    }
+    
+    updateEnemyCars() {
+        for (let i = this.enemyCars.length - 1; i >= 0; i--) {
+            const car = this.enemyCars[i];
+            car.y += car.speed;
+            if (car.y > this.canvas.height) {
+                this.enemyCars.splice(i, 1);
+                let points = 10;
+                if (this.playerEffects.doubleScore.active) {
+                    points *= 2;
+                }
+                this.score += points;
+            }
+        }
+        
+        if (Math.random() < 0.03) {
+            this.generateEnemyCar();
+        }
+    }
+    
+    updatePowerUps() {
+        for (let i = this.powerUps.length - 1; i >= 0; i--) {
+            const powerUp = this.powerUps[i];
+            if (this.playerEffects.magnet.active) {
+                const dx = (this.playerCar.x + this.playerCar.width/2) - (powerUp.x + powerUp.size/2);
+                const dy = (this.playerCar.y + this.playerCar.height/2) - (powerUp.y + powerUp.size/2);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < this.playerEffects.magnet.range) {
+                    const speed = 8;
+                    powerUp.x += (dx / distance) * speed;
+                    powerUp.y += (dy / distance) * speed;
+                } else {
+                    powerUp.y += 5;
+                }
+            } else {
+                powerUp.y += 5;
+            }
+            if (powerUp.y > this.canvas.height) {
+                this.powerUps.splice(i, 1);
+            }
+        }
+        
+        if (Math.random() < 0.015) {
+            this.generatePowerUp();
+        }
+    }
+    
+    generateEnemyCar() {
+        const track = Math.floor(Math.random() * this.trackCount);
+        const x = track * this.trackWidth + (this.trackWidth - 50) / 2;
+        const y = -100;
+        const colors = ['#FF9800', '#9C27B0', '#2196F3', '#F44336'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        let enemySpeed = 3 + Math.random() * 5;
+        this.enemyCars.push({
+            x: x,
+            y: y,
+            width: 50,
+            height: 100,
+            color: color,
+            track: track,
+            speed: enemySpeed
+        });
+    }
+    
+    generatePowerUp() {
+        const track = Math.floor(Math.random() * this.trackCount);
+        const x = track * this.trackWidth + (this.trackWidth - 30) / 2;
+        const y = -30;
+        const powerUpTypes = Object.keys(this.POWERUP_TYPES);
+        const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        this.powerUps.push({
+            x: x,
+            y: y,
+            size: 30,
+            track: track,
+            type: randomType
+        });
+    }
+    
+    checkCollisions() {
+        // 檢查與敵方車輛的碰撞
+        for (let i = this.enemyCars.length - 1; i >= 0; i--) {
+            const car = this.enemyCars[i];
+            if (
+                this.playerCar.x < car.x + car.width &&
+                this.playerCar.x + this.playerCar.width > car.x &&
+                this.playerCar.y < car.y + car.height &&
+                this.playerCar.y + this.playerCar.height > car.y
+            ) {
+                if (this.playerEffects.shield.active) {
+                    this.particleSystem.createExplosion(car.x + car.width/2, car.y + car.height/2, '#4CAF50', 15);
+                    this.enemyCars.splice(i, 1);
+                    this.score += 20;
+                    this.audioSystem.playPowerUp('shield');
+                } else {
+                    this.particleSystem.createExplosion(car.x + car.width/2, car.y + car.height/2, '#FF416C', 25);
+                    this.enemyCars.splice(i, 1);
+                    this.lives--;
+                    this.audioSystem.playCollision();
+                    this.updateUI();
+                    if (this.lives <= 0) {
+                        this.audioSystem.playGameOver();
+                        this.endGame();
+                    }
+                }
+                return;
+            }
+        }
+        
+        // 檢查與道具的碰撞
+        for (let i = this.powerUps.length - 1; i >= 0; i--) {
+            const powerUp = this.powerUps[i];
+            if (
+                this.playerCar.x < powerUp.x + powerUp.size &&
+                this.playerCar.x + this.playerCar.width > powerUp.x &&
+                this.playerCar.y < powerUp.y + powerUp.size &&
+                this.playerCar.y + this.playerCar.height > powerUp.y
+            ) {
+                const powerUpType = this.POWERUP_TYPES[powerUp.type];
+                this.powerUps.splice(i, 1);
+                this.audioSystem.playPowerUp(powerUp.type);
+                this.particleSystem.createExplosion(powerUp.x + powerUp.size/2, powerUp.y + powerUp.size/2, powerUpType.color, 12);
+                this.applyPowerUpEffect(powerUpType);
+                this.updateUI();
+            }
+        }
+    }
+    
+    applyPowerUpEffect(powerUpType) {
+        if (!powerUpType) return;
+        const now = Date.now();
+        const endTime = now + powerUpType.duration;
+        switch(powerUpType.id) {
+            case 'shield':
+                this.playerEffects.shield.active = true;
+                this.playerEffects.shield.endTime = endTime;
+                this.playerCar.isInvulnerable = true;
+                break;
+            case 'double':
+                this.playerEffects.doubleScore.active = true;
+                this.playerEffects.doubleScore.endTime = endTime;
+                break;
+            case 'magnet':
+                this.playerEffects.magnet.active = true;
+                this.playerEffects.magnet.endTime = endTime;
+                break;
+        }
+        this.updateStatusEffects();
+        setTimeout(() => {
+            this.removePowerUpEffect(powerUpType
