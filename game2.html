@@ -118,114 +118,11 @@
             100% { transform: scale(1); }
         }
         
-.game-mode {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .game-mode h3 {
-            color: #fff;
-            margin-bottom: 15px;
-        }
-        
-        .mode-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .mode-btn {
-            padding: 10px 20px;
-            border: 2px solid #fff;
-            background: transparent;
-            color: #fff;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-        
-        .mode-btn.active {
-            background: #fff;
-            color: #1a2a6c;
-        }
-        
-        .mode-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .mode-btn.active:hover {
-            background: #fff;
-        }
-        
-        .ai-options {
-            margin-top: 15px;
-        }
-        
-        .ai-options h4 {
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        
-        .difficulty-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .diff-btn {
-            padding: 8px 16px;
-            border: 1px solid #fff;
-            background: transparent;
-            color: #fff;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .diff-btn.active {
-            background: #ffd700;
-            color: #1a2a6c;
-            border-color: #ffd700;
-        }
-        
-        .diff-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .diff-btn.active:hover {
-            background: #ffd700;
-        }
-        
         .controls {
             display: flex;
             justify-content: center;
             gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .controls button {
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .controls button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
         }
         
         button {
@@ -319,37 +216,11 @@
             
             .cell {
                 font-size: 3rem;
-                min-height: 80px; /* 更大的觸控目標 */
-                min-width: 80px;
             }
             
             .game-info {
                 flex-direction: column;
                 gap: 15px;
-            }
-            
-            /* 移動端按鈕優化 */
-            .controls button {
-                min-height: 50px; /* Apple推薦最小44px */
-                min-width: 120px;
-                font-size: 16px; /* 防止iOS自動縮放 */
-                margin: 8px;
-            }
-        }
-
-        /* 移動設備專用樣式 */
-        @media (hover: none) and (pointer: coarse) {
-            .cell {
-                transition: transform 0.1s ease;
-            }
-            
-            .cell:active {
-                transform: scale(0.95);
-                background: rgba(255, 255, 255, 0.3);
-            }
-            
-            .cell:hover {
-                background: rgba(255, 255, 255, 0.15);
             }
         }
     </style>
@@ -388,23 +259,6 @@
             <div class="cell" data-index="8"></div>
         </div>
         
-<div class="game-mode">
-            <h3>遊戲模式</h3>
-            <div class="mode-buttons">
-                <button id="pvpMode" class="mode-btn active">雙人對戰</button>
-                <button id="pveMode" class="mode-btn">人機對戰</button>
-            </div>
-            <div id="aiOptions" class="ai-options" style="display: none;">
-                <h4>AI難度</h4>
-                <div class="difficulty-buttons">
-                    <button data-difficulty="easy" class="diff-btn">簡單</button>
-                    <button data-difficulty="medium" class="diff-btn active">中等</button>
-                    <button data-difficulty="hard" class="diff-btn">困難</button>
-                    <button data-difficulty="impossible" class="diff-btn">不可能</button>
-                </div>
-            </div>
-        </div>
-        
         <div class="controls">
             <button id="newGameBtn">新遊戲</button>
             <button id="resetBtn">重置遊戲</button>
@@ -425,256 +279,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 井字過三關音效系統
-            class TicTacToeAudio {
-                constructor() {
-                    this.audioContext = null;
-                    this.enabled = true;
-                    this.volume = 0.4;
-                    this.initAudioContext();
-                }
-
-                initAudioContext() {
-                    try {
-                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        this.masterGainNode = this.audioContext.createGain();
-                        this.masterGainNode.connect(this.audioContext.destination);
-                        this.masterGainNode.gain.value = this.volume;
-                    } catch (e) {
-                        console.warn('Audio not supported:', e);
-                        this.enabled = false;
-                    }
-                }
-
-                createChord(notes, duration = 0.3) {
-                    if (!this.enabled || !this.audioContext) return;
-                    
-                    notes.forEach((freq, index) => {
-                        setTimeout(() => {
-                            const oscillator = this.audioContext.createOscillator();
-                            const gainNode = this.audioContext.createGain();
-                            
-                            oscillator.connect(gainNode);
-                            gainNode.connect(this.masterGainNode);
-                            
-                            oscillator.type = 'triangle';
-                            oscillator.frequency.setValueAtTime(freq, this.audioContext.currentTime);
-                            
-                            const now = this.audioContext.currentTime;
-                            gainNode.gain.setValueAtTime(0, now);
-                            gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01);
-                            gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
-                            
-                            oscillator.start(now);
-                            oscillator.stop(now + duration);
-                        }, index * 50);
-                    });
-                }
-
-                playPlaceSymbol(symbol) {
-                    const frequency = symbol === 'X' ? 523 : 659; // C5 or E5
-                    this.createChord([frequency], 0.15);
-                }
-
-                playWin() {
-                    // 勝利和弦 - C大調
-                    this.createChord([523, 659, 784], 0.5);
-                    setTimeout(() => this.createChord([659, 784, 1047], 0.4), 200);
-                }
-
-                playDraw() {
-                    // 平局和弦 - 減和弦
-                    this.createChord([400, 500, 600], 0.4);
-                }
-
-                playButtonClick() {
-                    if (!this.enabled || !this.audioContext) return;
-                    
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.masterGainNode);
-                    
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
-                    
-                    const now = this.audioContext.currentTime;
-                    gainNode.gain.setValueAtTime(0.2, now);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    
-                    oscillator.start(now);
-                    oscillator.stop(now + 0.1);
-                }
-
-                playHover() {
-                    if (!this.enabled || !this.audioContext) return;
-                    
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.masterGainNode);
-                    
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
-                    
-                    const now = this.audioContext.currentTime;
-                    gainNode.gain.setValueAtTime(0.1, now);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                    
-                    oscillator.start(now);
-                    oscillator.stop(now + 0.05);
-                }
-            }
-
-            // 初始化音效
-            const gameAudio = new TicTacToeAudio();
-
-            // AI系統
-            class TicTacToeAI {
-                constructor(difficulty = 'medium') {
-                    this.difficulty = difficulty;
-                    this.humanPlayer = 'X';
-                    this.aiPlayer = 'O';
-                }
-
-                makeMove(boardState) {
-                    switch(this.difficulty) {
-                        case 'easy':
-                            return this.randomMove(boardState);
-                        case 'medium':
-                            return Math.random() < 0.7 ? this.smartMove(boardState) : this.randomMove(boardState);
-                        case 'hard':
-                            return Math.random() < 0.9 ? this.smartMove(boardState) : this.randomMove(boardState);
-                        case 'impossible':
-                            return this.perfectMove(boardState);
-                        default:
-                            return this.randomMove(boardState);
-                    }
-                }
-
-                randomMove(boardState) {
-                    const availableMoves = boardState.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
-                    return availableMoves[Math.floor(Math.random() * availableMoves.length)];
-                }
-
-                smartMove(boardState) {
-                    // 檢查AI是否能獲勝
-                    for (let i = 0; i < winConditions.length; i++) {
-                        const [a, b, c] = winConditions[i];
-                        const line = [boardState[a], boardState[b], boardState[c]];
-                        if (line.filter(cell => cell === this.aiPlayer).length === 2 && line.includes('')) {
-                            if (boardState[a] === '') return a;
-                            if (boardState[b] === '') return b;
-                            if (boardState[c] === '') return c;
-                        }
-                    }
-
-                    // 阻止玩家獲勝
-                    for (let i = 0; i < winConditions.length; i++) {
-                        const [a, b, c] = winConditions[i];
-                        const line = [boardState[a], boardState[b], boardState[c]];
-                        if (line.filter(cell => cell === this.humanPlayer).length === 2 && line.includes('')) {
-                            if (boardState[a] === '') return a;
-                            if (boardState[b] === '') return b;
-                            if (boardState[c] === '') return c;
-                        }
-                    }
-
-                    // 優先佔據中心
-                    if (boardState[4] === '') return 4;
-
-                    // 佔據角落
-                    const corners = [0, 2, 6, 8].filter(i => boardState[i] === '');
-                    if (corners.length > 0) {
-                        return corners[Math.floor(Math.random() * corners.length)];
-                    }
-
-                    // 佔據邊緣
-                    const edges = [1, 3, 5, 7].filter(i => boardState[i] === '');
-                    if (edges.length > 0) {
-                        return edges[Math.floor(Math.random() * edges.length)];
-                    }
-
-                    return this.randomMove(boardState);
-                }
-
-                perfectMove(boardState) {
-                    let bestScore = -Infinity;
-                    let bestMove = -1;
-
-                    for (let i = 0; i < boardState.length; i++) {
-                        if (boardState[i] === '') {
-                            boardState[i] = this.aiPlayer;
-                            const score = this.minimax(boardState, 0, false);
-                            boardState[i] = '';
-
-                            if (score > bestScore) {
-                                bestScore = score;
-                                bestMove = i;
-                            }
-                        }
-                    }
-
-                    return bestMove;
-                }
-
-                minimax(boardState, depth, isMaximizing) {
-                    const result = this.checkWinner(boardState);
-                    
-                    if (result === this.aiPlayer) return 10 - depth;
-                    if (result === this.humanPlayer) return depth - 10;
-                    if (result === 'draw') return 0;
-
-                    if (isMaximizing) {
-                        let bestScore = -Infinity;
-                        for (let i = 0; i < boardState.length; i++) {
-                            if (boardState[i] === '') {
-                                boardState[i] = this.aiPlayer;
-                                const score = this.minimax(boardState, depth + 1, false);
-                                boardState[i] = '';
-                                bestScore = Math.max(score, bestScore);
-                            }
-                        }
-                        return bestScore;
-                    } else {
-                        let bestScore = Infinity;
-                        for (let i = 0; i < boardState.length; i++) {
-                            if (boardState[i] === '') {
-                                boardState[i] = this.humanPlayer;
-                                const score = this.minimax(boardState, depth + 1, true);
-                                boardState[i] = '';
-                                bestScore = Math.min(score, bestScore);
-                            }
-                        }
-                        return bestScore;
-                    }
-                }
-
-                checkWinner(boardState) {
-                    for (let i = 0; i < winConditions.length; i++) {
-                        const [a, b, c] = winConditions[i];
-                        if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
-                            return boardState[a];
-                        }
-                    }
-                    
-                    if (boardState.every(cell => cell !== '')) {
-                        return 'draw';
-                    }
-                    
-                    return null;
-                }
-            }
-
             // 遊戲狀態變量
             let currentPlayer = 'X';
             let gameActive = true;
-            let gameState = ['', '', '', '', '', '', '', ''];
-            let gameMode = 'pvp'; // 'pvp' or 'pve'
-            let aiDifficulty = 'medium';
-            let aiPlayer = null;
+            let gameState = ['', '', '', '', '', '', '', '', ''];
             
             // 獲取DOM元素
             const cells = document.querySelectorAll('.cell');
@@ -682,10 +290,6 @@
             const currentPlayerElement = document.getElementById('currentPlayer');
             const newGameBtn = document.getElementById('newGameBtn');
             const resetBtn = document.getElementById('resetBtn');
-            const pvpModeBtn = document.getElementById('pvpMode');
-            const pveModeBtn = document.getElementById('pveMode');
-            const aiOptions = document.getElementById('aiOptions');
-            const diffButtons = document.querySelectorAll('.diff-btn');
             
             // 勝利條件（所有可能的三連線）
             const winConditions = [
@@ -732,15 +336,10 @@
                 cell.textContent = currentPlayer;
                 cell.classList.add(currentPlayer.toLowerCase());
                 
-                // 播放放置符號音效
-                gameAudio.playPlaceSymbol(currentPlayer);
-                
                 // 檢查遊戲結果
                 if (checkWin()) {
-                    gameAudio.playWin(); // 勝利音效
                     endGame(false);
                 } else if (isDraw()) {
-                    gameAudio.playDraw(); // 平局音效
                     endGame(true);
                 } else {
                     // 切換玩家
@@ -748,11 +347,6 @@
                     updateMessage();
                     currentPlayerElement.textContent = currentPlayer;
                     currentPlayerElement.style.background = currentPlayer === 'X' ? '#FF5252' : '#4CAF50';
-                    
-                    // 如果是AI回合且遊戲仍在進行
-                    if (gameMode === 'pve' && currentPlayer === 'O' && gameActive) {
-                        setTimeout(makeAIMove, 500); // 延遲讓玩家看到AI思考
-                    }
                 }
             }
             
@@ -791,127 +385,11 @@
                 messageElement.textContent = `輪到 ${currentPlayer} 出手`;
             }
             
-// 事件監聽器
-            cells.forEach(cell => {
-                cell.addEventListener('click', handleCellClick);
-                cell.addEventListener('mouseenter', () => {
-                    if (gameState[cell.getAttribute('data-index')] === '' && gameActive) {
-                        gameAudio.playHover(); // 懸停音效
-                    }
-                });
-            });
-            newGameBtn.addEventListener('click', () => {
-                gameAudio.playButtonClick(); // 按鈕音效
-                initGame();
-            });
-            resetBtn.addEventListener('click', () => {
-                gameAudio.playButtonClick(); // 按鈕音效
-                initGame();
-            });
-            
-            // AI移動函數
-            function makeAIMove() {
-                if (!gameActive || gameMode !== 'pve') return;
-                
-                const move = aiPlayer.makeMove(gameState);
-                if (move !== -1 && gameState[move] === '') {
-                    gameState[move] = currentPlayer;
-                    cells[move].textContent = currentPlayer;
-                    cells[move].classList.add(currentPlayer.toLowerCase());
-                    gameAudio.playPlaceSymbol(currentPlayer);
-                    
-                    // 檢查遊戲結果
-                    if (checkWin()) {
-                        gameAudio.playWin();
-                        endGame(false);
-                    } else if (isDraw()) {
-                        gameAudio.playDraw();
-                        endGame(true);
-                    } else {
-                        // 切換回玩家
-                        currentPlayer = 'X';
-                        updateMessage();
-                        currentPlayerElement.textContent = currentPlayer;
-                        currentPlayerElement.style.background = '#FF5252';
-                    }
-                }
-            }
-
-            // 模式切換函數
-            function switchToPvP() {
-                gameMode = 'pvp';
-                pvpModeBtn.classList.add('active');
-                pveModeBtn.classList.remove('active');
-                aiOptions.style.display = 'none';
-                initGame();
-            }
-
-            function switchToPvE() {
-                gameMode = 'pve';
-                pveModeBtn.classList.add('active');
-                pvpModeBtn.classList.remove('active');
-                aiOptions.style.display = 'block';
-                initGame();
-            }
-
-            function setAIDifficulty(difficulty) {
-                aiDifficulty = difficulty;
-                aiPlayer = new TicTacToeAI(difficulty);
-                
-                // 更新按鈕狀態
-                diffButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.difficulty === difficulty) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                if (gameMode === 'pve') {
-                    initGame();
-                }
-            }
-
-            // 更新初始化函數
-            function initGame() {
-                currentPlayer = 'X';
-                gameActive = true;
-                gameState = ['', '', '', '', '', '', '', '', ''];
-                
-                // 清除格子
-                cells.forEach(cell => {
-                    cell.textContent = '';
-                    cell.classList.remove('x', 'o', 'winning-cell');
-                });
-                
-                // 初始化AI
-                if (gameMode === 'pve') {
-                    aiPlayer = new TicTacToeAI(aiDifficulty);
-                }
-                
-                // 更新UI
-                updateMessage();
-                currentPlayerElement.textContent = currentPlayer;
-                currentPlayerElement.style.background = '#FF5252';
-            }
-
             // 事件監聽器
-            pvpModeBtn.addEventListener('click', () => {
-                gameAudio.playButtonClick();
-                switchToPvP();
-            });
-
-            pveModeBtn.addEventListener('click', () => {
-                gameAudio.playButtonClick();
-                switchToPvE();
-            });
-
-            diffButtons.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    gameAudio.playButtonClick();
-                    setAIDifficulty(e.target.dataset.difficulty);
-                });
-            });
-
+            cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+            newGameBtn.addEventListener('click', initGame);
+            resetBtn.addEventListener('click', initGame);
+            
             // 初始化遊戲
             initGame();
         });
