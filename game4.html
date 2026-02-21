@@ -219,27 +219,6 @@
             box-shadow: none;
         }
 
-        .difficulty-button {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .difficulty-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .difficulty-button.active {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-            border: 2px solid #ffd700;
-        }
-
         .instructions {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -373,24 +352,6 @@
                 </button>
             </div>
 
-            <div class="difficulty-selector" id="difficultySelector" style="margin-top: 20px;">
-                <h2 class="section-title">AI難度</h2>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="difficulty-button" data-difficulty="easy" style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        簡單
-                    </button>
-                    <button class="difficulty-button active" data-difficulty="medium" style="flex: 1; padding: 12px; background: #FF9800; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        中等
-                    </button>
-                    <button class="difficulty-button" data-difficulty="hard" style="flex: 1; padding: 12px; background: #F44336; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        困難
-                    </button>
-                </div>
-                <div style="margin-top: 10px; font-size: 0.9rem; color: #aaa; text-align: center;">
-                    <span id="difficultyDesc">中等難度：AI會考慮基本策略</span>
-                </div>
-            </div>
-
             <div class="game-info">
                 <h2 class="section-title">遊戲資訊</h2>
                 <div class="info-row">
@@ -441,12 +402,6 @@
     </div>
 
     <script>
-        // 全局錯誤處理
-        window.addEventListener('error', function(event) {
-            console.error('JavaScript error:', event.error);
-            alert('JavaScript錯誤: ' + event.message + '\n請檢查瀏覽器控制台獲取詳細信息。');
-        });
-        
         // ==================== 遊戲初始化 ====================
         const canvas = document.getElementById('chessCanvas');
         const ctx = canvas.getContext('2d');
@@ -461,7 +416,6 @@
         // 遊戲狀態
         let gameState = {
             mode: 'robot',
-            difficulty: 'medium', // 新增：難度設置
             gameStarted: false,
             currentPlayer: 'red',
             selectedPiece: null,
@@ -477,7 +431,7 @@
         
         // 棋子初始位置 - 使用不同的字符區分紅黑雙方
         const INITIAL_BOARD = [
-            ['俥', '傌', '象', '士', '將', '士', '象', '傌', '俥'],  // 黑方 (row 0)
+            ['俥', '', '象', '士', '將', '士', '象', '傌', '俥'],  // 黑方 (row 0)
             [null, null, null, null, null, null, null, null, null],
             [null, '炮', null, null, null, null, null, '炮', null],
             ['卒', null, '卒', null, '卒', null, '卒', null, '卒'],
@@ -515,40 +469,20 @@
         
         // 初始化遊戲
         function initGame() {
-            console.log('Initializing Chinese Chess game...');
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             initBoard();
             bindEvents();
+            drawBoard();
             updateUI();
             showMessage('歡迎來到中國象棋！選擇模式後點擊「開始遊戲」');
-            
-            // 確保畫布已正確初始化後繪製棋盤
-            setTimeout(() => {
-                if (canvas.width > 0 && canvas.height > 0) {
-                    drawBoard();
-                } else {
-                    console.log('Canvas not ready, retrying draw...');
-                    resizeCanvas();
-                }
-            }, 100);
         }
         
         function resizeCanvas() {
             const boardContainer = document.getElementById('gameBoard');
-            const width = boardContainer.clientWidth;
-            const height = boardContainer.clientHeight;
-            
-            // 確保畫布有最小尺寸
-            if (width > 0 && height > 0) {
-                canvas.width = width;
-                canvas.height = height;
-                drawBoard();
-            } else {
-                // 如果尺寸為0，延遲重試
-                console.log('Canvas dimensions are 0, retrying...');
-                setTimeout(resizeCanvas, 100);
-            }
+            canvas.width = boardContainer.clientWidth;
+            canvas.height = boardContainer.clientHeight;
+            drawBoard();
         }
         
         function initBoard() {
@@ -561,7 +495,7 @@
             gameState.gameOver = false;
             gameState.winner = null;
             gameState.currentPlayer = 'red';
-            gameState.gameStarted = false;
+            gameState.gameStarted = true;
             gameState.aiThinking = false;
             selectedHighlight.style.display = 'none';
         }
@@ -575,37 +509,6 @@
             closeMessage.addEventListener('click', () => statusMessage.style.display = 'none');
             canvas.addEventListener('click', handleCanvasClick);
             canvas.addEventListener('mousemove', handleCanvasHover);
-            
-            // 難度選擇按鈕事件
-            document.querySelectorAll('.difficulty-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const difficulty = this.getAttribute('data-difficulty');
-                    setDifficulty(difficulty);
-                });
-            });
-        }
-        
-        function setDifficulty(difficulty) {
-            gameState.difficulty = difficulty;
-            
-            // 更新按鈕樣式
-            document.querySelectorAll('.difficulty-button').forEach(button => {
-                if (button.getAttribute('data-difficulty') === difficulty) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
-                }
-            });
-            
-            // 更新難度描述
-            const descriptions = {
-                'easy': '簡單難度：AI隨機移動，適合新手',
-                'medium': '中等難度：AI會考慮基本策略',
-                'hard': '困難難度：AI會嘗試攻擊和防守'
-            };
-            document.getElementById('difficultyDesc').textContent = descriptions[difficulty] || descriptions['medium'];
-            
-            showMessage(`已切換到${difficulty === 'easy' ? '簡單' : difficulty === 'medium' ? '中等' : '困難'}難度`);
         }
         
         function switchMode(mode) {
@@ -618,11 +521,9 @@
         
         function startGame() {
             initBoard();
-            gameState.gameStarted = true;
             document.getElementById('btnStart').disabled = true;
             document.getElementById('btnRestart').disabled = false;
             document.getElementById('btnUndo').disabled = false;
-            drawBoard();
             updateUI();
             showMessage('遊戲開始！紅方先手。');
         }
@@ -632,7 +533,6 @@
             document.getElementById('btnStart').disabled = true;
             document.getElementById('btnRestart').disabled = false;
             document.getElementById('btnUndo').disabled = false;
-            drawBoard();
             updateUI();
             showMessage('遊戲重新開始！紅方先手。');
         }
@@ -662,22 +562,10 @@
         }
         
         function drawBoard() {
-            if (!ctx) {
-                console.log('Canvas context not available');
-                return;
-            }
+            if (!ctx) return;
             
             const width = canvas.width;
             const height = canvas.height;
-            
-            // 檢查畫布尺寸是否有效
-            if (width <= 0 || height <= 0) {
-                console.log('Invalid canvas dimensions:', width, height);
-                return;
-            }
-            
-            console.log('Drawing board with dimensions:', width, 'x', height);
-            
             const cellWidth = width / 9;
             const cellHeight = height / 10;
             
@@ -692,15 +580,31 @@
             ctx.strokeStyle = '#5c4033';
             ctx.lineWidth = 2;
             
-            // 垂直線 - 完整繪製整個棋盤高度
+            // 垂直線
             for (let i = 0; i <= 8; i++) {
                 ctx.beginPath();
                 ctx.moveTo(i * cellWidth, 0);
+                ctx.lineTo(i * cellWidth, 4 * cellHeight);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(i * cellWidth, 5 * cellHeight);
                 ctx.lineTo(i * cellWidth, height);
                 ctx.stroke();
             }
             
-            // 水平線 - 完整繪製整個棋盤寬度
+            // 左右邊線貫穿
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(8 * cellWidth, 0);
+            ctx.lineTo(8 * cellWidth, height);
+            ctx.stroke();
+            
+            // 水平線
             for (let i = 0; i <= 9; i++) {
                 ctx.beginPath();
                 ctx.moveTo(0, i * cellHeight);
@@ -768,8 +672,6 @@
             const y = row * cellHeight + cellHeight / 2;
             const radius = Math.min(cellWidth, cellHeight) * 0.4;
             
-            console.log(`Drawing piece ${piece} at (${col}, ${row}), position (${x}, ${y}), radius ${radius}`);
-            
             // 繪製棋子背景 - 圓形
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -790,37 +692,12 @@
             ctx.lineWidth = 1;
             ctx.stroke();
             
-            // 繪製棋子文字 - 使用更可靠的字體回退
+            // 繪製棋子文字
             ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
-            const fontSize = Math.max(radius * 1.1, 12); // 確保最小字體大小
-            ctx.font = `bold ${fontSize}px 'Microsoft JhengHei', '微軟正黑體', 'SimHei', 'Arial Unicode MS', sans-serif`;
+            ctx.font = `bold ${radius * 1.1}px 'Microsoft JhengHei', '微軟正黑體', serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            
-            // 檢查字體是否支援該字符
-            try {
-                ctx.fillText(piece, x, y);
-                console.log(`Successfully drew piece ${piece}`);
-            } catch (error) {
-                console.log(`Error drawing piece ${piece}:`, error);
-                // 如果無法繪製中文字符，使用英文字母代替
-                const fallbackChar = getPieceFallback(piece);
-                ctx.fillText(fallbackChar, x, y);
-            }
-        }
-        
-        function getPieceFallback(piece) {
-            // 提供英文字母回退
-            const fallbackMap = {
-                '將': 'K', '帥': 'K', // King
-                '士': 'A', '仕': 'A', // Advisor
-                '象': 'E', '相': 'E', // Elephant
-                '馬': 'H', '傌': 'H', // Horse
-                '車': 'R', '俥': 'R', // Rook
-                '炮': 'C', '砲': 'C', // Cannon
-                '卒': 'P', '兵': 'P'  // Pawn
-            };
-            return fallbackMap[piece] || '?';
+            ctx.fillText(piece, x, y);
         }
         
         // 規則驗證函數
@@ -1081,142 +958,6 @@
             statusMessage.style.display = 'block';
         }
         
-        // 執行移動的通用函數
-        function executeMove(fromRow, fromCol, toRow, toCol, fromPiece) {
-            const capturedPiece = gameState.board[toRow][toCol];
-            gameState.moveHistory.push({
-                fromRow, fromCol, toRow, toCol,
-                piece: fromPiece, captured: capturedPiece
-            });
-            
-            gameState.board[fromRow][fromCol] = null;
-            gameState.board[toRow][toCol] = fromPiece;
-            
-            if (capturedPiece) {
-                if (PIECE_COLORS[capturedPiece] === 'red') {
-                    gameState.redPieces--;
-                } else {
-                    gameState.blackPieces--;
-                }
-                
-                // 檢查是否獲勝
-                if (capturedPiece === '將' || capturedPiece === '帥') {
-                    gameState.gameOver = true;
-                    gameState.winner = gameState.currentPlayer;
-                    showMessage(`${gameState.currentPlayer === 'red' ? '紅方' : '黑方'}獲勝！`);
-                }
-            }
-            
-            gameState.moveCount++;
-            gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
-            gameState.selectedPiece = null;
-            selectedHighlight.style.display = 'none';
-            pieceInfo.style.display = 'none';
-            drawBoard();
-            updateUI();
-        }
-        
-        // AI移動函數
-        function makeAIMove() {
-            if (gameState.gameOver || gameState.currentPlayer !== 'black' || gameState.mode !== 'robot') return;
-            
-            gameState.aiThinking = true;
-            showMessage('AI思考中...');
-            
-            // 收集所有可能的移動
-            const possibleMoves = [];
-            
-            for (let row = 0; row < 10; row++) {
-                for (let col = 0; col < 9; col++) {
-                    const piece = gameState.board[row][col];
-                    if (piece && PIECE_COLORS[piece] === 'black') {
-                        // 檢查所有可能的目標位置
-                        for (let toRow = 0; toRow < 10; toRow++) {
-                            for (let toCol = 0; toCol < 9; toCol++) {
-                                if (isValidMove(row, col, toRow, toCol)) {
-                                    const targetPiece = gameState.board[toRow][toCol];
-                                    let score = 0;
-                                    
-                                    // 根據難度計算移動分數
-                                    if (gameState.difficulty === 'easy') {
-                                        // 簡單難度：隨機移動，不考慮分數
-                                        score = Math.random();
-                                    } else if (gameState.difficulty === 'medium') {
-                                        // 中等難度：優先吃子
-                                        if (targetPiece && PIECE_COLORS[targetPiece] === 'red') {
-                                            score = 10; // 吃子得分高
-                                        } else {
-                                            score = Math.random() * 5; // 隨機移動
-                                        }
-                                    } else {
-                                        // 困難難度：更複雜的策略
-                                        if (targetPiece && PIECE_COLORS[targetPiece] === 'red') {
-                                            // 根據棋子價值給分
-                                            const pieceValues = {
-                                                '帥': 1000, '將': 1000,
-                                                '車': 9, '俥': 9,
-                                                '馬': 4, '傌': 4,
-                                                '炮': 4.5, '砲': 4.5,
-                                                '相': 2, '象': 2,
-                                                '仕': 2, '士': 2,
-                                                '兵': 1, '卒': 1
-                                            };
-                                            score = 20 + (pieceValues[targetPiece] || 5);
-                                        } else {
-                                            // 向紅方將帥移動
-                                            const distanceToRedGeneral = Math.abs(toRow - 9) + Math.abs(toCol - 4);
-                                            score = 10 - distanceToRedGeneral * 0.5 + Math.random();
-                                        }
-                                    }
-                                    
-                                    possibleMoves.push({
-                                        fromRow: row,
-                                        fromCol: col,
-                                        toRow: toRow,
-                                        toCol: toCol,
-                                        piece: piece,
-                                        score: score
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if (possibleMoves.length > 0) {
-                let selectedMove;
-                
-                // 根據難度選擇移動
-                if (gameState.difficulty === 'easy') {
-                    // 簡單：完全隨機
-                    selectedMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-                } else {
-                    // 中等和困難：選擇最高分數的移動
-                    possibleMoves.sort((a, b) => b.score - a.score);
-                    selectedMove = possibleMoves[0];
-                    
-                    // 中等難度有時會隨機選擇
-                    if (gameState.difficulty === 'medium' && Math.random() < 0.3) {
-                        selectedMove = possibleMoves[Math.floor(Math.random() * Math.min(3, possibleMoves.length))];
-                    }
-                }
-                
-                // 延遲執行以模擬思考
-                const delay = gameState.difficulty === 'easy' ? 500 :
-                             gameState.difficulty === 'medium' ? 800 : 1200;
-                
-                setTimeout(() => {
-                    executeMove(selectedMove.fromRow, selectedMove.fromCol, selectedMove.toRow, selectedMove.toCol, selectedMove.piece);
-                    gameState.aiThinking = false;
-                    showMessage('AI已移動。');
-                }, delay);
-            } else {
-                gameState.aiThinking = false;
-                showMessage('AI無合法移動。');
-            }
-        }
-        
         function handleCanvasClick(event) {
             if (gameState.gameOver || !gameState.gameStarted) return;
             
@@ -1265,12 +1006,37 @@
                 // 驗證移動是否合法
                 if (isValidMove(fromRow, fromCol, row, col)) {
                     // 執行移動
-                    executeMove(fromRow, fromCol, row, col, fromPiece);
+                    const capturedPiece = gameState.board[row][col];
+                    gameState.moveHistory.push({
+                        fromRow, fromCol, toRow: row, toCol: col,
+                        piece: fromPiece, captured: capturedPiece
+                    });
                     
-                    // 如果是機器人模式且遊戲未結束，觸發AI移動
-                    if (gameState.mode === 'robot' && !gameState.gameOver && gameState.currentPlayer === 'black') {
-                        setTimeout(makeAIMove, 500);
+                    gameState.board[fromRow][fromCol] = null;
+                    gameState.board[row][col] = fromPiece;
+                    
+                    if (capturedPiece) {
+                        if (PIECE_COLORS[capturedPiece] === 'red') {
+                            gameState.redPieces--;
+                        } else {
+                            gameState.blackPieces--;
+                        }
+                        
+                        // 檢查是否獲勝
+                        if (capturedPiece === '將' || capturedPiece === '帥') {
+                            gameState.gameOver = true;
+                            gameState.winner = gameState.currentPlayer;
+                            showMessage(`${gameState.currentPlayer === 'red' ? '紅方' : '黑方'}獲勝！`);
+                        }
                     }
+                    
+                    gameState.moveCount++;
+                    gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
+                    gameState.selectedPiece = null;
+                    selectedHighlight.style.display = 'none';
+                    pieceInfo.style.display = 'none';
+                    drawBoard();
+                    updateUI();
                 } else {
                     showMessage('無效的移動！請遵守象棋規則。');
                 }
