@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>射箭遊戲</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        canvas {
+            display: block;
+            background: linear-gradient(to bottom, #87CEEB 0%, #90EE90 60%, #228B22 100%);
+            border-radius: 10px;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(100, 100, 100, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .score-box {
+            text-align: center;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+        
+        .score-value {
+            font-size: 28px;
+        }
+        
+        #you { color: #ff6b6b; }
+        #bot { color: #4ecdc4; }
+        
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div class="score-box">
+                <div class="score-label">YOU</div>
+                <div class="score-value" id="you">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">MEDIUM<br>VS</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">BOT</div>
+                <div class="score-value" id="bot">0</div>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas" width="900" height="700"></canvas>
+        
+        <div id="message"></div>
+        
+        <div id="instructions">按住滑鼠瞄準，放開射箭</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 遊戲狀態
+        let gameState = {
+            aiming: false,
+            arrowFlying: false,
+            playerScore: 21,
+            botScore: 25,
+            arrow: {
+                x: 750,
+                y: 400,
+                vx: 0,
+                vy: 0,
+                angle: 0,
+                speed: 0
+            },
+            target: {
+                x: 200,
+                y: 400,
+                width: 80,
+                height: 100
+            },
+            aimPoint: {
+                x: 200,
+                y: 400,
+                radius: 0,
+                maxRadius: 60
+            },
+            bowAngle: 0
+        };
+        
+        // 滑鼠位置
+        let mouse = { x: 0, y: 0 };
+        
+        // 事件監聽
+        canvas.addEventListener('mousedown', startAiming);
+        canvas.addEventListener('mousemove', updateAim);
+        canvas.addEventListener('mouseup', shootArrow);
+        canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
+        canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+        canvas.addEventListener('touchend', shootArrow);
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - rect.left;
+            mouse.y = e.touches[0].clientY - rect.top;
+            startAiming();
+        }
+        
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - rect.left;
+            mouse.y = e.touches[0].clientY - rect.top;
+            updateAim();
+        }
+        
+        function startAiming() {
+            if (!gameState.arrowFlying) {
+                gameState.aiming = true;
+                gameState.aimPoint.radius = 0;
+            }
+        }
+        
+        function updateAim() {
+            if (gameState.aiming) {
+                // 計算弓的角度
+                const bowX = 750;
+                const bowY = 400;
+                const dx = mouse.x - bowX;
+                const dy = mouse.y - bowY;
+                gameState.bowAngle = Math.atan2(dy, dx);
+                
+                // 瞄準點在滑鼠位置，但限制在靶子附近
+                gameState.aimPoint.x = Math.max(150, Math.min(250, mouse.x));
+                gameState.aimPoint.y = Math.max(300, Math.min(500, mouse.y));
+                
+                // 瞄準圈動畫
+                if (gameState.aimPoint.radius < gameState.aimPoint.maxRadius) {
+                    gameState.aimPoint.radius += 2;
+                }
+            }
+        }
+        
+        function shootArrow() {
+            if (gameState.aiming) {
+                gameState.aiming = false;
+                gameState.arrowFlying = true;
+                
+                // 計算射箭速度
+                const bowX = 750;
+                const bowY = 400;
+                const dx = gameState.aimPoint.x - bowX;
+                const dy = gameState.aimPoint.y - bowY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const speed = 25;
+                
+                gameState.arrow.vx = (dx / distance) * speed;
+                gameState.arrow.vy = (dy / distance) * speed;
+                gameState.arrow.speed = speed;
+                gameState.arrow.angle = Math.atan2(dy, dx);
+            }
+        }
+        
+        function update() {
+            if (gameState.arrowFlying) {
+                // 更新箭的位置
+                gameState.arrow.x += gameState.arrow.vx;
+                gameState.arrow.y += gameState.arrow.vy;
+                
+                // 重力影響
+                gameState.arrow.vy += 0.15;
+                
+                // 檢查是否命中靶子
+                const target = gameState.target;
+                const arrow = gameState.arrow;
+                
+                if (arrow.x < target.x + target.width/2 && 
+                    arrow.x > target.x - target.width/2 &&
+                    arrow.y < target.y + target.height/2 && 
+                    arrow.y > target.y - target.height/2) {
+                    
+                    // 計算得分
+                    const dx = arrow.x - target.x;
+                    const dy = arrow.y - target.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    let points = 0;
+                    if (distance < 15) points = 10;
+                    else if (distance < 25) points = 8;
+                    else if (distance < 35) points = 6;
+                    else if (distance < 45) points = 4;
+                    else points = 2;
+                    
+                    gameState.playerScore += points;
+                    document.getElementById('you').textContent = gameState.playerScore;
+                    
+                    // 顯示得分
+                    showMessage(`+${points}分!`);
+                    
+                    // 重置
+                    setTimeout(resetArrow, 1000);
+                }
+                
+                // 檢查是否超出畫面
+                if (arrow.x < 0 || arrow.y > canvas.height) {
+                    showMessage('未命中!');
+                    setTimeout(resetArrow, 1000);
+                }
+            }
+            
+            // 更新瞄準圈
+            if (gameState.aiming && gameState.aimPoint.radius < gameState.aimPoint.maxRadius) {
+                gameState.aimPoint.radius += 1;
+            }
+        }
+        
+        function showMessage(text) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 1000);
+        }
+        
+        function resetArrow() {
+            gameState.arrowFlying = false;
+            gameState.arrow.x = 750;
+            gameState.arrow.y = 400;
+            gameState.arrow.vx = 0;
+            gameState.arrow.vy = 0;
+            gameState.bowAngle = 0;
+        }
+        
+        function draw() {
+            // 清空畫布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 繪製背景元素
+            drawBackground();
+            
+            // 繪製箭靶
+            drawTarget();
+            
+            // 繪製瞄準點（如果正在瞄準）
+            if (gameState.aiming) {
+                drawAimPoint();
+            }
+            
+            // 繪製弓和箭
+            drawBowAndArrow();
+        }
+        
+        function drawBackground() {
+            // 山脈
+            ctx.fillStyle = '#98D8C8';
+            ctx.beginPath();
+            ctx.moveTo(0, 400);
+            ctx.lineTo(150, 200);
+            ctx.lineTo(300, 400);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(200, 400);
+            ctx.lineTo(400, 150);
+            ctx.lineTo(600, 400);
+            ctx.fill();
+            
+            // 樹木
+            drawTree(100, 350, 60);
+            drawTree(350, 380, 50);
+            drawTree(600, 360, 55);
+            drawTree(800, 370, 45);
+        }
+        
+        function drawTree(x, y, size) {
+            // 樹幹
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x - size/6, y, size/3, size);
+            
+            // 樹葉
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.arc(x, y - size/2, size/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x - size/3, y - size/4, size/3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x + size/3, y - size/4, size/3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawTarget() {
+            const t = gameState.target;
+            
+            // 靶架
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(t.x - 40, t.y + 50, 80, 10);
+            ctx.fillRect(t.x - 35, t.y + 50, 10, 40);
+            ctx.fillRect(t.x + 25, t.y + 50, 10, 40);
+            
+            // 靶子外框
+            ctx.fillStyle = '#DEB887';
+            ctx.fillRect(t.x - 40, t.y - 50, 80, 100);
+            
+            // 同心圓
+            const rings = [
+                {radius: 40, color: 'white'},
+                {radius: 32, color: 'black'},
+                {radius: 24, color: '#4169E1'},
+                {radius: 16, color: '#FF0000'},
+                {radius: 8, color: '#FFD700'}
+            ];
+            
+            rings.forEach(ring => {
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, ring.radius, 0, Math.PI * 2);
+                ctx.fillStyle = ring.color;
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        }
+        
+        function drawAimPoint() {
+            const aim = gameState.aimPoint;
+            
+            // 瞄準圈（紅色半透明）
+            ctx.beginPath();
+            ctx.arc(aim.x, aim.y, aim.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // 十字準星
+            ctx.beginPath();
+            ctx.moveTo(aim.x - aim.radius - 10, aim.y);
+            ctx.lineTo(aim.x - aim.radius + 10, aim.y);
+            ctx.moveTo(aim.x + aim.radius - 10, aim.y);
+            ctx.lineTo(aim.x + aim.radius + 10, aim.y);
+            ctx.moveTo(aim.x, aim.y - aim.radius - 10);
+            ctx.lineTo(aim.x, aim.y - aim.radius + 10);
+            ctx.moveTo(aim.x, aim.y + aim.radius - 10);
+            ctx.lineTo(aim.x, aim.y + aim.radius + 10);
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 中心點
+            ctx.beginPath();
+            ctx.arc(aim.x, aim.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+        
+        function drawBowAndArrow() {
+            const bowX = 750;
+            const bowY = 400;
+            
+            ctx.save();
+            ctx.translate(bowX, bowY);
+            
+            if (gameState.aiming) {
+                ctx.rotate(gameState.bowAngle);
+            }
+            
+            // 弓身（紅色）
+            ctx.strokeStyle = '#FF6B6B';
+            ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            
+            // 弓的曲線
+            ctx.beginPath();
+            ctx.arc(0, 0, 120, -Math.PI/2 - 0.3, Math.PI/2 + 0.3, false);
+            ctx.stroke();
+            
+            // 弓弦
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (gameState.aiming) {
+                // 拉弦狀態
+                ctx.moveTo(0, -115);
+                ctx.lineTo(-30, 0);
+                ctx.lineTo(0, 115);
+            } else {
+                // 放鬆狀態
+                ctx.moveTo(0, -115);
+                ctx.lineTo(5, 0);
+                ctx.lineTo(0, 115);
+            }
+            ctx.stroke();
+            
+            // 箭
+            if (!gameState.arrowFlying || gameState.aiming) {
+                drawArrow(ctx, gameState.aiming ? -30 : 5, 0);
+            }
+            
+            ctx.restore();
+            
+            // 如果箭在飛行中，繪製飛行中的箭
+            if (gameState.arrowFlying) {
+                ctx.save();
+                ctx.translate(gameState.arrow.x, gameState.arrow.y);
+                ctx.rotate(gameState.arrow.angle + Math.PI);
+                drawArrow(ctx, 0, 0, true);
+                ctx.restore();
+            }
+        }
+        
+        function drawArrow(context, x, y, isFlying = false) {
+            // 箭桿
+            context.strokeStyle = '#8B4513';
+            context.lineWidth = 3;
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x - 70, y);
+            context.stroke();
+            
+            // 箭頭
+            context.fillStyle = '#666';
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x - 10, y - 5);
+            context.lineTo(x - 10, y + 5);
+            context.closePath();
+            context.fill();
+            
+            // 箭羽
+            context.fillStyle = '#FF0000';
+            context.beginPath();
+            context.moveTo(x - 65, y);
+            context.lineTo(x - 75, y - 8);
+            context.lineTo(x - 70, y);
+            context.lineTo(x - 75, y + 8);
+            context.closePath();
+            context.fill();
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 啟動遊戲
+        gameLoop();
+    </script>
+</body>
+</html>
