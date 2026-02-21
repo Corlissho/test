@@ -86,7 +86,7 @@
         #gameBoard {
             width: 100%;
             height: 600px;
-            background: #d4a574;
+            background: #f0d9b5;
             border-radius: 10px;
             border: 8px solid #8b4513;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
@@ -429,24 +429,24 @@
             aiThinking: false
         };
         
-        // 棋子初始位置
+        // 棋子初始位置 - 修正：紅方用帥，黑方用將
         const INITIAL_BOARD = [
-            ['車', '馬', '象', '士', '將', '士', '象', '馬', '車'],
+            ['車', '馬', '象', '士', '將', '士', '象', '馬', '車'],  // 黑方 (row 0)
             [null, null, null, null, null, null, null, null, null],
             [null, '炮', null, null, null, null, null, '炮', null],
             ['卒', null, '卒', null, '卒', null, '卒', null, '卒'],
             [null, null, null, null, null, null, null, null, null],
             [null, null, null, null, null, null, null, null, null],
             ['兵', null, '兵', null, '兵', null, '兵', null, '兵'],
-            [null, '炮', null, null, null, null, null, '炮', null],
+            [null, '砲', null, null, null, null, null, '砲', null],
             [null, null, null, null, null, null, null, null, null],
-            ['車', '馬', '相', '仕', '帥', '仕', '相', '馬', '車']
+            ['車', '傌', '相', '仕', '帥', '仕', '相', '傌', '車']   // 紅方 (row 9)
         ];
         
         // 棋子顏色
         const PIECE_COLORS = {
-            '將': 'black', '士': 'black', '象': 'black', '馬': 'black', '車': 'black', '炮': 'black', '卒': 'black',
-            '帥': 'red', '仕': 'red', '相': 'red', '馬': 'red', '車': 'red', '炮': 'red', '兵': 'red'
+            '將': 'black', '士': 'black', '象': 'black', '馬': 'black', '車': 'black', '炮': 'black', '砲': 'black', '卒': 'black',
+            '帥': 'red', '仕': 'red', '相': 'red', '傌': 'red', '車': 'red', '炮': 'red', '砲': 'red', '兵': 'red'
         };
         
         // 棋子描述
@@ -458,8 +458,10 @@
             '象': '黑方象，走田字，不能過河',
             '相': '紅方相，走田字，不能過河',
             '馬': '馬，走日字，可過河',
+            '傌': '紅傌，走日字，可過河',
             '車': '車，直行任意格，可過河',
             '炮': '炮，直行任意格，吃子需隔一子',
+            '砲': '紅砲，直行任意格，吃子需隔一子',
             '卒': '黑方卒，過河前只能向前，過河後可左右',
             '兵': '紅方兵，過河前只能向前，過河後可左右'
         };
@@ -543,6 +545,15 @@
                 gameState.board[lastMove.toRow][lastMove.toCol] = lastMove.captured;
                 gameState.moveCount--;
                 gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
+                
+                if (lastMove.captured) {
+                    if (PIECE_COLORS[lastMove.captured] === 'red') {
+                        gameState.redPieces++;
+                    } else {
+                        gameState.blackPieces++;
+                    }
+                }
+                
                 gameState.selectedPiece = null;
                 selectedHighlight.style.display = 'none';
                 drawBoard();
@@ -562,24 +573,40 @@
             // 清除畫布
             ctx.clearRect(0, 0, width, height);
             
-            // 繪製棋盤背景
-            ctx.fillStyle = '#d4a574';
+            // 繪製棋盤背景 - 木質色
+            ctx.fillStyle = '#f0d9b5';
             ctx.fillRect(0, 0, width, height);
             
             // 繪製棋盤格線
-            ctx.strokeStyle = '#8b4513';
+            ctx.strokeStyle = '#5c4033';
             ctx.lineWidth = 2;
             
             // 垂直線
-            for (let i = 0; i <= 9; i++) {
+            for (let i = 0; i <= 8; i++) {
                 ctx.beginPath();
                 ctx.moveTo(i * cellWidth, 0);
+                ctx.lineTo(i * cellWidth, 4 * cellHeight);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(i * cellWidth, 5 * cellHeight);
                 ctx.lineTo(i * cellWidth, height);
                 ctx.stroke();
             }
             
+            // 左右邊線貫穿
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(8 * cellWidth, 0);
+            ctx.lineTo(8 * cellWidth, height);
+            ctx.stroke();
+            
             // 水平線
-            for (let i = 0; i <= 10; i++) {
+            for (let i = 0; i <= 9; i++) {
                 ctx.beginPath();
                 ctx.moveTo(0, i * cellHeight);
                 ctx.lineTo(width, i * cellHeight);
@@ -587,7 +614,7 @@
             }
             
             // 繪製九宮格對角線
-            ctx.strokeStyle = '#8b4513';
+            ctx.strokeStyle = '#5c4033';
             ctx.lineWidth = 1.5;
             
             // 黑方九宮格（上方）
@@ -611,6 +638,14 @@
             ctx.moveTo(5 * cellWidth, 7 * cellHeight);
             ctx.lineTo(3 * cellWidth, 9 * cellHeight);
             ctx.stroke();
+            
+            // 繪製楚河漢界
+            ctx.fillStyle = '#5c4033';
+            ctx.font = `bold ${cellHeight * 0.5}px 'Microsoft JhengHei', '微軟正黑體', serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('楚河', 2 * cellWidth, 4.5 * cellHeight);
+            ctx.fillText('漢界', 6 * cellWidth, 4.5 * cellHeight);
             
             // 繪製棋子
             for (let row = 0; row < 10; row++) {
@@ -638,23 +673,273 @@
             const y = row * cellHeight + cellHeight / 2;
             const radius = Math.min(cellWidth, cellHeight) * 0.4;
             
-            // 繪製棋子背景
+            // 繪製棋子背景 - 圓形
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
-            ctx.fillStyle = PIECE_COLORS[piece] === 'red' ? '#ff6b6b' : '#333';
+            
+            const isRed = PIECE_COLORS[piece] === 'red';
+            ctx.fillStyle = isRed ? '#fff5e6' : '#f5f5f5';
             ctx.fill();
             
             // 棋子邊框
-            ctx.strokeStyle = PIECE_COLORS[piece] === 'red' ? '#ffd700' : '#fff';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = isRed ? '#c41e3a' : '#1a1a1a';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // 內圈裝飾
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 0.85, 0, Math.PI * 2);
+            ctx.strokeStyle = isRed ? '#c41e3a' : '#1a1a1a';
+            ctx.lineWidth = 1;
             ctx.stroke();
             
             // 繪製棋子文字
-            ctx.fillStyle = 'white';
-            ctx.font = `bold ${radius * 1.2}px 'Microsoft JhengHei', '微軟正黑體'`;
+            ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
+            ctx.font = `bold ${radius * 1.1}px 'Microsoft JhengHei', '微軟正黑體', serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(piece, x, y);
+        }
+        
+        // 規則驗證函數
+        function isValidMove(fromRow, fromCol, toRow, toCol) {
+            const piece = gameState.board[fromRow][fromCol];
+            const targetPiece = gameState.board[toRow][toCol];
+            
+            // 檢查目標位置是否有己方棋子
+            if (targetPiece && PIECE_COLORS[targetPiece] === PIECE_COLORS[piece]) {
+                return false;
+            }
+            
+            const pieceType = piece;
+            const isRed = PIECE_COLORS[piece] === 'red';
+            
+            // 根據棋子類型驗證移動
+            switch(pieceType) {
+                case '將':
+                case '帥':
+                    return isValidGeneralMove(fromRow, fromCol, toRow, toCol, isRed);
+                case '士':
+                case '仕':
+                    return isValidAdvisorMove(fromRow, fromCol, toRow, toCol, isRed);
+                case '象':
+                case '相':
+                    return isValidElephantMove(fromRow, fromCol, toRow, toCol, isRed);
+                case '馬':
+                case '傌':
+                    return isValidHorseMove(fromRow, fromCol, toRow, toCol);
+                case '車':
+                    return isValidRookMove(fromRow, fromCol, toRow, toCol);
+                case '炮':
+                case '砲':
+                    return isValidCannonMove(fromRow, fromCol, toRow, toCol);
+                case '卒':
+                case '兵':
+                    return isValidSoldierMove(fromRow, fromCol, toRow, toCol, isRed);
+                default:
+                    return false;
+            }
+        }
+        
+        // 將/帥移動驗證
+        function isValidGeneralMove(fromRow, fromCol, toRow, toCol, isRed) {
+            // 檢查是否在九宮格內
+            if (toCol < 3 || toCol > 5) return false;
+            if (isRed) {
+                if (toRow < 7 || toRow > 9) return false;
+            } else {
+                if (toRow < 0 || toRow > 2) return false;
+            }
+            
+            // 檢查是否只移動一步
+            const rowDiff = Math.abs(toRow - fromRow);
+            const colDiff = Math.abs(toCol - fromCol);
+            if (rowDiff + colDiff !== 1) return false;
+            
+            // 檢查將帥是否照面
+            if (willGeneralsFace(fromRow, fromCol, toRow, toCol)) {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 士/仕移動驗證
+        function isValidAdvisorMove(fromRow, fromCol, toRow, toCol, isRed) {
+            // 檢查是否在九宮格內
+            if (toCol < 3 || toCol > 5) return false;
+            if (isRed) {
+                if (toRow < 7 || toRow > 9) return false;
+            } else {
+                if (toRow < 0 || toRow > 2) return false;
+            }
+            
+            // 檢查是否斜走一步
+            const rowDiff = Math.abs(toRow - fromRow);
+            const colDiff = Math.abs(toCol - fromCol);
+            return rowDiff === 1 && colDiff === 1;
+        }
+        
+        // 象/相移動驗證
+        function isValidElephantMove(fromRow, fromCol, toRow, toCol, isRed) {
+            // 檢查是否走田字
+            const rowDiff = toRow - fromRow;
+            const colDiff = toCol - fromCol;
+            
+            if (Math.abs(rowDiff) !== 2 || Math.abs(colDiff) !== 2) return false;
+            
+            // 檢查是否過河
+            if (isRed) {
+                if (toRow < 5) return false;  // 紅相不能過河
+            } else {
+                if (toRow > 4) return false;  // 黑象不能過河
+            }
+            
+            // 檢查象眼是否被塞
+            const eyeRow = fromRow + rowDiff / 2;
+            const eyeCol = fromCol + colDiff / 2;
+            if (gameState.board[eyeRow][eyeCol]) return false;
+            
+            return true;
+        }
+        
+        // 馬/傌移動驗證
+        function isValidHorseMove(fromRow, fromCol, toRow, toCol) {
+            const rowDiff = Math.abs(toRow - fromRow);
+            const colDiff = Math.abs(toCol - fromCol);
+            
+            // 檢查是否走日字
+            if (!((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2))) {
+                return false;
+            }
+            
+            // 檢查是否蹩馬腿
+            if (rowDiff === 2) {
+                const legRow = fromRow + (toRow > fromRow ? 1 : -1);
+                if (gameState.board[legRow][fromCol]) return false;
+            } else {
+                const legCol = fromCol + (toCol > fromCol ? 1 : -1);
+                if (gameState.board[fromRow][legCol]) return false;
+            }
+            
+            return true;
+        }
+        
+        // 車移動驗證
+        function isValidRookMove(fromRow, fromCol, toRow, toCol) {
+            // 檢查是否直行
+            if (fromRow !== toRow && fromCol !== toCol) return false;
+            
+            // 檢查路徑上是否有棋子
+            if (fromRow === toRow) {
+                const minCol = Math.min(fromCol, toCol);
+                const maxCol = Math.max(fromCol, toCol);
+                for (let col = minCol + 1; col < maxCol; col++) {
+                    if (gameState.board[fromRow][col]) return false;
+                }
+            } else {
+                const minRow = Math.min(fromRow, toRow);
+                const maxRow = Math.max(fromRow, toRow);
+                for (let row = minRow + 1; row < maxRow; row++) {
+                    if (gameState.board[row][fromCol]) return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // 炮/砲移動驗證
+        function isValidCannonMove(fromRow, fromCol, toRow, toCol) {
+            // 檢查是否直行
+            if (fromRow !== toRow && fromCol !== toCol) return false;
+            
+            // 計算路徑上的棋子數
+            let count = 0;
+            if (fromRow === toRow) {
+                const minCol = Math.min(fromCol, toCol);
+                const maxCol = Math.max(fromCol, toCol);
+                for (let col = minCol + 1; col < maxCol; col++) {
+                    if (gameState.board[fromRow][col]) count++;
+                }
+            } else {
+                const minRow = Math.min(fromRow, toRow);
+                const maxRow = Math.max(fromRow, toRow);
+                for (let row = minRow + 1; row < maxRow; row++) {
+                    if (gameState.board[row][fromCol]) count++;
+                }
+            }
+            
+            const targetPiece = gameState.board[toRow][toCol];
+            
+            // 移動到空位：路徑上不能有棋子
+            if (!targetPiece) {
+                return count === 0;
+            }
+            // 吃子：路徑上必須恰好有一個棋子（炮架）
+            else {
+                return count === 1;
+            }
+        }
+        
+        // 卒/兵移動驗證
+        function isValidSoldierMove(fromRow, fromCol, toRow, toCol, isRed) {
+            const rowDiff = toRow - fromRow;
+            const colDiff = Math.abs(toCol - fromCol);
+            
+            if (isRed) {
+                // 紅兵
+                if (fromRow >= 5) {
+                    // 未過河，只能向前
+                    return rowDiff === -1 && colDiff === 0;
+                } else {
+                    // 已過河，可以向前或左右
+                    return (rowDiff === -1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+                }
+            } else {
+                // 黑卒
+                if (fromRow <= 4) {
+                    // 未過河，只能向前
+                    return rowDiff === 1 && colDiff === 0;
+                } else {
+                    // 已過河，可以向前或左右
+                    return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+                }
+            }
+        }
+        
+        // 檢查將帥是否會照面
+        function willGeneralsFace(fromRow, fromCol, toRow, toCol) {
+            // 創建臨時棋盤
+            const tempBoard = gameState.board.map(row => [...row]);
+            const piece = tempBoard[fromRow][fromCol];
+            tempBoard[fromRow][fromCol] = null;
+            tempBoard[toRow][toCol] = piece;
+            
+            // 找到雙方將帥位置
+            let redGeneralPos = null;
+            let blackGeneralPos = null;
+            
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (tempBoard[row][col] === '帥') {
+                        redGeneralPos = { row, col };
+                    } else if (tempBoard[row][col] === '將') {
+                        blackGeneralPos = { row, col };
+                    }
+                }
+            }
+            
+            // 如果不在同一列，不會照面
+            if (!redGeneralPos || !blackGeneralPos) return false;
+            if (redGeneralPos.col !== blackGeneralPos.col) return false;
+            
+            // 檢查中間是否有棋子
+            const col = redGeneralPos.col;
+            for (let row = blackGeneralPos.row + 1; row < redGeneralPos.row; row++) {
+                if (tempBoard[row][col]) return false;
+            }
+            
+            return true;
         }
         
         function updateUI() {
@@ -691,39 +976,82 @@
             const piece = gameState.board[row][col];
             
             if (gameState.selectedPiece) {
-                // 嘗試移動棋子
                 const fromRow = gameState.selectedPiece.row;
                 const fromCol = gameState.selectedPiece.col;
                 const fromPiece = gameState.board[fromRow][fromCol];
                 
-                // 簡單移動邏輯：允許移動到空位
-                if (!piece) {
-                    gameState.board[fromRow][fromCol] = null;
-                    gameState.board[row][col] = fromPiece;
-                    gameState.moveCount++;
-                    gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
+                // 檢查是否點擊同一個棋子
+                if (fromRow === row && fromCol === col) {
                     gameState.selectedPiece = null;
                     selectedHighlight.style.display = 'none';
-                    drawBoard();
-                    updateUI();
-                    showMessage('移動成功！');
-                } else {
-                    showMessage('該位置已有棋子！');
+                    pieceInfo.style.display = 'none';
+                    return;
                 }
-            } else if (piece) {
-                // 選擇棋子
-                const pieceColor = PIECE_COLORS[piece];
-                if (pieceColor === gameState.currentPlayer) {
+                
+                // 檢查是否是己方棋子
+                if (piece && PIECE_COLORS[piece] === PIECE_COLORS[fromPiece]) {
                     gameState.selectedPiece = { row, col };
                     
-                    // 更新高亮位置
                     selectedHighlight.style.display = 'block';
                     selectedHighlight.style.width = `${cellWidth}px`;
                     selectedHighlight.style.height = `${cellHeight}px`;
                     selectedHighlight.style.left = `${col * cellWidth}px`;
                     selectedHighlight.style.top = `${row * cellHeight}px`;
                     
-                    // 顯示棋子資訊
+                    pieceName.textContent = piece;
+                    pieceDesc.textContent = PIECE_DESCRIPTIONS[piece] || '未知棋子';
+                    pieceInfo.style.display = 'block';
+                    return;
+                }
+                
+                // 驗證移動是否合法
+                if (isValidMove(fromRow, fromCol, row, col)) {
+                    // 執行移動
+                    const capturedPiece = gameState.board[row][col];
+                    gameState.moveHistory.push({
+                        fromRow, fromCol, toRow: row, toCol: col,
+                        piece: fromPiece, captured: capturedPiece
+                    });
+                    
+                    gameState.board[fromRow][fromCol] = null;
+                    gameState.board[row][col] = fromPiece;
+                    
+                    if (capturedPiece) {
+                        if (PIECE_COLORS[capturedPiece] === 'red') {
+                            gameState.redPieces--;
+                        } else {
+                            gameState.blackPieces--;
+                        }
+                        
+                        // 檢查是否獲勝
+                        if (capturedPiece === '將' || capturedPiece === '帥') {
+                            gameState.gameOver = true;
+                            gameState.winner = gameState.currentPlayer;
+                            showMessage(`${gameState.currentPlayer === 'red' ? '紅方' : '黑方'}獲勝！`);
+                        }
+                    }
+                    
+                    gameState.moveCount++;
+                    gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'black' : 'red';
+                    gameState.selectedPiece = null;
+                    selectedHighlight.style.display = 'none';
+                    pieceInfo.style.display = 'none';
+                    drawBoard();
+                    updateUI();
+                } else {
+                    showMessage('無效的移動！請遵守象棋規則。');
+                }
+            } else if (piece) {
+                const pieceColor = PIECE_COLORS[piece];
+                if (pieceColor === gameState.currentPlayer) {
+                    gameState.selectedPiece = { row, col };
+                    
+                    selectedHighlight.style.display = 'block';
+                    selectedHighlight.style.width = `${cellWidth}px`;
+                    selectedHighlight.style.height = `${cellHeight}px`;
+                    selectedHighlight.style.left = `${col * cellWidth}px`;
+                    selectedHighlight.style.top = `${row * cellHeight}px`;
+                    
                     pieceName.textContent = piece;
                     pieceDesc.textContent = PIECE_DESCRIPTIONS[piece] || '未知棋子';
                     pieceInfo.style.display = 'block';
@@ -739,3 +1067,6 @@
         
         // 初始化遊戲
         window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
