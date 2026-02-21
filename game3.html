@@ -421,7 +421,6 @@ user-select: none;
         <button class="action-btn build-btn" onclick="buildCannon()" id="buildCannonBtn">🔫 建設大炮</button>
         <button class="action-btn build-btn" onclick="buildShield()" id="buildShieldBtn">🛡️ 建設保護罩</button>
         <button class="action-btn attack-btn" onclick="attackEnemy()" id="attackBtn">⚔️ 攻擊敵人</button>
-        <button class="action-btn repair-btn" onclick="repairFacility()" id="repairBtn">🔧 修復設施</button>
     </div>
 </div>
 
@@ -871,63 +870,50 @@ function friendBuildShield(playerId) {
 }
 
 // 玩家攻擊敵人
-async function attackEnemy() {
+function attackEnemy() {
 if (gameState.currentPlayer !== 1 || gameState.gameOver || !canAttack(gameState.player1)) return;
 if (gameState.gameMode === 'friend' && gameState.currentPlayer === 2) {
-    await friendAttackEnemy(2);
+    friendAttackEnemy(2);
     return;
 }
 
 const player2 = gameState.player2;
-// 新規則：選擇攻擊目標，摧毀一個
-const target = await showChoiceModal("選擇攻擊目標", [
-    { text: `保護罩 (剩${player2.shields})`, value: "shields" },
-    { text: `旗幟 (剩${player2.flags})`, value: "flags" },
-    { text: `大砲 (剩${player2.cannons})`, value: "cannons" },
-    { text: `堡壘 (${player2.fortressIntact ? '完整' : '已毀'})`, value: "fortress" }
-], "shields");
+let attackTarget = '';
+let actionText = '';
 
-let attackTarget = target;
-
-// 驗證選擇的目標是否有效
-if (attackTarget === 'shields' && player2.shields <= 0) {
-document.getElementById('gameStatus').textContent = '對方沒有保護罩！';
-return;
-} else if (attackTarget === 'flags' && player2.flags <= 0) {
-document.getElementById('gameStatus').textContent = '對方沒有旗幟！';
-return;
-} else if (attackTarget === 'cannons' && player2.cannons <= 0) {
-    document.getElementById('gameStatus').textContent = '對方沒有大砲！';
-    return;
-} else if (attackTarget === 'fortress' && !player2.fortressIntact) {
-document.getElementById('gameStatus').textContent = '對方的堡壘已被摧毀！';
-return;
-}
-
-if (attackTarget === 'shields') {
-player2.shields--;
-document.getElementById('gameStatus').textContent = `你攻擊了電腦的保護罩！摧毀了 1 層！剩餘${player2.shields}層！`;
-} else if (attackTarget === 'flags') {
-player2.flags--;
-document.getElementById('gameStatus').textContent = `你攻擊了電腦的旗幟！摧毀了 1 枝！剩餘${player2.flags}枝！`;
-} else if (attackTarget === 'cannons') {
+// 自動選擇攻擊目標：優先順序：保護罩 > 旗幟 > 大砲 > 堡壘
+if (player2.shields > 0) {
+    attackTarget = 'shields';
+    player2.shields--;
+    actionText = `你攻擊了電腦的保護罩！摧毀了 1 層！剩餘${player2.shields}層！`;
+} else if (player2.flags > 0) {
+    attackTarget = 'flags';
+    player2.flags--;
+    actionText = `你攻擊了電腦的旗幟！摧毀了 1 枝！剩餘${player2.flags}枝！`;
+} else if (player2.cannons > 0) {
+    attackTarget = 'cannons';
     player2.cannons--;
-    document.getElementById('gameStatus').textContent = `你攻擊了電腦的大砲！摧毀了 1 門！剩餘${player2.cannons}門！`;
-} else if (attackTarget === 'fortress') {
-player2.fortressIntact = false;
-document.getElementById('cell2-1').textContent = '❌';
-document.getElementById('cell2-2').textContent = '❌';
-document.getElementById('cell2-3').textContent = '❌';
-document.getElementById('cell2-4').textContent = '❌';
-document.getElementById('gameStatus').textContent = '你摧毀了電腦的堡壘！';
+    actionText = `你攻擊了電腦的大砲！摧毀了 1 門！剩餘${player2.cannons}門！`;
+} else if (player2.fortressIntact) {
+    attackTarget = 'fortress';
+    player2.fortressIntact = false;
+    document.getElementById('cell2-1').textContent = '❌';
+    document.getElementById('cell2-2').textContent = '❌';
+    document.getElementById('cell2-3').textContent = '❌';
+    document.getElementById('cell2-4').textContent = '❌';
+    actionText = '你摧毀了電腦的堡壘！';
+} else {
+    actionText = '對方已經沒有任何設施可以攻擊！';
 }
+
+document.getElementById('gameStatus').textContent = actionText;
 updateUI();
 checkGameOver();
 resetTurn();
 }
 
 // 好友模式攻擊
-async function friendAttackEnemy(playerId) {
+function friendAttackEnemy(playerId) {
     const attacker = playerId === 1 ? gameState.player1 : gameState.player2;
     const defender = playerId === 1 ? gameState.player2 : gameState.player1;
     const attackerName = playerId === 1 ? "玩家 1" : "玩家 2";
@@ -935,116 +921,40 @@ async function friendAttackEnemy(playerId) {
     
     if (!canAttack(attacker)) return;
     
-    const target = await showChoiceModal(`${attackerName}選擇攻擊目標`, [
-        { text: `保護罩 (剩${defender.shields})`, value: "shields" },
-        { text: `旗幟 (剩${defender.flags})`, value: "flags" },
-        { text: `大砲 (剩${defender.cannons})`, value: "cannons" },
-        { text: `堡壘 (${defender.fortressIntact ? '完整' : '已毀'})`, value: "fortress" }
-    ], "shields");
+    let attackTarget = '';
+    let actionText = '';
     
-    if (target === 'shields' && defender.shields <= 0) return;
-    if (target === 'flags' && defender.flags <= 0) return;
-    if (target === 'cannons' && defender.cannons <= 0) return;
-    if (target === 'fortress' && !defender.fortressIntact) return;
-    
-    if (target === 'shields') {
+    // 自動選擇攻擊目標：優先順序：保護罩 > 旗幟 > 大砲 > 堡壘
+    if (defender.shields > 0) {
+        attackTarget = 'shields';
         defender.shields--;
-        document.getElementById('gameStatus').textContent = `${attackerName}攻擊了對方保護罩！剩餘${defender.shields}層！`;
-    } else if (target === 'flags') {
+        actionText = `${attackerName}攻擊了對方保護罩！剩餘${defender.shields}層！`;
+    } else if (defender.flags > 0) {
+        attackTarget = 'flags';
         defender.flags--;
-        document.getElementById('gameStatus').textContent = `${attackerName}攻擊了對方旗幟！剩餘${defender.flags}枝！`;
-    } else if (target === 'cannons') {
+        actionText = `${attackerName}攻擊了對方旗幟！剩餘${defender.flags}枝！`;
+    } else if (defender.cannons > 0) {
+        attackTarget = 'cannons';
         defender.cannons--;
-        document.getElementById('gameStatus').textContent = `${attackerName}攻擊了對方大砲！剩餘${defender.cannons}門！`;
-    } else if (target === 'fortress') {
+        actionText = `${attackerName}攻擊了對方大砲！剩餘${defender.cannons}門！`;
+    } else if (defender.fortressIntact) {
+        attackTarget = 'fortress';
         defender.fortressIntact = false;
         document.getElementById(`cell${defenderId}-1`).textContent = '❌';
         document.getElementById(`cell${defenderId}-2`).textContent = '❌';
         document.getElementById(`cell${defenderId}-3`).textContent = '❌';
         document.getElementById(`cell${defenderId}-4`).textContent = '❌';
-        document.getElementById('gameStatus').textContent = `${attackerName}摧毀了對方堡壘！`;
+        actionText = `${attackerName}摧毀了對方堡壘！`;
+    } else {
+        actionText = '對方已經沒有任何設施可以攻擊！';
     }
+    
+    document.getElementById('gameStatus').textContent = actionText;
     updateUI();
     checkGameOver();
     resetTurn();
 }
 
-// 玩家修復設施
-async function repairFacility() {
-if (gameState.currentPlayer !== 1 || gameState.gameOver) return;
-if (gameState.gameMode === 'friend' && gameState.currentPlayer === 2) {
-    await friendRepairFacility(2);
-    return;
-}
-
-const player = gameState.player1;
-let actionText = '';
-
-const repairChoice = await showChoiceModal("選擇修復項目", [
-{ text: "旗幟 (每枝 1 點資源)", value: "flags" },
-{ text: "保護罩 (每層 1 點資源)", value: "shields" },
-{ text: "大砲 (每門 1 點資源)", value: "cannons" },
-{ text: "堡壘 (需要完整旗幟)", value: "fortress" }
-], "flags");
-
-if (repairChoice === "flags" && player.flags < 3) {
-player.flags++;
-actionText = '你修復了一枝旗幟！';
-} else if (repairChoice === "shields" && player.shields < 5) {
-player.shields++;
-actionText = '你修復了一層保護罩！';
-} else if (repairChoice === "cannons") {
-    player.cannons++;
-    actionText = '你修復了一門大砲！';
-} else if (repairChoice === "fortress" && !player.fortressIntact && player.flags >= 3) {
-player.fortressIntact = true;
-resetFortressText(1);
-actionText = '你修復了堡壘！';
-} else {
-actionText = '無效選擇或資源不足（修復堡壘需 3 旗）。';
-}
-document.getElementById('gameStatus').textContent = actionText;
-updateUI();
-resetTurn();
-}
-
-// 好友模式修復
-async function friendRepairFacility(playerId) {
-    const player = playerId === 1 ? gameState.player1 : gameState.player2;
-    const playerName = playerId === 1 ? "玩家 1" : "玩家 2";
-    const cellPrefix = playerId === 1 ? 'cell1-' : 'cell2-';
-    let actionText = '';
-    
-    const repairChoice = await showChoiceModal(`${playerName}選擇修復`, [
-        { text: "旗幟", value: "flags" },
-        { text: "保護罩", value: "shields" },
-        { text: "大砲", value: "cannons" },
-        { text: "堡壘", value: "fortress" }
-    ], "flags");
-    
-    if (repairChoice === "flags" && player.flags < 3) {
-        player.flags++;
-        actionText = `${playerName}修復了一枝旗幟！`;
-    } else if (repairChoice === "shields" && player.shields < 5) {
-        player.shields++;
-        actionText = `${playerName}修復了一層保護罩！`;
-    } else if (repairChoice === "cannons") {
-        player.cannons++;
-        actionText = `${playerName}修復了一門大砲！`;
-    } else if (repairChoice === "fortress" && !player.fortressIntact && player.flags >= 3) {
-        player.fortressIntact = true;
-        document.getElementById(`${cellPrefix}1`).textContent = '天';
-        document.getElementById(`${cellPrefix}2`).textContent = '下';
-        document.getElementById(`${cellPrefix}3`).textContent = '太';
-        document.getElementById(`${cellPrefix}4`).textContent = '平';
-        actionText = `${playerName}修復了堡壘！`;
-    } else {
-        actionText = '無效選擇或資源不足。';
-    }
-    document.getElementById('gameStatus').textContent = actionText;
-    updateUI();
-    resetTurn();
-}
 
 // 檢查是否可以建設旗幟
 function canBuildFlag(player) {
@@ -1063,7 +973,7 @@ function canBuildShield(player) {
 
 // 檢查是否可以攻擊 - 新規則：1 旗 +1 砲
 function canAttack(player) {
-return player.flags >= 1 && player.cannons >= 1;
+    return player.flags >= 1 && player.cannons >= 1;
 }
 
 // 檢查階段升級 - 新規則顯示
@@ -1186,18 +1096,12 @@ function enableActionButtons() {
     attackBtn.style.opacity = attackBtn.disabled ? '0.5' : '1';
     attackBtn.title = !canAttack(player) ? `需要 1 旗 +1 砲才能攻擊 (目前: ${player.flags}旗 ${player.cannons}砲)` : "可以攻擊敵人！";
 
-    // 修復按鈕
-    const repairBtn = document.getElementById('repairBtn');
-    repairBtn.disabled = !player.fortressIntact || (player.flags >= 3 && player.shields >= 5); // 簡化判斷
-    repairBtn.style.opacity = repairBtn.disabled ? '0.5' : '1';
-
     // 好友模式玩家 2 回合時，按鈕文字提示和視覺效果
     if (isFriendMode && isPlayer2Turn) {
         buildFlagBtn.textContent = '🚩 建設旗幟 (P2)';
         buildCannonBtn.textContent = '🔫 建設大炮 (P2)';
         buildShieldBtn.textContent = '🛡️ 建設保護罩 (P2)';
         attackBtn.textContent = '⚔️ 攻擊 (P2)';
-        repairBtn.textContent = '🔧 修復 (P2)';
         
         // 添加玩家2回合視覺提示
         document.getElementById('gameStatus').style.backgroundColor = '#e74c3c';
@@ -1207,7 +1111,6 @@ function enableActionButtons() {
         buildCannonBtn.textContent = '🔫 建設大炮';
         buildShieldBtn.textContent = '🛡️ 建設保護罩';
         attackBtn.textContent = '⚔️ 攻擊敵人';
-        repairBtn.textContent = '🔧 修復設施';
         
         if (isFriendMode && !isPlayer2Turn) {
             document.getElementById('gameStatus').style.backgroundColor = '#3498db';
