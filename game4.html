@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>射箭遊戲</title>
+    <title>射箭遊戲 - 第一人稱視角</title>
     <style>
         body {
             margin: 0;
@@ -12,14 +12,14 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            background: linear-gradient(to bottom, #1a2980 0%, #26d0ce 100%);
             font-family: Arial, sans-serif;
             overflow: hidden;
         }
         
         #gameContainer {
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
         canvas {
@@ -33,7 +33,7 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(100, 100, 100, 0.9);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 15px 30px;
             border-radius: 25px;
@@ -41,7 +41,7 @@
             font-weight: bold;
             display: flex;
             gap: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
         }
         
         .score-box {
@@ -60,6 +60,33 @@
         
         #you { color: #ff6b6b; }
         #bot { color: #4ecdc4; }
+        
+        #gameInfo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        
+        .info-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        #round { color: #ffd700; }
+        #shot { color: #98fb98; }
         
         #message {
             position: absolute;
@@ -87,80 +114,152 @@
             font-size: 14px;
             color: #333;
         }
+        
+        #reticle {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            display: none;
+        }
+        
+        .reticle-line {
+            position: absolute;
+            background: red;
+        }
+        
+        .horizontal {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .vertical {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .reticle-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: red;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
     <div id="gameContainer">
         <div id="ui">
             <div class="score-box">
-                <div class="score-label">YOU</div>
+                <div class="score-label">玩家</div>
                 <div class="score-value" id="you">0</div>
             </div>
             <div class="score-box">
-                <div class="score-label">MEDIUM<br>VS</div>
+                <div class="score-label">第<span id="currentRound">1</span>輪<br>第<span id="currentShot">1</span>箭</div>
             </div>
             <div class="score-box">
-                <div class="score-label">BOT</div>
+                <div class="score-label">機械人</div>
                 <div class="score-value" id="bot">0</div>
             </div>
+        </div>
+        
+        <div id="gameInfo">
+            <div class="info-label">回合</div>
+            <div class="info-value" id="round">1/3</div>
+            <div class="info-label">射箭</div>
+            <div class="info-value" id="shot">1/3</div>
         </div>
         
         <canvas id="gameCanvas" width="900" height="700"></canvas>
         
         <div id="message"></div>
         
-        <div id="instructions">按住滑鼠瞄準，放開射箭</div>
+        <div id="instructions">移動滑鼠瞄準，點擊射箭 | 玩家 vs 機械人 | 每輪3箭，共3輪</div>
+        
+        <div id="reticle">
+            <div class="reticle-line horizontal"></div>
+            <div class="reticle-line vertical"></div>
+            <div class="reticle-dot"></div>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const reticle = document.getElementById('reticle');
         
         // 遊戲狀態
         let gameState = {
             aiming: false,
             arrowFlying: false,
-            playerScore: 21,
-            botScore: 25,
+            playerScore: 0,
+            botScore: 0,
+            currentRound: 1,
+            currentShot: 1,
+            playerTurn: true,
+            gameOver: false,
             arrow: {
-                x: 750,
-                y: 400,
+                x: 450,
+                y: 600,
                 vx: 0,
                 vy: 0,
                 angle: 0,
                 speed: 0
             },
             target: {
-                x: 200,
-                y: 400,
-                width: 80,
-                height: 100
+                x: 450,
+                y: 150,
+                radius: 100
             },
-            aimPoint: {
-                x: 200,
-                y: 400,
-                radius: 0,
-                maxRadius: 60
-            },
-            bowAngle: 0
+            reticle: {
+                x: 450,
+                y: 300,
+                visible: false
+            }
         };
         
         // 滑鼠位置
         let mouse = { x: 0, y: 0 };
         
         // 事件監聽
+        canvas.addEventListener('mousemove', updateReticle);
         canvas.addEventListener('mousedown', startAiming);
-        canvas.addEventListener('mousemove', updateAim);
         canvas.addEventListener('mouseup', shootArrow);
         canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
         canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
         canvas.addEventListener('touchend', shootArrow);
+        
+        // 更新瞄準器位置
+        function updateReticle(e) {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+            
+            // 限制瞄準器在畫布範圍內
+            gameState.reticle.x = Math.max(50, Math.min(canvas.width - 50, mouse.x));
+            gameState.reticle.y = Math.max(100, Math.min(canvas.height - 200, mouse.y));
+            
+            // 更新瞄準器顯示位置
+            reticle.style.left = (gameState.reticle.x - 20) + 'px';
+            reticle.style.top = (gameState.reticle.y - 20) + 'px';
+            reticle.style.display = 'block';
+            gameState.reticle.visible = true;
+        }
         
         function handleTouchStart(e) {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             mouse.x = e.touches[0].clientX - rect.left;
             mouse.y = e.touches[0].clientY - rect.top;
+            gameState.reticle.x = Math.max(50, Math.min(canvas.width - 50, mouse.x));
+            gameState.reticle.y = Math.max(100, Math.min(canvas.height - 200, mouse.y));
             startAiming();
         }
         
@@ -169,48 +268,28 @@
             const rect = canvas.getBoundingClientRect();
             mouse.x = e.touches[0].clientX - rect.left;
             mouse.y = e.touches[0].clientY - rect.top;
-            updateAim();
+            gameState.reticle.x = Math.max(50, Math.min(canvas.width - 50, mouse.x));
+            gameState.reticle.y = Math.max(100, Math.min(canvas.height - 200, mouse.y));
         }
         
         function startAiming() {
-            if (!gameState.arrowFlying) {
+            if (!gameState.arrowFlying && gameState.playerTurn && !gameState.gameOver) {
                 gameState.aiming = true;
-                gameState.aimPoint.radius = 0;
-            }
-        }
-        
-        function updateAim() {
-            if (gameState.aiming) {
-                // 計算弓的角度
-                const bowX = 750;
-                const bowY = 400;
-                const dx = mouse.x - bowX;
-                const dy = mouse.y - bowY;
-                gameState.bowAngle = Math.atan2(dy, dx);
-                
-                // 瞄準點在滑鼠位置，但限制在靶子附近
-                gameState.aimPoint.x = Math.max(150, Math.min(250, mouse.x));
-                gameState.aimPoint.y = Math.max(300, Math.min(500, mouse.y));
-                
-                // 瞄準圈動畫
-                if (gameState.aimPoint.radius < gameState.aimPoint.maxRadius) {
-                    gameState.aimPoint.radius += 2;
-                }
             }
         }
         
         function shootArrow() {
-            if (gameState.aiming) {
+            if (gameState.aiming && gameState.playerTurn && !gameState.gameOver) {
                 gameState.aiming = false;
                 gameState.arrowFlying = true;
                 
-                // 計算射箭速度
-                const bowX = 750;
-                const bowY = 400;
-                const dx = gameState.aimPoint.x - bowX;
-                const dy = gameState.aimPoint.y - bowY;
+                // 計算射箭方向（從底部中心向瞄準點）
+                const bowX = 450;
+                const bowY = 600;
+                const dx = gameState.reticle.x - bowX;
+                const dy = gameState.reticle.y - bowY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                const speed = 25;
+                const speed = 20 + (distance / 50); // 距離越遠速度越快
                 
                 gameState.arrow.vx = (dx / distance) * speed;
                 gameState.arrow.vy = (dy / distance) * speed;
@@ -226,68 +305,200 @@
                 gameState.arrow.y += gameState.arrow.vy;
                 
                 // 重力影響
-                gameState.arrow.vy += 0.15;
+                gameState.arrow.vy += 0.2;
                 
                 // 檢查是否命中靶子
                 const target = gameState.target;
                 const arrow = gameState.arrow;
+                const dx = arrow.x - target.x;
+                const dy = arrow.y - target.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                if (arrow.x < target.x + target.width/2 && 
-                    arrow.x > target.x - target.width/2 &&
-                    arrow.y < target.y + target.height/2 && 
-                    arrow.y > target.y - target.height/2) {
-                    
-                    // 計算得分
-                    const dx = arrow.x - target.x;
-                    const dy = arrow.y - target.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
+                if (distance <= target.radius) {
+                    // 計算得分 (10-1分，越靠近中心越高分)
                     let points = 0;
-                    if (distance < 15) points = 10;
-                    else if (distance < 25) points = 8;
-                    else if (distance < 35) points = 6;
-                    else if (distance < 45) points = 4;
-                    else points = 2;
+                    if (distance < 10) points = 10;
+                    else if (distance < 20) points = 9;
+                    else if (distance < 30) points = 8;
+                    else if (distance < 40) points = 7;
+                    else if (distance < 50) points = 6;
+                    else if (distance < 60) points = 5;
+                    else if (distance < 70) points = 4;
+                    else if (distance < 80) points = 3;
+                    else if (distance < 90) points = 2;
+                    else points = 1;
                     
-                    gameState.playerScore += points;
-                    document.getElementById('you').textContent = gameState.playerScore;
+                    if (gameState.playerTurn) {
+                        gameState.playerScore += points;
+                        document.getElementById('you').textContent = gameState.playerScore;
+                        showMessage(`玩家得分: +${points}分!`);
+                    } else {
+                        gameState.botScore += points;
+                        document.getElementById('bot').textContent = gameState.botScore;
+                        showMessage(`機械人得分: +${points}分!`);
+                    }
                     
-                    // 顯示得分
-                    showMessage(`+${points}分!`);
-                    
-                    // 重置
+                    // 重置箭
                     setTimeout(resetArrow, 1000);
+                    return;
                 }
                 
                 // 檢查是否超出畫面
-                if (arrow.x < 0 || arrow.y > canvas.height) {
-                    showMessage('未命中!');
+                if (arrow.x < 0 || arrow.x > canvas.width || arrow.y > canvas.height) {
+                    showMessage(gameState.playerTurn ? '玩家未命中!' : '機械人未命中!');
                     setTimeout(resetArrow, 1000);
                 }
             }
-            
-            // 更新瞄準圈
-            if (gameState.aiming && gameState.aimPoint.radius < gameState.aimPoint.maxRadius) {
-                gameState.aimPoint.radius += 1;
-            }
-        }
-        
-        function showMessage(text) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 1000);
         }
         
         function resetArrow() {
             gameState.arrowFlying = false;
-            gameState.arrow.x = 750;
-            gameState.arrow.y = 400;
+            gameState.arrow.x = 450;
+            gameState.arrow.y = 600;
             gameState.arrow.vx = 0;
             gameState.arrow.vy = 0;
-            gameState.bowAngle = 0;
+            
+            if (gameState.playerTurn) {
+                // 玩家回合結束，更新射箭計數
+                gameState.currentShot++;
+                document.getElementById('currentShot').textContent = gameState.currentShot;
+                document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
+                
+                if (gameState.currentShot > 3) {
+                    // 玩家完成3箭，切換到機械人回合
+                    gameState.playerTurn = false;
+                    gameState.currentShot = 1;
+                    document.getElementById('currentShot').textContent = gameState.currentShot;
+                    document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
+                    showMessage('機械人回合開始!');
+                    setTimeout(botTurn, 1500);
+                }
+            } else {
+                // 機械人回合結束，更新射箭計數
+                gameState.currentShot++;
+                document.getElementById('currentShot').textContent = gameState.currentShot;
+                document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
+                
+                if (gameState.currentShot > 3) {
+                    // 機械人完成3箭，檢查是否完成所有回合
+                    gameState.currentRound++;
+                    gameState.currentShot = 1;
+                    gameState.playerTurn = true;
+                    
+                    document.getElementById('currentRound').textContent = gameState.currentRound;
+                    document.getElementById('currentShot').textContent = gameState.currentShot;
+                    document.getElementById('round').textContent = `${gameState.currentRound}/3`;
+                    document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
+                    
+                    if (gameState.currentRound > 3) {
+                        // 遊戲結束
+                        endGame();
+                    } else {
+                        showMessage(`第${gameState.currentRound}輪開始!`);
+                    }
+                } else {
+                    // 機械人繼續射箭
+                    setTimeout(botTurn, 1500);
+                }
+            }
+        }
+        
+        function botTurn() {
+            if (!gameState.playerTurn && !gameState.gameOver) {
+                // 機械人瞄準（隨機但偏向中心）
+                const targetX = gameState.target.x + (Math.random() * 60 - 30);
+                const targetY = gameState.target.y + (Math.random() * 60 - 30);
+                
+                // 模擬瞄準
+                gameState.reticle.x = targetX;
+                gameState.reticle.y = targetY;
+                
+                // 射箭
+                gameState.aiming = true;
+                setTimeout(() => {
+                    gameState.aiming = false;
+                    gameState.arrowFlying = true;
+                    
+                    const bowX = 450;
+                    const bowY = 600;
+                    const dx = targetX - bowX;
+                    const dy = targetY - bowY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const speed = 18 + (Math.random() * 5);
+                    
+                    gameState.arrow.vx = (dx / distance) * speed;
+                    gameState.arrow.vy = (dy / distance) * speed;
+                    gameState.arrow.speed = speed;
+                    gameState.arrow.angle = Math.atan2(dy, dx);
+                }, 800);
+            }
+        }
+        
+        function endGame() {
+            gameState.gameOver = true;
+            reticle.style.display = 'none';
+            
+            let winnerText = '';
+            if (gameState.playerScore > gameState.botScore) {
+                winnerText = '玩家勝利!';
+            } else if (gameState.playerScore < gameState.botScore) {
+                winnerText = '機械人勝利!';
+            } else {
+                winnerText = '平手!';
+            }
+            
+            showMessage(`遊戲結束!<br>玩家: ${gameState.playerScore}分<br>機械人: ${gameState.botScore}分<br>${winnerText}<br><br>點擊畫面重新開始`);
+            
+            // 點擊重新開始
+            canvas.addEventListener('click', restartGame, { once: true });
+        }
+        
+        function restartGame() {
+            gameState = {
+                aiming: false,
+                arrowFlying: false,
+                playerScore: 0,
+                botScore: 0,
+                currentRound: 1,
+                currentShot: 1,
+                playerTurn: true,
+                gameOver: false,
+                arrow: {
+                    x: 450,
+                    y: 600,
+                    vx: 0,
+                    vy: 0,
+                    angle: 0,
+                    speed: 0
+                },
+                target: {
+                    x: 450,
+                    y: 150,
+                    radius: 100
+                },
+                reticle: {
+                    x: 450,
+                    y: 300,
+                    visible: false
+                }
+            };
+            
+            document.getElementById('you').textContent = '0';
+            document.getElementById('bot').textContent = '0';
+            document.getElementById('currentRound').textContent = '1';
+            document.getElementById('currentShot').textContent = '1';
+            document.getElementById('round').textContent = '1/3';
+            document.getElementById('shot').textContent = '1/3';
+            
+            reticle.style.display = 'block';
+            const message = document.getElementById('message');
+            message.style.display = 'none';
+        }
+        
+        function showMessage(text) {
+            const msg = document.getElementById('message');
+            msg.innerHTML = text;
+            msg.style.display = 'block';
         }
         
         function draw() {
@@ -300,54 +511,46 @@
             // 繪製箭靶
             drawTarget();
             
-            // 繪製瞄準點（如果正在瞄準）
-            if (gameState.aiming) {
-                drawAimPoint();
-            }
-            
             // 繪製弓和箭
             drawBowAndArrow();
+            
+            // 繪製瞄準器（如果可見）
+            if (gameState.reticle.visible && gameState.playerTurn && !gameState.arrowFlying) {
+                drawReticle();
+            }
         }
         
         function drawBackground() {
-            // 山脈
-            ctx.fillStyle = '#98D8C8';
-            ctx.beginPath();
-            ctx.moveTo(0, 400);
-            ctx.lineTo(150, 200);
-            ctx.lineTo(300, 400);
-            ctx.fill();
+            // 天空
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
             
-            ctx.beginPath();
-            ctx.moveTo(200, 400);
-            ctx.lineTo(400, 150);
-            ctx.lineTo(600, 400);
-            ctx.fill();
+            // 地面
+            ctx.fillStyle = '#90EE90';
+            ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
             
-            // 樹木
-            drawTree(100, 350, 60);
-            drawTree(350, 380, 50);
-            drawTree(600, 360, 55);
-            drawTree(800, 370, 45);
+            // 草地紋理
+            ctx.fillStyle = '#7CFC00';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.fillRect(i, canvas.height / 2, 10, 10);
+            }
+            
+            // 遠處樹木
+            drawTree(100, 400, 40);
+            drawTree(300, 380, 35);
+            drawTree(600, 390, 45);
+            drawTree(800, 410, 30);
         }
         
         function drawTree(x, y, size) {
             // 樹幹
             ctx.fillStyle = '#8B4513';
-            ctx.fillRect(x - size/6, y, size/3, size);
+            ctx.fillRect(x - size/8, y, size/4, size);
             
             // 樹葉
             ctx.fillStyle = '#228B22';
             ctx.beginPath();
             ctx.arc(x, y - size/2, size/2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.arc(x - size/3, y - size/4, size/3, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.beginPath();
-            ctx.arc(x + size/3, y - size/4, size/3, 0, Math.PI * 2);
             ctx.fill();
         }
         
@@ -356,24 +559,26 @@
             
             // 靶架
             ctx.fillStyle = '#8B4513';
-            ctx.fillRect(t.x - 40, t.y + 50, 80, 10);
-            ctx.fillRect(t.x - 35, t.y + 50, 10, 40);
-            ctx.fillRect(t.x + 25, t.y + 50, 10, 40);
+            ctx.fillRect(t.x - 10, t.y + t.radius, 20, 50);
+            ctx.fillRect(t.x - 50, t.y + t.radius + 40, 100, 10);
             
-            // 靶子外框
-            ctx.fillStyle = '#DEB887';
-            ctx.fillRect(t.x - 40, t.y - 50, 80, 100);
-            
-            // 同心圓
+            // 同心圓靶心 (10環到1環)
             const rings = [
-                {radius: 40, color: 'white'},
-                {radius: 32, color: 'black'},
-                {radius: 24, color: '#4169E1'},
-                {radius: 16, color: '#FF0000'},
-                {radius: 8, color: '#FFD700'}
+                {radius: 10, color: '#FFD700', points: 10},  // 金色 - 10分
+                {radius: 20, color: '#FF0000', points: 9},   // 紅色 - 9分
+                {radius: 30, color: '#FF0000', points: 8},   // 紅色 - 8分
+                {radius: 40, color: '#4169E1', points: 7},   // 藍色 - 7分
+                {radius: 50, color: '#4169E1', points: 6},   // 藍色 - 6分
+                {radius: 60, color: '#FFFFFF', points: 5},   // 白色 - 5分
+                {radius: 70, color: '#FFFFFF', points: 4},   // 白色 - 4分
+                {radius: 80, color: '#000000', points: 3},   // 黑色 - 3分
+                {radius: 90, color: '#000000', points: 2},   // 黑色 - 2分
+                {radius: 100, color: '#FFFFFF', points: 1}   // 白色 - 1分
             ];
             
-            rings.forEach(ring => {
+            // 從外到內繪製
+            for (let i = rings.length - 1; i >= 0; i--) {
+                const ring = rings[i];
                 ctx.beginPath();
                 ctx.arc(t.x, t.y, ring.radius, 0, Math.PI * 2);
                 ctx.fillStyle = ring.color;
@@ -381,122 +586,131 @@
                 ctx.strokeStyle = '#333';
                 ctx.lineWidth = 1;
                 ctx.stroke();
-            });
-        }
-        
-        function drawAimPoint() {
-            const aim = gameState.aimPoint;
-            
-            // 瞄準圈（紅色半透明）
-            ctx.beginPath();
-            ctx.arc(aim.x, aim.y, aim.radius, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-            
-            // 十字準星
-            ctx.beginPath();
-            ctx.moveTo(aim.x - aim.radius - 10, aim.y);
-            ctx.lineTo(aim.x - aim.radius + 10, aim.y);
-            ctx.moveTo(aim.x + aim.radius - 10, aim.y);
-            ctx.lineTo(aim.x + aim.radius + 10, aim.y);
-            ctx.moveTo(aim.x, aim.y - aim.radius - 10);
-            ctx.lineTo(aim.x, aim.y - aim.radius + 10);
-            ctx.moveTo(aim.x, aim.y + aim.radius - 10);
-            ctx.lineTo(aim.x, aim.y + aim.radius + 10);
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+                
+                // 顯示分數標籤
+                if (i === 0 || i === 3 || i === 6 || i === 9) {
+                    ctx.fillStyle = '#000';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(ring.points.toString(), t.x, t.y - ring.radius + 4);
+                }
+            }
             
             // 中心點
             ctx.beginPath();
-            ctx.arc(aim.x, aim.y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = 'red';
+            ctx.arc(t.x, t.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = '#000';
             ctx.fill();
         }
         
         function drawBowAndArrow() {
-            const bowX = 750;
-            const bowY = 400;
+            const bowX = 450;
+            const bowY = 600;
             
-            ctx.save();
-            ctx.translate(bowX, bowY);
-            
-            if (gameState.aiming) {
-                ctx.rotate(gameState.bowAngle);
-            }
-            
-            // 弓身（紅色）
-            ctx.strokeStyle = '#FF6B6B';
-            ctx.lineWidth = 12;
+            // 弓身
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 10;
             ctx.lineCap = 'round';
             
-            // 弓的曲線
             ctx.beginPath();
-            ctx.arc(0, 0, 120, -Math.PI/2 - 0.3, Math.PI/2 + 0.3, false);
+            ctx.arc(bowX, bowY, 80, -Math.PI/2 - 0.4, Math.PI/2 + 0.4, false);
             ctx.stroke();
             
             // 弓弦
             ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.beginPath();
             if (gameState.aiming) {
                 // 拉弦狀態
-                ctx.moveTo(0, -115);
-                ctx.lineTo(-30, 0);
-                ctx.lineTo(0, 115);
+                ctx.moveTo(bowX, bowY - 75);
+                ctx.lineTo(bowX - 20, bowY);
+                ctx.lineTo(bowX, bowY + 75);
             } else {
                 // 放鬆狀態
-                ctx.moveTo(0, -115);
-                ctx.lineTo(5, 0);
-                ctx.lineTo(0, 115);
+                ctx.moveTo(bowX, bowY - 75);
+                ctx.lineTo(bowX + 5, bowY);
+                ctx.lineTo(bowX, bowY + 75);
             }
             ctx.stroke();
             
-            // 箭
-            if (!gameState.arrowFlying || gameState.aiming) {
-                drawArrow(ctx, gameState.aiming ? -30 : 5, 0);
+            // 箭（如果未飛行）
+            if (!gameState.arrowFlying && !gameState.aiming) {
+                drawArrow(bowX + 5, bowY, 0, false);
             }
             
-            ctx.restore();
-            
-            // 如果箭在飛行中，繪製飛行中的箭
+            // 飛行中的箭
             if (gameState.arrowFlying) {
-                ctx.save();
-                ctx.translate(gameState.arrow.x, gameState.arrow.y);
-                ctx.rotate(gameState.arrow.angle + Math.PI);
-                drawArrow(ctx, 0, 0, true);
-                ctx.restore();
+                drawArrow(gameState.arrow.x, gameState.arrow.y, gameState.arrow.angle, true);
             }
         }
         
-        function drawArrow(context, x, y, isFlying = false) {
+        function drawArrow(x, y, angle, isFlying) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
             // 箭桿
-            context.strokeStyle = '#8B4513';
-            context.lineWidth = 3;
-            context.beginPath();
-            context.moveTo(x, y);
-            context.lineTo(x - 70, y);
-            context.stroke();
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-60, 0);
+            ctx.stroke();
             
             // 箭頭
-            context.fillStyle = '#666';
-            context.beginPath();
-            context.moveTo(x, y);
-            context.lineTo(x - 10, y - 5);
-            context.lineTo(x - 10, y + 5);
-            context.closePath();
-            context.fill();
+            ctx.fillStyle = '#666';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-10, -5);
+            ctx.lineTo(-10, 5);
+            ctx.closePath();
+            ctx.fill();
             
             // 箭羽
-            context.fillStyle = '#FF0000';
-            context.beginPath();
-            context.moveTo(x - 65, y);
-            context.lineTo(x - 75, y - 8);
-            context.lineTo(x - 70, y);
-            context.lineTo(x - 75, y + 8);
-            context.closePath();
-            context.fill();
+            ctx.fillStyle = '#FF0000';
+            ctx.beginPath();
+            ctx.moveTo(-55, 0);
+            ctx.lineTo(-65, -8);
+            ctx.lineTo(-60, 0);
+            ctx.lineTo(-65, 8);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        function drawReticle() {
+            const x = gameState.reticle.x;
+            const y = gameState.reticle.y;
+            
+            // 紅色十字準星
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+            ctx.lineWidth = 2;
+            
+            // 水平線
+            ctx.beginPath();
+            ctx.moveTo(x - 20, y);
+            ctx.lineTo(x + 20, y);
+            ctx.stroke();
+            
+            // 垂直線
+            ctx.beginPath();
+            ctx.moveTo(x, y - 20);
+            ctx.lineTo(x, y + 20);
+            ctx.stroke();
+            
+            // 中心點
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+            
+            // 外圈
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
         }
         
         function gameLoop() {
