@@ -3,724 +3,506 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>射箭遊戲 - 第一人稱視角</title>
+    <title>中國象棋 - 傳統策略遊戲</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
             min-height: 100vh;
-            background: linear-gradient(to bottom, #1a2980 0%, #26d0ce 100%);
-            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .board-section {
+            flex: 1;
+            min-width: 600px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid #444;
+        }
+
+        .controls-section {
+            flex: 0 0 350px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4ecdc4;
+            text-align: center;
+        }
+
+        #gameBoard {
+            width: 100%;
+            height: 600px;
+            background: #d4a574;
+            border-radius: 10px;
+            border: 8px solid #8b4513;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+            position: relative;
             overflow: hidden;
         }
-        
-        #gameContainer {
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        
+
         canvas {
             display: block;
-            background: linear-gradient(to bottom, #87CEEB 0%, #90EE90 60%, #228B22 100%);
-            border-radius: 10px;
+            width: 100%;
+            height: 100%;
         }
-        
-        #ui {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 20px;
-            font-weight: bold;
+
+        .mode-selector {
             display: flex;
-            gap: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            flex-direction: column;
+            gap: 15px;
         }
-        
-        .score-box {
+
+        .mode-button {
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
             text-align: center;
         }
-        
-        .score-label {
-            font-size: 12px;
-            margin-bottom: 5px;
-            opacity: 0.9;
+
+        .mode-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
-        .score-value {
-            font-size: 28px;
+
+        .mode-button.active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
         }
-        
-        #you { color: #ff6b6b; }
-        #bot { color: #4ecdc4; }
-        
-        #gameInfo {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
+
+        #modeRobot {
+            background: linear-gradient(to right, #ff6b6b, #ee5a24);
             color: white;
-            padding: 15px 20px;
-            border-radius: 15px;
-            font-size: 16px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
         }
-        
+
+        #modeFriend {
+            background: linear-gradient(to right, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .game-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
         .info-label {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 5px;
+            color: #aaa;
+            font-size: 1rem;
         }
-        
+
         .info-value {
-            font-size: 20px;
+            color: #fff;
+            font-size: 1.2rem;
             font-weight: bold;
         }
-        
-        #round { color: #ffd700; }
-        #shot { color: #98fb98; }
-        
-        #message {
-            position: absolute;
+
+        .player-turn {
+            color: #ffd700;
+        }
+
+        .player-red {
+            color: #ff6b6b;
+        }
+
+        .player-black {
+            color: #333;
+            text-shadow: 0 0 2px white;
+        }
+
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-button {
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        #btnStart {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+
+        #btnRestart {
+            background: linear-gradient(to right, #ffa726, #ff9800);
+            color: white;
+        }
+
+        #btnUndo {
+            background: linear-gradient(to right, #5c6bc0, #3949ab);
+            color: white;
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-button:disabled {
+            background: #666;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .instructions h3 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .status-message {
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
             padding: 30px 50px;
-            border-radius: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            display: none;
+            border-radius: 15px;
+            font-size: 1.8rem;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            border: 2px solid #ffd700;
+            max-width: 80%;
         }
-        
-        #instructions {
+
+        .piece-info {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-size: 14px;
-            color: #333;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            max-width: 300px;
+            display: none;
         }
-        
-        #reticle {
+
+        .piece-name {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .piece-desc {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .selected-highlight {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            background: rgba(255, 215, 0, 0.3);
+            border: 3px solid #ffd700;
+            border-radius: 5px;
             pointer-events: none;
             display: none;
         }
-        
-        .reticle-line {
-            position: absolute;
-            background: red;
+
+        @media (max-width: 1100px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            .board-section, .controls-section {
+                min-width: 100%;
+            }
+            
+            #gameBoard {
+                height: 500px;
+            }
         }
-        
-        .horizontal {
-            width: 100%;
-            height: 2px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .vertical {
-            width: 2px;
-            height: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .reticle-dot {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: red;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            #gameBoard {
+                height: 400px;
+            }
+            
+            .controls-section {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="ui">
-            <div class="score-box">
-                <div class="score-label">玩家</div>
-                <div class="score-value" id="you">0</div>
-            </div>
-            <div class="score-box">
-                <div class="score-label">第<span id="currentRound">1</span>輪<br>第<span id="currentShot">1</span>箭</div>
-            </div>
-            <div class="score-box">
-                <div class="score-label">機械人</div>
-                <div class="score-value" id="bot">0</div>
+    <div class="header">
+        <h1>中國象棋</h1>
+        <p>傳統策略遊戲 - 體驗千年智慧對決</p>
+    </div>
+
+    <div class="game-container">
+        <div class="board-section">
+            <h2 class="section-title">棋盤</h2>
+            <div id="gameBoard">
+                <canvas id="chessCanvas"></canvas>
+                <div class="selected-highlight" id="selectedHighlight"></div>
+                <div class="piece-info" id="pieceInfo">
+                    <div class="piece-name" id="pieceName">棋子名稱</div>
+                    <div class="piece-desc" id="pieceDesc">棋子描述</div>
+                </div>
             </div>
         </div>
-        
-        <div id="gameInfo">
-            <div class="info-label">回合</div>
-            <div class="info-value" id="round">1/3</div>
-            <div class="info-label">射箭</div>
-            <div class="info-value" id="shot">1/3</div>
-        </div>
-        
-        <canvas id="gameCanvas" width="900" height="700"></canvas>
-        
-        <div id="message"></div>
-        
-        <div id="instructions">移動滑鼠瞄準，點擊射箭 | 玩家 vs 機械人 | 每輪3箭，共3輪</div>
-        
-        <div id="reticle">
-            <div class="reticle-line horizontal"></div>
-            <div class="reticle-line vertical"></div>
-            <div class="reticle-dot"></div>
+
+        <div class="controls-section">
+            <div class="mode-selector">
+                <h2 class="section-title">遊戲模式</h2>
+                <button class="mode-button active" id="modeRobot">
+                    🤖 機械人對戰模式
+                    <div style="font-size: 0.9rem; opacity: 0.9;">與AI對弈，挑戰不同難度</div>
+                </button>
+                <button class="mode-button" id="modeFriend">
+                    👥 好友對戰模式
+                    <div style="font-size: 0.9rem; opacity: 0.9;">兩人輪流操作，同機對戰</div>
+                </button>
+            </div>
+
+            <div class="game-info">
+                <h2 class="section-title">遊戲資訊</h2>
+                <div class="info-row">
+                    <div class="info-label">當前模式：</div>
+                    <div class="info-value" id="currentMode">機械人對戰</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">當前回合：</div>
+                    <div class="info-value player-turn" id="currentTurn">紅方</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">紅方棋子：</div>
+                    <div class="info-value player-red" id="redPieces">16</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">黑方棋子：</div>
+                    <div class="info-value player-black" id="blackPieces">16</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">步數：</div>
+                    <div class="info-value" id="moveCount">0</div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <h2 class="section-title">遊戲控制</h2>
+                <button class="control-button" id="btnStart">開始遊戲</button>
+                <button class="control-button" id="btnRestart" disabled>重新開始</button>
+                <button class="control-button" id="btnUndo" disabled>悔棋</button>
+            </div>
+
+            <div class="instructions">
+                <h3>遊戲說明</h3>
+                <ul>
+                    <li><strong>機械人對戰</strong>：與AI對弈，選擇不同難度等級</li>
+                    <li><strong>好友對戰</strong>：兩人輪流操作，同機對戰</li>
+                    <li><strong>操作方式</strong>：點選棋子後，再點選目標位置移動</li>
+                    <li><strong>遊戲目標</strong>：將死對方將/帥即獲勝</li>
+                </ul>
+                <p>紅方先手，遵循中國象棋傳統規則。</p>
+            </div>
         </div>
     </div>
 
+    <div class="status-message" id="statusMessage">
+        <div id="messageText"></div>
+        <button id="closeMessage" style="margin-top: 20px; padding: 10px 20px; background: #4ecdc4; color: white; border: none; border-radius: 5px; cursor: pointer;">關閉</button>
+    </div>
+
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        // ==================== 遊戲初始化 ====================
+        const canvas = document.getElementById('chessCanvas');
         const ctx = canvas.getContext('2d');
-        const reticle = document.getElementById('reticle');
+        const statusMessage = document.getElementById('statusMessage');
+        const messageText = document.getElementById('messageText');
+        const closeMessage = document.getElementById('closeMessage');
+        const pieceInfo = document.getElementById('pieceInfo');
+        const pieceName = document.getElementById('pieceName');
+        const pieceDesc = document.getElementById('pieceDesc');
+        const selectedHighlight = document.getElementById('selectedHighlight');
         
         // 遊戲狀態
         let gameState = {
-            aiming: false,
-            arrowFlying: false,
-            playerScore: 0,
-            botScore: 0,
-            currentRound: 1,
-            currentShot: 1,
-            playerTurn: true,
+            mode: 'robot',
+            gameStarted: false,
+            currentPlayer: 'red',
+            selectedPiece: null,
+            board: [],
+            moveHistory: [],
+            moveCount: 0,
+            redPieces: 16,
+            blackPieces: 16,
             gameOver: false,
-            arrow: {
-                x: 450,
-                y: 600,
-                vx: 0,
-                vy: 0,
-                angle: 0,
-                speed: 0
-            },
-            target: {
-                x: 450,
-                y: 150,
-                radius: 100
-            },
-            reticle: {
-                x: 450,
-                y: 300,
-                visible: false
-            }
+            winner: null,
+            aiThinking: false
         };
         
-        // 滑鼠位置
-        let mouse = { x: 0, y: 0 };
+        // 棋子初始位置
+        const INITIAL_BOARD = [
+            ['車', '馬', '象', '士', '將', '士', '象', '馬', '車'],
+            [null, null, null, null, null, null, null, null, null],
+            [null, '炮', null, null, null, null, null, '炮', null],
+            ['卒', null, '卒', null, '卒', null, '卒', null, '卒'],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            ['兵', null, '兵', null, '兵', null, '兵', null, '兵'],
+            [null, '炮', null, null, null, null, null, '炮', null],
+            [null, null, null, null, null, null, null, null, null],
+            ['車', '馬', '相', '仕', '帥', '仕', '相', '馬', '車']
+        ];
         
-        // 事件監聽
-        canvas.addEventListener('mousemove', updateReticle);
-        canvas.addEventListener('mousedown', startAiming);
-        canvas.addEventListener('mouseup', shootArrow);
-        canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
-        canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
-        canvas.addEventListener('touchend', shootArrow);
+        // 棋子顏色
+        const PIECE_COLORS = {
+            '將': 'black', '士': 'black', '象': 'black', '馬': 'black', '車': 'black', '炮': 'black', '卒': 'black',
+            '帥': 'red', '仕': 'red', '相': 'red', '馬': 'red', '車': 'red', '炮': 'red', '兵': 'red'
+        };
         
-        // 更新瞄準器位置
-        function updateReticle(e) {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
-            
-            // 限制瞄準器在畫布範圍內
-            gameState.reticle.x = Math.max(50, Math.min(canvas.width - 50, mouse.x));
-            gameState.reticle.y = Math.max(100, Math.min(canvas.height - 200, mouse.y));
-            
-            // 更新瞄準器顯示位置
-            reticle.style.left = (gameState.reticle.x - 20) + 'px';
-            reticle.style.top = (gameState.reticle.y - 20) + 'px';
-            reticle.style.display = 'block';
-            gameState.reticle.visible = true;
+        // 初始化遊戲
+        function initGame() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            initBoard();
+            bindEvents();
+            drawBoard();
+            updateUI();
+            showMessage('歡迎來到中國象棋！選擇模式後點擊「開始遊戲」');
         }
         
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.touches[0].clientX - rect.left;
-            mouse.y = e.touches[0].clientY - rect.top;
-            gameState.reticle.x = Math.max(50, Math.min(canvas.width - 50, mouse.x));
-            gameState.reticle.y = Math.max(100, Math.min(canvas.height - 200, mouse.y));
-            startAiming();
+        function resizeCanvas() {
+            const boardContainer = document.getElementById('gameBoard');
+            canvas.width = boardContainer.clientWidth;
+            canvas.height = boardContainer.clientHeight;
+            drawBoard();
         }
         
-        function handleTouchMove(e) {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.touches[0].clientX - rect.left;
-            mouse.y = e.touches[0].clientY - rect.top;
-            gameState.reticle.x = Math.max(50, Math.min(canvas.width - 50, mouse.x));
-            gameState.reticle.y = Math.max(100, Math.min(canvas.height - 200, mouse.y));
+        function initBoard() {
+            gameState.board = JSON.parse(JSON.stringify(INITIAL_BOARD));
+            gameState.selectedPiece = null;
+            gameState.moveHistory = [];
+            gameState.moveCount = 0;
+            gameState.redPieces = 16;
+            gameState.blackPieces = 16;
+            gameState.gameOver = false;
+            gameState.winner = null;
+            gameState.currentPlayer = 'red';
+            gameState.gameStarted = true;
+            gameState.aiThinking = false;
+            selectedHighlight.style.display = 'none';
         }
         
-        function startAiming() {
-            if (!gameState.arrowFlying && gameState.playerTurn && !gameState.gameOver) {
-                gameState.aiming = true;
-            }
+        function bindEvents() {
+            document.getElementById('modeRobot').addEventListener('click', () => switchMode('robot'));
+            document.getElementById('modeFriend').addEventListener('click', () => switchMode('friend'));
+            document.getElementById('btnStart').addEventListener('click', startGame);
+            document.getElementById('btnRestart').addEventListener('click', restartGame);
+            document.getElementById('btnUndo').addEventListener('click', undoMove);
+            closeMessage.addEventListener('click', () => statusMessage.style.display = 'none');
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('mousemove', handleCanvasHover);
         }
         
-        function shootArrow() {
-            if (gameState.aiming && gameState.playerTurn && !gameState.gameOver) {
-                gameState.aiming = false;
-                gameState.arrowFlying = true;
-                
-                // 計算射箭方向（從底部中心向瞄準點）
-                const bowX = 450;
-                const bowY = 600;
-                const dx = gameState.reticle.x - bowX;
-                const dy = gameState.reticle.y - bowY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const speed = 20 + (distance / 50); // 距離越遠速度越快
-                
-                gameState.arrow.vx = (dx / distance) * speed;
-                gameState.arrow.vy = (dy / distance) * speed;
-                gameState.arrow.speed = speed;
-                gameState.arrow.angle = Math.atan2(dy, dx);
-            }
+        function switchMode(mode) {
+            gameState.mode = mode;
+            document.getElementById('modeRobot').classList.toggle('active', mode === 'robot');
+            document.getElementById('modeFriend').classList.toggle('active', mode === 'friend');
+            document.getElementById('currentMode').textContent = mode === 'robot' ? '機械人對戰' : '好友對戰';
+            showMessage(`已切換到${mode === 'robot' ? '機械人對戰' : '好友對戰'}模式`);
         }
         
-        function update() {
-            if (gameState.arrowFlying) {
-                // 更新箭的位置
-                gameState.arrow.x += gameState.arrow.vx;
-                gameState.arrow.y += gameState.arrow.vy;
-                
-                // 重力影響
-                gameState.arrow.vy += 0.2;
-                
-                // 檢查是否命中靶子
-                const target = gameState.target;
-                const arrow = gameState.arrow;
-                const dx = arrow.x - target.x;
-                const dy = arrow.y - target.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance <= target.radius) {
-                    // 計算得分 (10-1分，越靠近中心越高分)
-                    let points = 0;
-                    if (distance < 10) points = 10;
-                    else if (distance < 20) points = 9;
-                    else if (distance < 30) points = 8;
-                    else if (distance < 40) points = 7;
-                    else if (distance < 50) points = 6;
-                    else if (distance < 60) points = 5;
-                    else if (distance < 70) points = 4;
-                    else if (distance < 80) points = 3;
-                    else if (distance < 90) points = 2;
-                    else points = 1;
-                    
-                    if (gameState.playerTurn) {
-                        gameState.playerScore += points;
-                        document.getElementById('you').textContent = gameState.playerScore;
-                        showMessage(`玩家得分: +${points}分!`);
-                    } else {
-                        gameState.botScore += points;
-                        document.getElementById('bot').textContent = gameState.botScore;
-                        showMessage(`機械人得分: +${points}分!`);
-                    }
-                    
-                    // 重置箭
-                    setTimeout(resetArrow, 1000);
-                    return;
-                }
-                
-                // 檢查是否超出畫面
-                if (arrow.x < 0 || arrow.x > canvas.width || arrow.y > canvas.height) {
-                    showMessage(gameState.playerTurn ? '玩家未命中!' : '機械人未命中!');
-                    setTimeout(resetArrow, 1000);
-                }
-            }
-        }
-        
-        function resetArrow() {
-            gameState.arrowFlying = false;
-            gameState.arrow.x = 450;
-            gameState.arrow.y = 600;
-            gameState.arrow.vx = 0;
-            gameState.arrow.vy = 0;
-            
-            if (gameState.playerTurn) {
-                // 玩家回合結束，更新射箭計數
-                gameState.currentShot++;
-                document.getElementById('currentShot').textContent = gameState.currentShot;
-                document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
-                
-                if (gameState.currentShot > 3) {
-                    // 玩家完成3箭，切換到機械人回合
-                    gameState.playerTurn = false;
-                    gameState.currentShot = 1;
-                    document.getElementById('currentShot').textContent = gameState.currentShot;
-                    document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
-                    showMessage('機械人回合開始!');
-                    setTimeout(botTurn, 1500);
-                }
-            } else {
-                // 機械人回合結束，更新射箭計數
-                gameState.currentShot++;
-                document.getElementById('currentShot').textContent = gameState.currentShot;
-                document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
-                
-                if (gameState.currentShot > 3) {
-                    // 機械人完成3箭，檢查是否完成所有回合
-                    gameState.currentRound++;
-                    gameState.currentShot = 1;
-                    gameState.playerTurn = true;
-                    
-                    document.getElementById('currentRound').textContent = gameState.currentRound;
-                    document.getElementById('currentShot').textContent = gameState.currentShot;
-                    document.getElementById('round').textContent = `${gameState.currentRound}/3`;
-                    document.getElementById('shot').textContent = `${gameState.currentShot}/3`;
-                    
-                    if (gameState.currentRound > 3) {
-                        // 遊戲結束
-                        endGame();
-                    } else {
-                        showMessage(`第${gameState.currentRound}輪開始!`);
-                    }
-                } else {
-                    // 機械人繼續射箭
-                    setTimeout(botTurn, 1500);
-                }
-            }
-        }
-        
-        function botTurn() {
-            if (!gameState.playerTurn && !gameState.gameOver) {
-                // 機械人瞄準（隨機但偏向中心）
-                const targetX = gameState.target.x + (Math.random() * 60 - 30);
-                const targetY = gameState.target.y + (Math.random() * 60 - 30);
-                
-                // 模擬瞄準
-                gameState.reticle.x = targetX;
-                gameState.reticle.y = targetY;
-                
-                // 射箭
-                gameState.aiming = true;
-                setTimeout(() => {
-                    gameState.aiming = false;
-                    gameState.arrowFlying = true;
-                    
-                    const bowX = 450;
-                    const bowY = 600;
-                    const dx = targetX - bowX;
-                    const dy = targetY - bowY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const speed = 18 + (Math.random() * 5);
-                    
-                    gameState.arrow.vx = (dx / distance) * speed;
-                    gameState.arrow.vy = (dy / distance) * speed;
-                    gameState.arrow.speed = speed;
-                    gameState.arrow.angle = Math.atan2(dy, dx);
-                }, 800);
-            }
-        }
-        
-        function endGame() {
-            gameState.gameOver = true;
-            reticle.style.display = 'none';
-            
-            let winnerText = '';
-            if (gameState.playerScore > gameState.botScore) {
-                winnerText = '玩家勝利!';
-            } else if (gameState.playerScore < gameState.botScore) {
-                winnerText = '機械人勝利!';
-            } else {
-                winnerText = '平手!';
-            }
-            
-            showMessage(`遊戲結束!<br>玩家: ${gameState.playerScore}分<br>機械人: ${gameState.botScore}分<br>${winnerText}<br><br>點擊畫面重新開始`);
-            
-            // 點擊重新開始
-            canvas.addEventListener('click', restartGame, { once: true });
-        }
-        
-        function restartGame() {
-            gameState = {
-                aiming: false,
-                arrowFlying: false,
-                playerScore: 0,
-                botScore: 0,
-                currentRound: 1,
-                currentShot: 1,
-                playerTurn: true,
-                gameOver: false,
-                arrow: {
-                    x: 450,
-                    y: 600,
-                    vx: 0,
-                    vy: 0,
-                    angle: 0,
-                    speed: 0
-                },
-                target: {
-                    x: 450,
-                    y: 150,
-                    radius: 100
-                },
-                reticle: {
-                    x: 450,
-                    y: 300,
-                    visible: false
-                }
-            };
-            
-            document.getElementById('you').textContent = '0';
-            document.getElementById('bot').textContent = '0';
-            document.getElementById('currentRound').textContent = '1';
-            document.getElementById('currentShot').textContent = '1';
-            document.getElementById('round').textContent = '1/3';
-            document.getElementById('shot').textContent = '1/3';
-            
-            reticle.style.display = 'block';
-            const message = document.getElementById('message');
-            message.style.display = 'none';
-        }
-        
-        function showMessage(text) {
-            const msg = document.getElementById('message');
-            msg.innerHTML = text;
-            msg.style.display = 'block';
-        }
-        
-        function draw() {
-            // 清空畫布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 繪製背景元素
-            drawBackground();
-            
-            // 繪製箭靶
-            drawTarget();
-            
-            // 繪製弓和箭
-            drawBowAndArrow();
-            
-            // 繪製瞄準器（如果可見）
-            if (gameState.reticle.visible && gameState.playerTurn && !gameState.arrowFlying) {
-                drawReticle();
-            }
-        }
-        
-        function drawBackground() {
-            // 天空
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
-            
-            // 地面
-            ctx.fillStyle = '#90EE90';
-            ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
-            
-            // 草地紋理
-            ctx.fillStyle = '#7CFC00';
-            for (let i = 0; i < canvas.width; i += 20) {
-                ctx.fillRect(i, canvas.height / 2, 10, 10);
-            }
-            
-            // 遠處樹木
-            drawTree(100, 400, 40);
-            drawTree(300, 380, 35);
-            drawTree(600, 390, 45);
-            drawTree(800, 410, 30);
-        }
-        
-        function drawTree(x, y, size) {
-            // 樹幹
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(x - size/8, y, size/4, size);
-            
-            // 樹葉
-            ctx.fillStyle = '#228B22';
-            ctx.beginPath();
-            ctx.arc(x, y - size/2, size/2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        
-        function drawTarget() {
-            const t = gameState.target;
-            
-            // 靶架
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(t.x - 10, t.y + t.radius, 20, 50);
-            ctx.fillRect(t.x - 50, t.y + t.radius + 40, 100, 10);
-            
-            // 同心圓靶心 (10環到1環)
-            const rings = [
-                {radius: 10, color: '#FFD700', points: 10},  // 金色 - 10分
-                {radius: 20, color: '#FF0000', points: 9},   // 紅色 - 9分
-                {radius: 30, color: '#FF0000', points: 8},   // 紅色 - 8分
-                {radius: 40, color: '#4169E1', points: 7},   // 藍色 - 7分
-                {radius: 50, color: '#4169E1', points: 6},   // 藍色 - 6分
-                {radius: 60, color: '#FFFFFF', points: 5},   // 白色 - 5分
-                {radius: 70, color: '#FFFFFF', points: 4},   // 白色 - 4分
-                {radius: 80, color: '#000000', points: 3},   // 黑色 - 3分
-                {radius: 90, color: '#000000', points: 2},   // 黑色 - 2分
-                {radius: 100, color: '#FFFFFF', points: 1}   // 白色 - 1分
-            ];
-            
-            // 從外到內繪製
-            for (let i = rings.length - 1; i >= 0; i--) {
-                const ring = rings[i];
-                ctx.beginPath();
-                ctx.arc(t.x, t.y, ring.radius, 0, Math.PI * 2);
-                ctx.fillStyle = ring.color;
-                ctx.fill();
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                // 顯示分數標籤
-                if (i === 0 || i === 3 || i === 6 || i === 9) {
-                    ctx.fillStyle = '#000';
-                    ctx.font = '12px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(ring.points.toString(), t.x, t.y - ring.radius + 4);
-                }
-            }
-            
-            // 中心點
-            ctx.beginPath();
-            ctx.arc(t.x, t.y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#000';
-            ctx.fill();
-        }
-        
-        function drawBowAndArrow() {
-            const bowX = 450;
-            const bowY = 600;
-            
-            // 弓身
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            
-            ctx.beginPath();
-            ctx.arc(bowX, bowY, 80, -Math.PI/2 - 0.4, Math.PI/2 + 0.4, false);
-            ctx.stroke();
-            
-            // 弓弦
-            ctx.strokeStyle = '#FFFFFF';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            if (gameState.aiming) {
-                // 拉弦狀態
-                ctx.moveTo(bowX, bowY - 75);
-                ctx.lineTo(bowX - 20, bowY);
-                ctx.lineTo(bowX, bowY + 75);
-            } else {
-                // 放鬆狀態
-                ctx.moveTo(bowX, bowY - 75);
-                ctx.lineTo(bowX + 5, bowY);
-                ctx.lineTo(bowX, bowY + 75);
-            }
-            ctx.stroke();
-            
-            // 箭（如果未飛行）
-            if (!gameState.arrowFlying && !gameState.aiming) {
-                drawArrow(bowX + 5, bowY, 0, false);
-            }
-            
-            // 飛行中的箭
-            if (gameState.arrowFlying) {
-                drawArrow(gameState.arrow.x, gameState.arrow.y, gameState.arrow.angle, true);
-            }
-        }
-        
-        function drawArrow(x, y, angle, isFlying) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-            
-            // 箭桿
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-60, 0);
-            ctx.stroke();
-            
-            // 箭頭
-            ctx.fillStyle = '#666';
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-10, -5);
-            ctx.lineTo(-10, 5);
-            ctx.closePath();
-            ctx.fill();
-            
-            // 箭羽
-            ctx.fillStyle = '#FF0000';
-            ctx.beginPath();
-            ctx.moveTo(-55, 0);
-            ctx.lineTo(-65, -8);
-            ctx.lineTo(-60, 0);
-            ctx.lineTo(-65, 8);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.restore();
-        }
-        
-        function drawReticle() {
-            const x = gameState.reticle.x;
-            const y = gameState.reticle.y;
-            
-            // 紅色十字準星
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-            ctx.lineWidth = 2;
-            
-            // 水平線
-            ctx.beginPath();
-            ctx.moveTo(x - 20, y);
-            ctx.lineTo(x + 20, y);
-            ctx.stroke();
-            
-            // 垂直線
-            ctx.beginPath();
-            ctx.moveTo(x, y - 20);
-            ctx.lineTo(x, y + 20);
-            ctx.stroke();
-            
-            // 中心點
-            ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = 'red';
-            ctx.fill();
-            
-            // 外圈
-            ctx.beginPath();
-            ctx.arc(x, y, 15, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
-        
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // 啟動遊戲
-        gameLoop();
-    </script>
-</body>
-</html>
+        function startGame() {
+            if (!gameState.gameStarted) {
+                initBoard();
+                document.getElementById('btnStart').disabled = true;
+                document.getElementById('btnRestart').disabled
