@@ -141,8 +141,21 @@ box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 .game-controls {
 display: flex;
 justify-content: center;
-gap: 15px;
+flex-wrap: wrap;
+gap: 10px;
 margin: 20px 0;
+}
+
+.action-btn {
+padding: 12px 18px;
+border: none;
+border-radius: 25px;
+font-size: 0.9em;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+min-width: 120px;
 }
 .action-btn {
 padding: 12px 24px;
@@ -404,7 +417,9 @@ user-select: none;
     </div>
     
     <div class="game-controls" id="actionContainer" style="display:none;">
-        <button class="action-btn build-btn" onclick="buildFacility()" id="buildBtn">🏗️ 建設設施</button>
+        <button class="action-btn build-btn" onclick="buildFlag()" id="buildFlagBtn">🚩 建設旗幟</button>
+        <button class="action-btn build-btn" onclick="buildCannon()" id="buildCannonBtn">🔫 建設大炮</button>
+        <button class="action-btn build-btn" onclick="buildShield()" id="buildShieldBtn">🛡️ 建設保護罩</button>
         <button class="action-btn attack-btn" onclick="attackEnemy()" id="attackBtn">⚔️ 攻擊敵人</button>
         <button class="action-btn repair-btn" onclick="repairFacility()" id="repairBtn">🔧 修復設施</button>
     </div>
@@ -722,79 +737,134 @@ document.getElementById('gameStatus').textContent = '電腦摧毀了你的堡壘
 }
 }
 
-// 玩家建設設施
-async function buildFacility() {
+// 玩家建設旗幟
+function buildFlag() {
 if (gameState.currentPlayer !== 1 || gameState.gameOver) return;
 if (gameState.gameMode === 'friend' && gameState.currentPlayer === 2) {
     // 好友模式玩家 2 行動
-    await friendBuildFacility(2);
+    friendBuildFlag(2);
     return;
 }
 
 const player = gameState.player1;
 let actionText = '';
 
-// 新規則建設邏輯
-if (player.flags === 0) {
-    // 必須先建旗
+// 檢查是否可以建設旗幟
+if (player.flags < 3) {
     player.flags++;
     actionText = '你插了一枝旗！';
 } else {
-    // 有旗後可選：旗、保護罩、大砲
-    const buildChoice = await showChoiceModal("選擇要建設的設施", [
-        { text: `旗幟 (目前${player.flags}/3)`, value: "flags" },
-        { text: `保護罩 (目前${player.shields}/5)`, value: "shields" },
-        { text: `大砲 (目前${player.cannons})`, value: "cannons" }
-    ], "flags");
-    
-    if (buildChoice === "flags" && player.flags < 3) {
-        player.flags++;
-        actionText = '你插了一枝旗！';
-    } else if (buildChoice === "shields" && player.shields < 5) {
-        player.shields++;
-        actionText = '你建了一層保護罩！';
-    } else if (buildChoice === "cannons") {
-        player.cannons++;
-        actionText = '你建造了大砲！';
-    } else {
-        actionText = '該設施已達上限或選擇無效！';
-    }
+    actionText = '旗幟已達上限 (3枝)！';
 }
 
-document.getElementById('gameStatus').textContent = actionText || '建設完成！';
+document.getElementById('gameStatus').textContent = actionText;
 updateUI();
 resetTurn();
 }
 
-// 好友模式建設
-async function friendBuildFacility(playerId) {
+// 玩家建設大炮
+function buildCannon() {
+if (gameState.currentPlayer !== 1 || gameState.gameOver) return;
+if (gameState.gameMode === 'friend' && gameState.currentPlayer === 2) {
+    // 好友模式玩家 2 行動
+    friendBuildCannon(2);
+    return;
+}
+
+const player = gameState.player1;
+let actionText = '';
+
+// 檢查是否可以建設大炮（需要有旗幟）
+if (player.flags === 0) {
+    actionText = '需要先插一支旗才能建設大炮！';
+} else {
+    player.cannons++;
+    actionText = '你建造了大砲！';
+}
+
+document.getElementById('gameStatus').textContent = actionText;
+updateUI();
+resetTurn();
+}
+
+// 玩家建設保護罩
+function buildShield() {
+if (gameState.currentPlayer !== 1 || gameState.gameOver) return;
+if (gameState.gameMode === 'friend' && gameState.currentPlayer === 2) {
+    // 好友模式玩家 2 行動
+    friendBuildShield(2);
+    return;
+}
+
+const player = gameState.player1;
+let actionText = '';
+
+// 檢查是否可以建設保護罩（需要有旗幟）
+if (player.flags === 0) {
+    actionText = '需要先插一支旗才能建設保護罩！';
+} else if (player.shields < 5) {
+    player.shields++;
+    actionText = '你建了一層保護罩！';
+} else {
+    actionText = '保護罩已達上限 (5層)！';
+}
+
+document.getElementById('gameStatus').textContent = actionText;
+updateUI();
+resetTurn();
+}
+
+// 好友模式建設旗幟
+function friendBuildFlag(playerId) {
+    const player = playerId === 1 ? gameState.player1 : gameState.player2;
+    const prefix = playerId === 1 ? "玩家 1" : "玩家 2";
+    let actionText = '';
+    
+    if (player.flags < 3) {
+        player.flags++;
+        actionText = `${prefix}插了一枝旗！`;
+    } else {
+        actionText = `${prefix}旗幟已達上限 (3枝)！`;
+    }
+    
+    document.getElementById('gameStatus').textContent = actionText;
+    updateUI();
+    resetTurn();
+}
+
+// 好友模式建設大炮
+function friendBuildCannon(playerId) {
     const player = playerId === 1 ? gameState.player1 : gameState.player2;
     const prefix = playerId === 1 ? "玩家 1" : "玩家 2";
     let actionText = '';
     
     if (player.flags === 0) {
-        player.flags++;
-        actionText = `${prefix}插了一枝旗！`;
+        actionText = `${prefix}需要先插一支旗才能建設大炮！`;
     } else {
-        const buildChoice = await showChoiceModal(`${prefix}選擇建設`, [
-            { text: `旗幟 (目前${player.flags}/3)`, value: "flags" },
-            { text: `保護罩 (目前${player.shields}/5)`, value: "shields" },
-            { text: `大砲 (目前${player.cannons})`, value: "cannons" }
-        ], "flags");
-        
-        if (buildChoice === "flags" && player.flags < 3) {
-            player.flags++;
-            actionText = `${prefix}插了一枝旗！`;
-        } else if (buildChoice === "shields" && player.shields < 5) {
-            player.shields++;
-            actionText = `${prefix}建了一層保護罩！`;
-        } else if (buildChoice === "cannons") {
-            player.cannons++;
-            actionText = `${prefix}建造了大砲！`;
-        } else {
-            actionText = '該設施已達上限！';
-        }
+        player.cannons++;
+        actionText = `${prefix}建造了大砲！`;
     }
+    
+    document.getElementById('gameStatus').textContent = actionText;
+    updateUI();
+    resetTurn();
+}
+
+// 好友模式建設保護罩
+function friendBuildShield(playerId) {
+    const player = playerId === 1 ? gameState.player1 : gameState.player2;
+    const prefix = playerId === 1 ? "玩家 1" : "玩家 2";
+    let actionText = '';
+    
+    if (player.flags === 0) {
+        actionText = `${prefix}需要先插一支旗才能建設保護罩！`;
+    } else if (player.shields < 5) {
+        player.shields++;
+        actionText = `${prefix}建了一層保護罩！`;
+    } else {
+        actionText = `${prefix}保護罩已達上限 (5層)！`;
+    }
+    
     document.getElementById('gameStatus').textContent = actionText;
     updateUI();
     resetTurn();
@@ -976,11 +1046,19 @@ async function friendRepairFacility(playerId) {
     resetTurn();
 }
 
-// 檢查是否可以建設
-function canBuild(player) {
-if (!player.fortressIntact) return false;
-// 新規則：只要有堡壘就能建設，但邏輯在 buildFacility 中控制
-return true; 
+// 檢查是否可以建設旗幟
+function canBuildFlag(player) {
+    return player.fortressIntact && player.flags < 3;
+}
+
+// 檢查是否可以建設大炮
+function canBuildCannon(player) {
+    return player.fortressIntact && player.flags > 0;
+}
+
+// 檢查是否可以建設保護罩
+function canBuildShield(player) {
+    return player.fortressIntact && player.flags > 0 && player.shields < 5;
 }
 
 // 檢查是否可以攻擊 - 新規則：1 旗 +1 砲
@@ -1083,16 +1161,30 @@ function enableActionButtons() {
     const isPlayer2Turn = gameState.currentPlayer === 2;
     const isFriendMode = gameState.gameMode === 'friend';
 
-    // 建設按鈕
-    const buildBtn = document.getElementById('buildBtn');
-    buildBtn.disabled = !canBuild(player);
-    buildBtn.style.opacity = buildBtn.disabled ? '0.5' : '1';
+    // 建設旗幟按鈕
+    const buildFlagBtn = document.getElementById('buildFlagBtn');
+    buildFlagBtn.disabled = player.flags >= 3;
+    buildFlagBtn.style.opacity = buildFlagBtn.disabled ? '0.5' : '1';
+    buildFlagBtn.title = player.flags >= 3 ? "旗幟已達上限 (3枝)" : "建設旗幟";
+
+    // 建設大炮按鈕
+    const buildCannonBtn = document.getElementById('buildCannonBtn');
+    buildCannonBtn.disabled = player.flags === 0;
+    buildCannonBtn.style.opacity = buildCannonBtn.disabled ? '0.5' : '1';
+    buildCannonBtn.title = player.flags === 0 ? "需要先插一支旗才能建設大炮" : "建設大炮";
+
+    // 建設保護罩按鈕
+    const buildShieldBtn = document.getElementById('buildShieldBtn');
+    buildShieldBtn.disabled = player.flags === 0 || player.shields >= 5;
+    buildShieldBtn.style.opacity = buildShieldBtn.disabled ? '0.5' : '1';
+    buildShieldBtn.title = player.flags === 0 ? "需要先插一支旗才能建設保護罩" :
+                          player.shields >= 5 ? "保護罩已達上限 (5層)" : "建設保護罩";
 
     // 攻擊按鈕
     const attackBtn = document.getElementById('attackBtn');
     attackBtn.disabled = !canAttack(player);
     attackBtn.style.opacity = attackBtn.disabled ? '0.5' : '1';
-    attackBtn.title = !canAttack(player) ? "需要 1 旗 +1 砲才能攻擊" : "可以攻擊敵人！";
+    attackBtn.title = !canAttack(player) ? `需要 1 旗 +1 砲才能攻擊 (目前: ${player.flags}旗 ${player.cannons}砲)` : "可以攻擊敵人！";
 
     // 修復按鈕
     const repairBtn = document.getElementById('repairBtn');
@@ -1101,15 +1193,19 @@ function enableActionButtons() {
 
     // 好友模式玩家 2 回合時，按鈕文字提示和視覺效果
     if (isFriendMode && isPlayer2Turn) {
-        buildBtn.textContent = '🏗️ 建設 (玩家2)';
-        attackBtn.textContent = '⚔️ 攻擊 (玩家2)';
-        repairBtn.textContent = '🔧 修復 (玩家2)';
+        buildFlagBtn.textContent = '🚩 建設旗幟 (P2)';
+        buildCannonBtn.textContent = '🔫 建設大炮 (P2)';
+        buildShieldBtn.textContent = '🛡️ 建設保護罩 (P2)';
+        attackBtn.textContent = '⚔️ 攻擊 (P2)';
+        repairBtn.textContent = '🔧 修復 (P2)';
         
         // 添加玩家2回合視覺提示
         document.getElementById('gameStatus').style.backgroundColor = '#e74c3c';
         document.getElementById('gameStatus').textContent = '玩家 2 的回合！請選擇行動！';
     } else {
-        buildBtn.textContent = '🏗️ 建設設施';
+        buildFlagBtn.textContent = '🚩 建設旗幟';
+        buildCannonBtn.textContent = '🔫 建設大炮';
+        buildShieldBtn.textContent = '🛡️ 建設保護罩';
         attackBtn.textContent = '⚔️ 攻擊敵人';
         repairBtn.textContent = '🔧 修復設施';
         
@@ -1117,11 +1213,6 @@ function enableActionButtons() {
             document.getElementById('gameStatus').style.backgroundColor = '#3498db';
             document.getElementById('gameStatus').textContent = '玩家 1 的回合！請選擇行動！';
         }
-    }
-    
-    // 更新攻擊按鈕提示
-    if (!canAttack(player)) {
-        attackBtn.title = `需要 1 旗 +1 砲才能攻擊 (目前: ${player.flags}旗 ${player.cannons}砲)`;
     }
 }
 // 停用行動按鈕
