@@ -383,12 +383,13 @@ user-select: none;
 </div>
 
 <div class="game-info">
-<p><strong>玩法說明：</strong> 這是一個基於猜拳的策略遊戲！</p>
-<p>1️⃣ 通過猜拳決定先後順序，贏的一方可以建設或攻擊</p>
-<p>2️⃣ <span style="color: #e74c3c; font-weight: bold;">新規則：</span> 插了一支旗後，可建設保護罩或大炮</p>
-<p>3️⃣ 擁有 <span style="color: #e74c3c; font-weight: bold;">1 旗 +1 砲</span> 即可攻擊，每次摧毀對手一個設施</p>
-<p>4️⃣ 被攻擊方若想修復或反擊，必須在下一次猜拳勝出</p>
-<p>5️⃣ 當一方的旗幟、保護罩及堡壘文字全被擊潰時，即輸掉遊戲</p>
+<p><strong>🎮 遊戲玩法說明：</strong></p>
+<p>1️⃣ <strong>猜拳決定行動權</strong>：贏的一方可以建設或攻擊</p>
+<p>2️⃣ <strong>建設順序</strong>：必須先插一支旗 → 然後可建設保護罩或大炮</p>
+<p>3️⃣ <strong>攻擊條件</strong>：擁有 <span style="color: #e74c3c; font-weight: bold;">1 旗 +1 砲</span> 即可攻擊，每次攻擊摧毀對手一個設施（保護罩、旗幟、大砲或堡壘）</p>
+<p>4️⃣ <strong>修復與反擊</strong>：被攻擊方若想修復設施或反擊，必須在下一次猜拳勝出</p>
+<p>5️⃣ <strong>勝利條件</strong>：當一方的旗幟、保護罩及堡壘文字全被擊潰時，即輸掉遊戲</p>
+<p>6️⃣ <strong>遊戲模式</strong>：可選擇與電腦對戰或與好友對戰（2人輪流操作）</p>
 </div>
 
 <!-- 移動猜拳和控制按鈕到說明下方 -->
@@ -520,8 +521,14 @@ function startGame(mode) {
     document.getElementById('rpsContainer').style.display = 'flex';
     document.getElementById('actionContainer').style.display = 'flex';
     document.getElementById('resultDisplay').textContent = '';
-    document.getElementById('gameStatus').textContent = '請選擇猜拳...';
-    document.getElementById('gameStatus').style.backgroundColor = '#f1c40f';
+    
+    if (mode === 'friend') {
+        document.getElementById('gameStatus').textContent = '好友對戰模式！玩家 1 請先選擇猜拳...';
+        document.getElementById('gameStatus').style.backgroundColor = '#3498db';
+    } else {
+        document.getElementById('gameStatus').textContent = '請選擇猜拳...';
+        document.getElementById('gameStatus').style.backgroundColor = '#f1c40f';
+    }
     
     // 更新玩家 2 標題
     const p2Title = document.getElementById('player2Title');
@@ -981,17 +988,17 @@ function canAttack(player) {
 return player.flags >= 1 && player.cannons >= 1;
 }
 
-// 檢查階段升級 (簡化，新規則不再嚴格分階段)
+// 檢查階段升級 - 新規則顯示
 function checkPhaseUpgrade(player, playerId) {
     const phaseIndicator = document.getElementById(`phase${playerId}`);
     if (player.flags >= 1 && player.cannons >= 1) {
-        phaseIndicator.textContent = '攻擊就緒 (1 旗 +1 砲)';
+        phaseIndicator.textContent = '⚔️ 攻擊就緒 (1旗+1砲)';
         phaseIndicator.classList.add('attack-ready');
     } else if (player.flags >= 1) {
-        phaseIndicator.textContent = '建設階段 (可建罩/砲)';
+        phaseIndicator.textContent = '🏗️ 建設階段 (可建保護罩/大砲)';
         phaseIndicator.classList.remove('attack-ready');
     } else {
-        phaseIndicator.textContent = '初始階段 (需建旗)';
+        phaseIndicator.textContent = '🚩 初始階段 (需先插旗)';
         phaseIndicator.classList.remove('attack-ready');
     }
 }
@@ -1072,36 +1079,50 @@ btn.style.opacity = '0.5';
 }
 // 啟用行動按鈕
 function enableActionButtons() {
-const player = gameState.currentPlayer === 1 ? gameState.player1 : gameState.player2;
-const isPlayer2Turn = gameState.currentPlayer === 2;
-const isFriendMode = gameState.gameMode === 'friend';
+    const player = gameState.currentPlayer === 1 ? gameState.player1 : gameState.player2;
+    const isPlayer2Turn = gameState.currentPlayer === 2;
+    const isFriendMode = gameState.gameMode === 'friend';
 
-// 建設按鈕
-const buildBtn = document.getElementById('buildBtn');
-buildBtn.disabled = !canBuild(player);
-buildBtn.style.opacity = buildBtn.disabled ? '0.5' : '1';
+    // 建設按鈕
+    const buildBtn = document.getElementById('buildBtn');
+    buildBtn.disabled = !canBuild(player);
+    buildBtn.style.opacity = buildBtn.disabled ? '0.5' : '1';
 
-// 攻擊按鈕
-const attackBtn = document.getElementById('attackBtn');
-attackBtn.disabled = !canAttack(player);
-attackBtn.style.opacity = attackBtn.disabled ? '0.5' : '1';
-attackBtn.title = !canAttack(player) ? "需要 1 旗 +1 砲才能攻擊" : "可以攻擊敵人！";
+    // 攻擊按鈕
+    const attackBtn = document.getElementById('attackBtn');
+    attackBtn.disabled = !canAttack(player);
+    attackBtn.style.opacity = attackBtn.disabled ? '0.5' : '1';
+    attackBtn.title = !canAttack(player) ? "需要 1 旗 +1 砲才能攻擊" : "可以攻擊敵人！";
 
-// 修復按鈕
-const repairBtn = document.getElementById('repairBtn');
-repairBtn.disabled = !player.fortressIntact || (player.flags >= 3 && player.shields >= 5); // 簡化判斷
-repairBtn.style.opacity = repairBtn.disabled ? '0.5' : '1';
+    // 修復按鈕
+    const repairBtn = document.getElementById('repairBtn');
+    repairBtn.disabled = !player.fortressIntact || (player.flags >= 3 && player.shields >= 5); // 簡化判斷
+    repairBtn.style.opacity = repairBtn.disabled ? '0.5' : '1';
 
-// 好友模式玩家 2 回合時，按鈕文字提示
-if (isFriendMode && isPlayer2Turn) {
-    buildBtn.textContent = '🏗️ 建設 (P2)';
-    attackBtn.textContent = '⚔️ 攻擊 (P2)';
-    repairBtn.textContent = '🔧 修復 (P2)';
-} else {
-    buildBtn.textContent = '🏗️ 建設設施';
-    attackBtn.textContent = '⚔️ 攻擊敵人';
-    repairBtn.textContent = '🔧 修復設施';
-}
+    // 好友模式玩家 2 回合時，按鈕文字提示和視覺效果
+    if (isFriendMode && isPlayer2Turn) {
+        buildBtn.textContent = '🏗️ 建設 (玩家2)';
+        attackBtn.textContent = '⚔️ 攻擊 (玩家2)';
+        repairBtn.textContent = '🔧 修復 (玩家2)';
+        
+        // 添加玩家2回合視覺提示
+        document.getElementById('gameStatus').style.backgroundColor = '#e74c3c';
+        document.getElementById('gameStatus').textContent = '玩家 2 的回合！請選擇行動！';
+    } else {
+        buildBtn.textContent = '🏗️ 建設設施';
+        attackBtn.textContent = '⚔️ 攻擊敵人';
+        repairBtn.textContent = '🔧 修復設施';
+        
+        if (isFriendMode && !isPlayer2Turn) {
+            document.getElementById('gameStatus').style.backgroundColor = '#3498db';
+            document.getElementById('gameStatus').textContent = '玩家 1 的回合！請選擇行動！';
+        }
+    }
+    
+    // 更新攻擊按鈕提示
+    if (!canAttack(player)) {
+        attackBtn.title = `需要 1 旗 +1 砲才能攻擊 (目前: ${player.flags}旗 ${player.cannons}砲)`;
+    }
 }
 // 停用行動按鈕
 function disableActionButtons() {
