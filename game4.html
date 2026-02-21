@@ -429,9 +429,9 @@
             aiThinking: false
         };
         
-        // 棋子初始位置 - 修正：紅方用帥，黑方用將
+        // 棋子初始位置 - 使用不同的字符區分紅黑雙方
         const INITIAL_BOARD = [
-            ['車', '馬', '象', '士', '將', '士', '象', '馬', '車'],  // 黑方 (row 0)
+            ['俥', '', '象', '士', '將', '士', '象', '傌', '俥'],  // 黑方 (row 0)
             [null, null, null, null, null, null, null, null, null],
             [null, '炮', null, null, null, null, null, '炮', null],
             ['卒', null, '卒', null, '卒', null, '卒', null, '卒'],
@@ -440,13 +440,13 @@
             ['兵', null, '兵', null, '兵', null, '兵', null, '兵'],
             [null, '砲', null, null, null, null, null, '砲', null],
             [null, null, null, null, null, null, null, null, null],
-            ['車', '傌', '相', '仕', '帥', '仕', '相', '傌', '車']   // 紅方 (row 9)
+            ['車', '馬', '相', '仕', '帥', '仕', '相', '馬', '車']   // 紅方 (row 9)
         ];
         
-        // 棋子顏色
+        // 棋子顏色 - 修正：使用不同的字符
         const PIECE_COLORS = {
-            '將': 'black', '士': 'black', '象': 'black', '馬': 'black', '車': 'black', '炮': 'black', '砲': 'black', '卒': 'black',
-            '帥': 'red', '仕': 'red', '相': 'red', '傌': 'red', '車': 'red', '炮': 'red', '砲': 'red', '兵': 'red'
+            '將': 'black', '士': 'black', '象': 'black', '傌': 'black', '俥': 'black', '炮': 'black', '卒': 'black',
+            '帥': 'red', '仕': 'red', '相': 'red', '馬': 'red', '車': 'red', '砲': 'red', '兵': 'red'
         };
         
         // 棋子描述
@@ -457,10 +457,11 @@
             '仕': '紅方仕，只能在九宮格內斜行',
             '象': '黑方象，走田字，不能過河',
             '相': '紅方相，走田字，不能過河',
-            '馬': '馬，走日字，可過河',
-            '傌': '紅傌，走日字，可過河',
-            '車': '車，直行任意格，可過河',
-            '炮': '炮，直行任意格，吃子需隔一子',
+            '馬': '紅馬，走日字，可過河',
+            '傌': '黑馬，走日字，可過河',
+            '車': '紅車，直行任意格，可過河',
+            '俥': '黑車，直行任意格，可過河',
+            '炮': '黑炮，直行任意格，吃子需隔一子',
             '砲': '紅砲，直行任意格，吃子需隔一子',
             '卒': '黑方卒，過河前只能向前，過河後可左右',
             '兵': '紅方兵，過河前只能向前，過河後可左右'
@@ -519,14 +520,12 @@
         }
         
         function startGame() {
-            if (!gameState.gameStarted) {
-                initBoard();
-                document.getElementById('btnStart').disabled = true;
-                document.getElementById('btnRestart').disabled = false;
-                document.getElementById('btnUndo').disabled = false;
-                updateUI();
-                showMessage('遊戲開始！紅方先手。');
-            }
+            initBoard();
+            document.getElementById('btnStart').disabled = true;
+            document.getElementById('btnRestart').disabled = false;
+            document.getElementById('btnUndo').disabled = false;
+            updateUI();
+            showMessage('遊戲開始！紅方先手。');
         }
         
         function restartGame() {
@@ -711,11 +710,10 @@
                 return false;
             }
             
-            const pieceType = piece;
             const isRed = PIECE_COLORS[piece] === 'red';
             
             // 根據棋子類型驗證移動
-            switch(pieceType) {
+            switch(piece) {
                 case '將':
                 case '帥':
                     return isValidGeneralMove(fromRow, fromCol, toRow, toCol, isRed);
@@ -729,6 +727,7 @@
                 case '傌':
                     return isValidHorseMove(fromRow, fromCol, toRow, toCol);
                 case '車':
+                case '俥':
                     return isValidRookMove(fromRow, fromCol, toRow, toCol);
                 case '炮':
                 case '砲':
@@ -825,7 +824,7 @@
             return true;
         }
         
-        // 車移動驗證
+        // 車/俥移動驗證
         function isValidRookMove(fromRow, fromCol, toRow, toCol) {
             // 檢查是否直行
             if (fromRow !== toRow && fromCol !== toCol) return false;
