@@ -441,6 +441,12 @@
     </div>
 
     <script>
+        // 全局錯誤處理
+        window.addEventListener('error', function(event) {
+            console.error('JavaScript error:', event.error);
+            alert('JavaScript錯誤: ' + event.message + '\n請檢查瀏覽器控制台獲取詳細信息。');
+        });
+        
         // ==================== 遊戲初始化 ====================
         const canvas = document.getElementById('chessCanvas');
         const ctx = canvas.getContext('2d');
@@ -509,20 +515,40 @@
         
         // 初始化遊戲
         function initGame() {
+            console.log('Initializing Chinese Chess game...');
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             initBoard();
             bindEvents();
-            drawBoard();
             updateUI();
             showMessage('歡迎來到中國象棋！選擇模式後點擊「開始遊戲」');
+            
+            // 確保畫布已正確初始化後繪製棋盤
+            setTimeout(() => {
+                if (canvas.width > 0 && canvas.height > 0) {
+                    drawBoard();
+                } else {
+                    console.log('Canvas not ready, retrying draw...');
+                    resizeCanvas();
+                }
+            }, 100);
         }
         
         function resizeCanvas() {
             const boardContainer = document.getElementById('gameBoard');
-            canvas.width = boardContainer.clientWidth;
-            canvas.height = boardContainer.clientHeight;
-            drawBoard();
+            const width = boardContainer.clientWidth;
+            const height = boardContainer.clientHeight;
+            
+            // 確保畫布有最小尺寸
+            if (width > 0 && height > 0) {
+                canvas.width = width;
+                canvas.height = height;
+                drawBoard();
+            } else {
+                // 如果尺寸為0，延遲重試
+                console.log('Canvas dimensions are 0, retrying...');
+                setTimeout(resizeCanvas, 100);
+            }
         }
         
         function initBoard() {
@@ -596,6 +622,7 @@
             document.getElementById('btnStart').disabled = true;
             document.getElementById('btnRestart').disabled = false;
             document.getElementById('btnUndo').disabled = false;
+            drawBoard();
             updateUI();
             showMessage('遊戲開始！紅方先手。');
         }
@@ -605,6 +632,7 @@
             document.getElementById('btnStart').disabled = true;
             document.getElementById('btnRestart').disabled = false;
             document.getElementById('btnUndo').disabled = false;
+            drawBoard();
             updateUI();
             showMessage('遊戲重新開始！紅方先手。');
         }
@@ -634,10 +662,22 @@
         }
         
         function drawBoard() {
-            if (!ctx) return;
+            if (!ctx) {
+                console.log('Canvas context not available');
+                return;
+            }
             
             const width = canvas.width;
             const height = canvas.height;
+            
+            // 檢查畫布尺寸是否有效
+            if (width <= 0 || height <= 0) {
+                console.log('Invalid canvas dimensions:', width, height);
+                return;
+            }
+            
+            console.log('Drawing board with dimensions:', width, 'x', height);
+            
             const cellWidth = width / 9;
             const cellHeight = height / 10;
             
@@ -728,6 +768,8 @@
             const y = row * cellHeight + cellHeight / 2;
             const radius = Math.min(cellWidth, cellHeight) * 0.4;
             
+            console.log(`Drawing piece ${piece} at (${col}, ${row}), position (${x}, ${y}), radius ${radius}`);
+            
             // 繪製棋子背景 - 圓形
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -748,12 +790,37 @@
             ctx.lineWidth = 1;
             ctx.stroke();
             
-            // 繪製棋子文字
+            // 繪製棋子文字 - 使用更可靠的字體回退
             ctx.fillStyle = isRed ? '#c41e3a' : '#1a1a1a';
-            ctx.font = `bold ${radius * 1.1}px 'Microsoft JhengHei', '微軟正黑體', serif`;
+            const fontSize = Math.max(radius * 1.1, 12); // 確保最小字體大小
+            ctx.font = `bold ${fontSize}px 'Microsoft JhengHei', '微軟正黑體', 'SimHei', 'Arial Unicode MS', sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(piece, x, y);
+            
+            // 檢查字體是否支援該字符
+            try {
+                ctx.fillText(piece, x, y);
+                console.log(`Successfully drew piece ${piece}`);
+            } catch (error) {
+                console.log(`Error drawing piece ${piece}:`, error);
+                // 如果無法繪製中文字符，使用英文字母代替
+                const fallbackChar = getPieceFallback(piece);
+                ctx.fillText(fallbackChar, x, y);
+            }
+        }
+        
+        function getPieceFallback(piece) {
+            // 提供英文字母回退
+            const fallbackMap = {
+                '將': 'K', '帥': 'K', // King
+                '士': 'A', '仕': 'A', // Advisor
+                '象': 'E', '相': 'E', // Elephant
+                '馬': 'H', '傌': 'H', // Horse
+                '車': 'R', '俥': 'R', // Rook
+                '炮': 'C', '砲': 'C', // Cannon
+                '卒': 'P', '兵': 'P'  // Pawn
+            };
+            return fallbackMap[piece] || '?';
         }
         
         // 規則驗證函數
