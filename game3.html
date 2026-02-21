@@ -502,12 +502,46 @@ gameOver: false
 };
 // 初始化遊戲
 function initGame() {
-    // 保留模式選擇界面，不直接初始化遊戲狀態，直到選擇模式
+    // 完全重置遊戲狀態
+    gameState.currentPlayer = 1;
+    gameState.gameMode = 'ai';
+    gameState.rpsResult = null;
+    gameState.lastChoice = null;
+    gameState.gameOver = false;
+    gameState.player1 = {
+        flags: 0,
+        shields: 0,
+        cannons: 0,
+        fortressIntact: true,
+    };
+    gameState.player2 = {
+        flags: 0,
+        shields: 0,
+        cannons: 0,
+        fortressIntact: true,
+    };
+    
+    // 重置UI
     document.getElementById('modeSelect').style.display = 'block';
     document.getElementById('rpsContainer').style.display = 'none';
     document.getElementById('actionContainer').style.display = 'none';
     document.getElementById('gameStatus').textContent = '請選擇遊戲模式開始...';
+    document.getElementById('gameStatus').style.backgroundColor = '#f1c40f';
     document.getElementById('resultDisplay').textContent = '';
+    
+    // 重置玩家2標題
+    document.getElementById('player2Title').textContent = '🤖 電腦';
+    
+    // 重置堡壘文字
+    resetFortressText(1);
+    resetFortressText(2);
+    
+    // 更新UI
+    updateUI();
+    
+    // 啟用猜拳按鈕
+    enableRPSButtons();
+    disableActionButtons();
 }
 
 // 開始遊戲（選擇模式後）
@@ -1014,11 +1048,12 @@ return false;
 
 // 結束遊戲
 function endGame(message) {
-gameState.gameOver = true;
-document.getElementById('resultDisplay').textContent = message;
-document.getElementById('gameStatus').textContent = '遊戲結束！';
-disableRPSButtons();
-disableActionButtons();
+    gameState.gameOver = true;
+    document.getElementById('resultDisplay').textContent = message;
+    document.getElementById('gameStatus').textContent = '遊戲結束！';
+    document.getElementById('gameStatus').style.backgroundColor = '#9b59b6';
+    disableRPSButtons();
+    disableActionButtons();
 }
 
 // 重置回合
@@ -1127,9 +1162,48 @@ btn.style.opacity = '0.5';
 }
 // 重置遊戲
 function resetGame() {
-if (confirm('確定要重新開始遊戲嗎？')) {
-initGame();
-}
+    if (confirm('確定要重新開始遊戲嗎？')) {
+        // 完全重置遊戲狀態
+        gameState.currentPlayer = 1;
+        gameState.gameMode = 'ai';
+        gameState.rpsResult = null;
+        gameState.lastChoice = null;
+        gameState.gameOver = false;
+        gameState.player1 = {
+            flags: 0,
+            shields: 0,
+            cannons: 0,
+            fortressIntact: true,
+        };
+        gameState.player2 = {
+            flags: 0,
+            shields: 0,
+            cannons: 0,
+            fortressIntact: true,
+        };
+        
+        // 重置UI
+        document.getElementById('modeSelect').style.display = 'block';
+        document.getElementById('rpsContainer').style.display = 'none';
+        document.getElementById('actionContainer').style.display = 'none';
+        document.getElementById('gameStatus').textContent = '請選擇遊戲模式開始...';
+        document.getElementById('gameStatus').style.backgroundColor = '#f1c40f';
+        document.getElementById('resultDisplay').textContent = '';
+        
+        // 重置玩家2標題
+        document.getElementById('player2Title').textContent = '🤖 電腦';
+        
+        // 重置堡壘文字
+        resetFortressText(1);
+        resetFortressText(2);
+        
+        // 更新UI
+        updateUI();
+        
+        // 啟用猜拳按鈕
+        enableRPSButtons();
+        disableActionButtons();
+    }
 }
 // 模態框系統
 class ModalSystem {
