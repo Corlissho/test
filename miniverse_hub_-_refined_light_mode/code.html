@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="" lang="zh-Hant"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Game On: MiniVerse | Main Hub</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ea5e9",
+                        "secondary": "#3b82f6",
+                        "accent": "#0284c7",
+                        "background-light": "#f0f9ff",
+                        "background-dark": "#0c4a6e",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "orbitron": ["Orbitron", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .neon-glow {
+            text-shadow: 0 0 15px rgba(14, 165, 233, 0.15), 0 0 30px rgba(14, 165, 233, 0.1);
+            color: #0c4a6e;
+        }
+        .glass-card {
+            background: #e0f2fe;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(14, 165, 233, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #0ea5e9;
+            box-shadow: 0 20px 25px -5px rgba(14, 165, 233, 0.1), 0 10px 10px -5px rgba(14, 165, 233, 0.05);
+            background: #f0f9ff;
+        }
+        .bg-grid-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(14, 165, 233, 0.1) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        body {
+            font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-700 min-h-screen selection:bg-primary/20 selection:text-primary">
+<!-- Grid Background Decoration -->
+<div class="fixed inset-0 bg-grid-pattern pointer-events-none z-0"></div>
+<!-- Navigation -->
+<header class="sticky top-0 z-50 w-full border-b border-sky-100 bg-white/90 backdrop-blur-md px-6 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3 group cursor-pointer">
+<div class="size-10 flex items-center justify-center bg-primary/20 rounded-lg border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-3xl">rocket_launch</span>
+</div>
+<h2 class="font-orbitron text-xl font-black tracking-tighter group-hover:text-primary transition-colors text-slate-900">
+                    MINIVERSE
+                </h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Games</a>
+<a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Leaderboard</a>
+<a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Universe</a>
+<a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest" href="#">Community</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hidden lg:flex items-center gap-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-4 py-2 rounded-lg transition-all">
+<span class="material-symbols-outlined text-sm">search</span>
+<span class="text-xs font-medium uppercase tracking-tighter opacity-70">Search Universe</span>
+</button>
+<button class="bg-primary hover:bg-primary/80 text-white px-6 py-2 rounded-lg font-bold text-sm transition-all shadow-[0_4px_15px_rgba(14,165,233,0.3)]">
+                    CONNECT WALLET
+                </button>
+</div>
+</div>
+</header>
+<main class="relative z-10 px-6 pt-12 pb-24 max-w-7xl mx-auto">
+<!-- Hero Section -->
+<section class="flex flex-col items-center text-center mb-24 py-16 relative">
+<!-- Decorative Glow behind title -->
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
+<div class="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-secondary/10 blur-[100px] rounded-full pointer-events-none"></div>
+<h1 class="font-orbitron text-5xl md:text-8xl font-black neon-glow mb-6 leading-tight tracking-tight italic text-slate-900">
+                GAME ON:<br/>MINIVERSE
+            </h1>
+<p class="text-xl md:text-2xl text-slate-600 font-light tracking-[0.2em] uppercase max-w-2xl mb-12">
+                探索無限遊戲宇宙 <span class="block mt-2 text-sm text-primary font-display font-medium tracking-normal opacity-80">(Explore Infinite Game Universe)</span>
+</p>
+<div class="flex flex-wrap justify-center gap-6">
+<button class="bg-primary hover:bg-primary/80 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 transition-all border border-primary/50 group shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">play_circle</span>
+                    ENTER PORTAL
+                </button>
+<button class="bg-white hover:bg-sky-50 border border-sky-200 text-primary px-8 py-4 rounded-xl font-bold transition-all shadow-sm">
+                    LEARN MORE
+                </button>
+</div>
+</section>
+<!-- Stats Counter -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-24">
+<div class="glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+<p class="text-primary text-xs font-bold uppercase tracking-widest mb-2">Active Players</p>
+<p class="text-3xl font-bold font-orbitron text-slate-900">12.4K</p>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+<p class="text-secondary text-xs font-bold uppercase tracking-widest mb-2">Mini-Universes</p>
+<p class="text-3xl font-bold font-orbitron text-slate-900">42</p>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+<p class="text-accent text-xs font-bold uppercase tracking-widest mb-2">Daily Matches</p>
+<p class="text-3xl font-bold font-orbitron text-slate-900">85K+</p>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+<p class="text-primary text-xs font-bold uppercase tracking-widest mb-2">Total Rewards</p>
+<p class="text-3xl font-bold font-orbitron text-slate-900">2.5M</p>
+</div>
+</section>
+<!-- Game Grid Header -->
+<div class="flex items-end justify-between mb-10 border-l-4 border-primary pl-6">
+<div>
+<h2 class="font-orbitron text-3xl font-bold uppercase tracking-tighter text-slate-900">Featured Worlds</h2>
+<p class="text-slate-400 mt-2 font-display">Select a portal to start your journey</p>
+</div>
+<a class="text-primary text-sm font-bold flex items-center gap-2 hover:underline transition-all" href="#">
+                VIEW ALL <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<!-- Game Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Game 1: Speed Racer -->
+<div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+<div class="relative aspect-video overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Cyberpunk racing car on neon track" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPZrJ97tS39Sx0oFkwI0en6gXraEqaW7MHoeVQj8Gpc3vfX_Al3OuLD-lFNAVxVMxhC7P6ciN4p9kJ4Oi3BD2x11lUqsiTyacrvLEyND_0TYXw9zT5fDHEUz1rW1WyX1srBjrEfP8A_s_sSUAstnBcHJbs9WDQEQQrrO_WplTsiDiRj92sVochOdzNomTj_gmmsh2l9Aamo0gLPFzlw8zru6oKzFEBRV4svSHL86aFco-OqmwroafF8DeivILpCLxW8XD5Xbk2CJv0');"></div>
+<div class="absolute top-4 right-4 z-20 bg-accent/90 text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
+                        Live Event
+                    </div>
+<div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+<span class="text-4xl filter drop-shadow-md">🏎️</span>
+</div>
+</div>
+<div class="p-6 flex flex-1 flex-col">
+<div class="flex gap-2 mb-4">
+<span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">競速</span>
+<span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">動作</span>
+</div>
+<h3 class="font-orbitron text-xl font-bold mb-2 group-hover:text-primary transition-colors text-slate-900">Speed Racer</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        體驗腎上腺素飆升的極速競速。 (Experience adrenaline-pumping high-speed racing.)
+                    </p>
+<button class="mt-auto w-full border border-primary/30 group-hover:bg-primary group-hover:text-background-dark py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+                        Launch Game
+                    </button>
+</div>
+</div>
+<!-- Game 2: Tic Tac Toe -->
+<div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+<div class="relative aspect-video overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Minimalist glowing blue tic tac toe board" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBurUgi1TfDxwG5a1M-Q0nt-I0hjd3hnkSfn35VpWMkFetON2wivHIp8as_BA3fYe4jsX9FwYGon17TEuKw98ugUeWNh5T6nKfbXhDu5jnENgTTCo9lH0-M8JT8bxgk_mT2srJw-ZlZrDIqPutpIxHQfNuMDbs5Mptpdp2V7hZPjtLxd6REljdv6in0xKlSv9P5VQhvycddg0HPJaDeeqdcdUPBlUrDpicw-jckV9xoyYwo3LhGPVnSGKGHw50jyLXmlB836xPKo9ru');"></div>
+<div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+<span class="text-4xl filter drop-shadow-md">⭕</span>
+</div>
+</div>
+<div class="p-6 flex flex-1 flex-col">
+<div class="flex gap-2 mb-4">
+<span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">策略</span>
+<span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">棋盤</span>
+</div>
+<h3 class="font-orbitron text-xl font-bold mb-2 group-hover:text-primary transition-colors text-slate-900">Tic Tac Toe</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        經典的井字遊戲，考驗你的策略思維。(Classic Tic-Tac-Toe, testing your strategic thinking.)
+                    </p>
+<button class="mt-auto w-full border border-primary/30 group-hover:bg-primary group-hover:text-background-dark py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+                        Launch Game
+                    </button>
+</div>
+</div>
+<!-- Game 3: Fortress War -->
+<div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+<div class="relative aspect-video overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Digital fortress under attack with glowing purple lasers" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA8Z-i4c6Bpy0hlGQNecHEs44M9ajLTaCdAv_fYjIBmbSQkgs6kQ5Ssxk454gYBFVEinRtTyhs5KpyR8NellJgcRh-_BvVtD6jT4mX7RwEhvEOb9_-0n3rxqcNZ5sj6eUtd109a_pj3MjPRlLHXrigIFVmDeXFbYQdxrHRPA4yA9U9mNxMb6eYwoubDkqXGh1B6LrB4cOSY1vz-hVbJwpXvGkvsEzEursnd70m5Vym43jCafT2NafDTaBdpCIE9KH4EjLHD2yK4Sl-i');"></div>
+<div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+<span class="text-4xl filter drop-shadow-md">⚔️</span>
+</div>
+</div>
+<div class="p-6 flex flex-1 flex-col">
+<div class="flex gap-2 mb-4">
+<span class="text-[10px] px-2 py-1 rounded border border-secondary/40 bg-secondary/10 text-secondary font-bold uppercase tracking-wider">策略</span>
+<span class="text-[10px] px-2 py-1 rounded border border-secondary/40 bg-secondary/10 text-secondary font-bold uppercase tracking-wider">猜拳</span>
+</div>
+<h3 class="font-orbitron text-xl font-bold mb-2 group-hover:text-secondary transition-colors text-slate-900">Fortress War</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        傳統的猜拳策略遊戲，結合堡壘建設與攻擊。(Traditional rock-paper-scissors with base building.)
+                    </p>
+<button class="mt-auto w-full border border-secondary/30 group-hover:bg-secondary group-hover:text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+                        Launch Game
+                    </button>
+</div>
+</div>
+<!-- Game 4: 2048 Modern -->
+<div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+<div class="relative aspect-video overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Abstract colorful neon numeric grid puzzle" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD3D8AgRYS4BBTsIq11sJv6uZzs2F_IgtnpqkESIR0IOVfpQctCRPy9snfCvr17huUrvjCdIH6-We7aZt-brzBwP4IHMghW_rNd3FYi38IT73w-DZcZNd5HNvu0azeuOaQj5bFGYUBEv55FFBvgt83RhHPXeyaPD8IoDzQdiPNvEdpfTvVlPqKTZDPKtPhWXNyQ0Az1GITUBBnDpgipd0jYBz9adfej_lEoWT45BSIs7vISquQRieyPSh8TjYKLeRuG-rJIpAVpsu8v');"></div>
+<div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+<span class="text-4xl filter drop-shadow-md">🧩</span>
+</div>
+</div>
+<div class="p-6 flex flex-1 flex-col">
+<div class="flex gap-2 mb-4">
+<span class="text-[10px] px-2 py-1 rounded border border-accent/40 bg-accent/10 text-accent font-bold uppercase tracking-wider">益智</span>
+<span class="text-[10px] px-2 py-1 rounded border border-accent/40 bg-accent/10 text-accent font-bold uppercase tracking-wider">策略</span>
+</div>
+<h3 class="font-orbitron text-xl font-bold mb-2 group-hover:text-accent transition-colors text-slate-900">2048 Modern</h3>
+<p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        經典數字合併益智遊戲，挑戰你的數學思維。(Classic number merge puzzle game to challenge your math skills.)
+                    </p>
+<button class="mt-auto w-full border border-accent/30 group-hover:bg-accent group-hover:text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+                        Launch Game
+                    </button>
+</div>
+</div>
+<!-- Empty Slot Card for Future Games -->
+<div class="border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center p-12 text-center opacity-60 hover:opacity-100 transition-opacity cursor-pointer group bg-white/30">
+<div class="size-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-4xl group-hover:text-primary">add_circle</span>
+</div>
+<h3 class="font-orbitron text-lg font-bold text-slate-900">NEW GALAXY</h3>
+<p class="text-xs uppercase tracking-[0.2em] mt-2">Coming Soon</p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="relative z-10 bg-sky-50 border-t border-sky-100 py-12 px-6">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+<div class="flex flex-col items-center md:items-start">
+<div class="flex items-center gap-3 mb-4">
+<div class="size-8 flex items-center justify-center bg-primary/20 rounded-md border border-primary/30 text-primary">
+<span class="material-symbols-outlined text-xl">rocket_launch</span>
+</div>
+<h2 class="font-orbitron text-lg font-black tracking-tighter uppercase text-slate-900">MINIVERSE</h2>
+</div>
+<p class="text-slate-500 text-sm max-w-sm text-center md:text-left font-display">
+                    Exploring the boundaries of decentralized gaming across infinite mini-universes. Developed for the next generation of players.
+                </p>
+</div>
+<div class="flex flex-col items-center md:items-end">
+<div class="flex gap-6 mb-6">
+<a class="text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">hub</span>
+</a>
+<a class="text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">forum</span>
+</a>
+<a class="text-slate-400 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+</a>
+</div>
+<p class="text-xs text-slate-500 font-display">
+                    © 2026 Game On: MiniVerse. Built with Precision.
+                </p>
+<div class="mt-2 text-[10px] uppercase tracking-widest text-primary/50 font-bold">
+                    V 2.0.4-BETA // NODE-04
+                </div>
+</div>
+</div>
+</footer>
+</body></html>

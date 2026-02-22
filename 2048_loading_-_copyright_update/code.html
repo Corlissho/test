@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>2048 Modern - Loading</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00f2ff",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#0a0f10",
+                        "card-dark": "#142122",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; filter: blur(8px); }
+            50% { opacity: 1; filter: blur(12px); }
+        }
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+        }
+        .bg-grid {
+            background-image: linear-gradient(to right, rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-hidden">
+<!-- Background Grid Decor -->
+<div class="fixed inset-0 bg-grid pointer-events-none"></div>
+<div class="fixed inset-0 bg-gradient-to-b from-transparent via-background-dark/50 to-background-dark pointer-events-none"></div>
+<!-- Top Navigation Bar (Partial/Minimal for Loading) -->
+<header class="relative z-10 flex items-center justify-between px-6 py-6 lg:px-12 border-b border-primary/10 bg-background-dark/40 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="size-8 flex items-center justify-center bg-primary/10 rounded-lg border border-primary/20">
+<span class="material-symbols-outlined text-primary text-xl">grid_view</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-slate-100 uppercase italic">2048 <span class="text-primary font-light not-italic">Modern</span></h2>
+</div>
+<div class="flex gap-4">
+<button class="p-2 rounded-lg bg-primary/5 hover:bg-primary/10 text-primary border border-primary/10 transition-colors">
+<span class="material-symbols-outlined text-xl">settings</span>
+</button>
+<button class="p-2 rounded-lg bg-primary/5 hover:bg-primary/10 text-primary border border-primary/10 transition-colors">
+<span class="material-symbols-outlined text-xl">help</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col items-center justify-center relative z-10 p-4">
+<!-- Loading Header -->
+<div class="text-center mb-12">
+<p class="text-primary text-xs font-bold tracking-[0.4em] uppercase mb-2 opacity-80">System Initialization</p>
+<h1 class="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-2">2048 LOADING</h1>
+<div class="h-1 w-24 bg-primary mx-auto rounded-full glow-effect"></div>
+</div>
+<!-- Central Animation Area: Simulated Merging Blocks -->
+<div class="relative w-64 h-64 bg-card-dark rounded-xl border border-primary/10 p-4 flex items-center justify-center overflow-hidden shadow-2xl">
+<!-- Decorative inner grid -->
+<div class="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-2 p-4 opacity-20">
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+<div class="bg-primary/5 rounded border border-primary/10"></div>
+</div>
+<!-- Block Sequence Simulation (Static for UI Design) -->
+<div class="relative z-10 flex gap-4 items-center">
+<!-- Block 2 -->
+<div class="w-16 h-16 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center shadow-lg transform scale-90">
+<span class="text-primary text-2xl font-bold">2</span>
+</div>
+<!-- Merge Icon -->
+<div class="text-primary/40">
+<span class="material-symbols-outlined text-3xl">add</span>
+</div>
+<!-- Block 2 -->
+<div class="w-16 h-16 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center shadow-lg transform scale-90">
+<span class="text-primary text-2xl font-bold">2</span>
+</div>
+<!-- Equals into 4 -->
+<div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+<div class="w-20 h-20 rounded-lg bg-primary border-2 border-primary flex items-center justify-center shadow-[0_0_30px_rgba(0,242,255,0.4)]">
+<span class="text-background-dark text-3xl font-extrabold">4</span>
+</div>
+</div>
+</div>
+<!-- Floating Data Particles -->
+<div class="absolute top-4 right-4 text-[10px] font-mono text-primary/30 uppercase leading-none">
+                CHUNK_048<br/>MEM_SYNC_OK
+            </div>
+</div>
+<!-- Status Message -->
+<div class="mt-12 text-center max-w-md w-full px-8">
+<h3 class="text-white text-lg font-medium tracking-wide mb-6 animate-pulse">Merging Universes...</h3>
+<!-- Progress Tracker -->
+<div class="space-y-4">
+<div class="flex justify-between items-end mb-1">
+<div class="flex flex-col items-start">
+<p class="text-primary/60 text-[10px] uppercase tracking-widest font-bold">Progress</p>
+<p class="text-slate-300 text-sm font-medium">Initializing Logic Grid</p>
+</div>
+<span class="text-primary font-bold text-sm tabular-nums">74%</span>
+</div>
+<div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full glow-effect transition-all duration-1000 ease-out" style="width: 74%;"></div>
+</div>
+<!-- Terminal-like log items -->
+<div class="flex flex-col gap-1.5 mt-8 items-center">
+<p class="text-primary/40 text-[10px] font-mono flex items-center gap-2">
+<span class="size-1 bg-primary/40 rounded-full"></span>
+                        SYNCHRONIZING_COORDINATES... DONE
+                    </p>
+<p class="text-primary text-[10px] font-mono flex items-center gap-2">
+<span class="size-1 bg-primary rounded-full animate-ping"></span>
+                        ALLOCATING_TILE_RESOURCES...
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Stats -->
+<footer class="relative z-10 px-8 py-6 border-t border-primary/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-primary/40 font-bold">
+<div class="flex gap-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">public</span>
+<span>Server: Tokyo_01</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">speed</span>
+<span>Latency: 14ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span>© 2026 Game On: MiniVerse</span>
+<div class="h-4 w-[1px] bg-primary/20"></div>
+<span>V 2.0.48-STABLE</span>
+</div>
+</footer>
+<!-- Image Fallback (Hidden placeholders to satisfy technical requirements if needed) -->
+<div class="hidden">
+<img data-alt="Abstract dark tech background with cyan glowing lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0rgJmOv2Ks_bB-PXO4l1ayl1uxsDaMeeEKI7IZZcC3S5bXCFJ-PmClvX1LotH1R7_VylhdTR3MJ4W5Bff9t1UiZBMhPnXJFn553Q-1Rkuv959xbnaQBy3IK5IUwGFGG-jdtiXIvFndw2cXyNBy77gc0TL8T1yoAC91Mi9qiwoPXxmPS_sHWipU1dcIiEluxWtW42GRp9aCXDdvMaLkAiAwau7EtoHSiLpqLdHULhErfhUMK-LefB4ifFJGeC_LHBn29xgdx0kdzJH"/>
+<img data-alt="Minimalist glowing number 2 block" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYSnahl3Vh-Ao3ticlZclmDwlo7ucQXCIvZHWE26GjL8HxTJDrNh_hmbWD_zPWR9mKDkRv3vXXOCQKTSS-4x60ZsNlpLSPmXl1nJEC_36ONh2Ak3kXFxeLQC5pbVf5ynHJmEIDyPYG4Fyz5l3HkCVkrIPa2Uh7rCnkYIV-lKad4jeQFd28EWNIdr1JOETHfX0_ZH0kB23f4gMvK-QMHj4h5PUmxr8SBLN3-RQQ5DgXg3E4omiDHn_GoZbl-V6_WES1ij51d0cqC4JZ"/>
+</div>
+</body></html>

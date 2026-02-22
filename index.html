@@ -1,270 +1,424 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game On: MiniVerse</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Game On: MiniVerse | 遊戲主頁</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00d2ff",
+                        "primary-light": "#0ea5e9",
+                        "secondary": "#112240",
+                        "secondary-light": "#3b82f6",
+                        "accent": "#64ffda",
+                        "accent-light": "#0284c7",
+                        "background-light": "#f0f9ff",
+                        "background-dark": "#0a192f",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "Noto Sans TC", "sans-serif"],
+                        "orbitron": ["Orbitron", "sans-serif"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
     <style>
-        /* 首頁特定樣式 - Homepage Specific Styles */
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.8), 0 0 20px rgba(0, 210, 255, 0.4);
         }
-
-        /* 動態背景 */
-        .bg-animate {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(112, 0, 255, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.1) 0%, transparent 40%);
+        .neon-glow-light {
+            text-shadow: 0 0 15px rgba(14, 165, 233, 0.15), 0 0 30px rgba(14, 165, 233, 0.1);
+            color: #0c4a6e;
         }
-
-        .bg-grid {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            perspective: 500px;
-            transform: rotateX(60deg) translateY(-20%);
-            mask-image: linear-gradient(to bottom, transparent, black);
-        }
-
-        /* Header 樣式 */
-        header {
-            text-align: center;
-            margin-bottom: 80px;
-            position: relative;
-        }
-
-        .logo-container {
-            display: inline-block;
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .header-tagline {
-            color: var(--text-dim);
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* 遊戲分類 */
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            margin: 60px 0 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-left: 4px solid var(--accent-primary);
-            padding-left: 15px;
-        }
-
-        .section-title span {
-            font-size: 1rem;
-            color: var(--text-dim);
-            font-family: 'Noto Sans TC', sans-serif;
-            font-weight: normal;
-        }
-
-        /* 網格系統 */
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        /* 遊戲卡片 */
-        .game-card {
-            background: var(--glass);
+        .glass-card {
+            background: rgba(17, 34, 64, 0.4);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 210, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-            transform: translateX(-100%);
-            transition: 0.6s;
+        .glass-card-light {
+            background: #e0f2fe;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(14, 165, 233, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
-
-        .game-card:hover {
+        .glass-card:hover {
             transform: translateY(-10px) scale(1.02);
-            border-color: var(--accent-color, var(--accent-primary));
-            box-shadow: 0 15px 40px -10px var(--glow-color, rgba(0, 242, 255, 0.3));
+            border-color: #00d2ff;
+            box-shadow: 0 15px 30px -10px rgba(0, 210, 255, 0.3);
+            background: rgba(17, 34, 64, 0.6);
         }
-
-        .game-card:hover::before {
-            transform: translateX(100%);
+        .glass-card-light:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #0ea5e9;
+            box-shadow: 0 20px 25px -5px rgba(14, 165, 233, 0.1), 0 10px 10px -5px rgba(14, 165, 233, 0.05);
+            background: #f0f9ff;
         }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
-            transition: transform 0.3s;
+        .bg-grid-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(0, 210, 255, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
         }
-
-        .game-card:hover .card-icon {
-            transform: rotate(10deg) scale(1.1);
+        .bg-grid-pattern-light {
+            background-image: radial-gradient(circle at 2px 2px, rgba(14, 165, 233, 0.1) 1px, transparent 0);
+            background-size: 40px 40px;
         }
-
-        .card-info h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
+        body {
+            font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
         }
-
-        .card-info p {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
+        /* 遊戲卡片背景顏色 - 深色模式 */
+        .game-bg-1 {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
         }
-
-        .card-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: auto;
+        .game-bg-2 {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
         }
-
-        .tag {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            border: 1px solid var(--glass-border);
+        .game-bg-3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-
-        /* 顏色定義 */
-        .color-single { --accent-color: #00f2ff; --glow-color: rgba(0, 242, 255, 0.4); }
-        .color-multi { --accent-color: #ff00c8; --glow-color: rgba(255, 0, 200, 0.4); }
-        .color-board { --accent-color: #7000ff; --glow-color: rgba(112, 0, 255, 0.4); }
-        .color-action { --accent-color: #ffaa00; --glow-color: rgba(255, 170, 0, 0.4); }
-
-        footer {
-            margin-top: 100px;
-            padding: 40px;
-            text-align: center;
-            border-top: 1px solid var(--glass-border);
-            color: var(--text-dim);
-            font-size: 0.9rem;
+        .game-bg-4 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
         }
-
-        /* 手機優化 */
-        @media (max-width: 768px) {
-            .logo-container h1 { font-size: 3rem; }
-            .game-grid { grid-template-columns: 1fr; }
+        /* 遊戲卡片背景顏色 - 明亮模式 */
+        .game-bg-1-light {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        }
+        .game-bg-2-light {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+        .game-bg-3-light {
+            background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
+        }
+        .game-bg-4-light {
+            background: linear-gradient(135deg, #bbf7d0, #86efac);
         }
     </style>
 </head>
-
-<body>
-    <!-- 動態背景元素 -->
-    <div class="bg-animate">
-        <div class="bg-grid"></div>
-    </div>
-
-    <div class="container">
-        <header>
-            <div class="logo-container">
-                <h1>Game On: MiniVerse</h1>
+<body class="bg-background-light dark:bg-background-dark text-slate-700 dark:text-slate-100 min-h-screen selection:bg-primary/20 dark:selection:bg-primary/30 selection:text-primary dark:selection:text-primary">
+    <!-- Grid Background Decoration -->
+    <div class="fixed inset-0 bg-grid-pattern-light dark:bg-grid-pattern pointer-events-none z-0"></div>
+    
+    <!-- Navigation -->
+    <header class="sticky top-0 z-50 w-full border-b border-primary/10 dark:border-primary/10 bg-white/90 dark:bg-[#0a192f]/80 backdrop-blur-md px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 group cursor-pointer">
+                <div class="size-10 flex items-center justify-center bg-primary/20 rounded-lg border border-primary/30 text-primary">
+                    <span class="material-symbols-outlined text-3xl">rocket_launch</span>
+                </div>
+                <h2 class="font-orbitron text-xl font-black tracking-tighter text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                    MINIVERSE
+                </h2>
             </div>
-            <div class="header-tagline">探索無限遊戲宇宙</div>
-        </header>
-
-        <h2 class="section-title">遊戲分類 <span>探索不同類型的遊戲世界</span></h2>
+            <nav class="hidden md:flex items-center gap-8">
+                <a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest text-slate-700 dark:text-slate-300" href="#games">遊戲</a>
+                <a class="text-sm font-medium hover:text-primary transition-colors uppercase tracking-widest text-slate-700 dark:text-slate-300" href="#about">關於</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle" class="flex items-center justify-center size-10 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all" aria-label="切換主題">
+                    <span id="themeIcon" class="material-symbols-outlined text-slate-700 dark:text-slate-300">dark_mode</span>
+                </button>
+                <button class="bg-primary hover:bg-primary/80 text-white dark:text-background-dark px-6 py-2 rounded-lg font-bold text-sm transition-all shadow-[0_4px_15px_rgba(14,165,233,0.3)] dark:shadow-[0_0_15px_rgba(0,242,255,0.4)]">
+                    開始遊戲
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="relative z-10 px-6 pt-12 pb-24 max-w-7xl mx-auto">
+        <!-- Hero Section -->
+        <section class="flex flex-col items-center text-center mb-24 py-16 relative">
+            <!-- Decorative Glow behind title -->
+            <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-primary-light/20 dark:bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
+            <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[300px] h-[300px] bg-secondary-light/30 dark:bg-secondary/30 blur-[100px] rounded-full pointer-events-none"></div>
+            <h1 class="font-orbitron text-5xl md:text-8xl font-black text-slate-900 dark:text-white neon-glow-light dark:neon-glow mb-6 leading-tight tracking-tight italic">
+                GAME ON:<br/>MINIVERSE
+            </h1>
+            <p class="text-xl md:text-2xl text-slate-700 dark:text-slate-300 font-light tracking-[0.2em] uppercase max-w-2xl mb-12">
+                探索無限遊戲宇宙 <span class="block mt-2 text-sm text-primary-light dark:text-primary font-display font-medium tracking-normal opacity-80">(Explore Infinite Game Universe)</span>
+            </p>
+            <div class="flex flex-wrap justify-center gap-6">
+                <a href="#games" class="bg-primary-light dark:bg-primary hover:bg-primary-light/80 dark:hover:bg-primary/80 text-white dark:text-background-dark px-8 py-4 rounded-xl font-bold flex items-center gap-3 transition-all border border-primary-light/50 dark:border-primary/50 group">
+                    <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">play_circle</span>
+                    開始探索
+                </a>
+                <button class="bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/20 text-slate-800 dark:text-white px-8 py-4 rounded-xl font-bold transition-all">
+                    了解更多
+                </button>
+            </div>
+        </section>
         
-        <div class="game-grid">
-            <a href="game1.html" class="game-card color-action">
-                <div class="card-icon">🏎️</div>
-                <div class="card-info">
-                    <h3>極速賽車</h3>
-                    <p>體驗腎上腺素飆升的極速競速，征服各種賽道與天氣條件</p>
-                </div>
-                <div class="card-tags">
-                    <span class="tag">競速</span>
-                    <span class="tag">3D</span>
-                    <span class="tag">多人</span>
-                </div>
-            </a>
-            
-            <a href="game2.html" class="game-card color-multi">
-                <div class="card-icon">⭕</div>
-                <div class="card-info">
-                    <h3>井字過三關</h3>
-                    <p>考驗你的策略思維，成為頂尖玩家</p>
-                </div>
-                <div class="card-tags">
-                    <span class="tag">策略</span>
-                    <span class="tag">文化</span>
-                    <span class="tag">懷舊</span>
-                </div>
-            </a>
-            
-            <a href="game3.html" class="game-card color-board">
-                <div class="card-icon">✊</div>
-                <div class="card-info">
-                    <h3>天下太平</h3>
-                    <p>策略型格鬥遊戲，結合中國武術與歷史元素</p>
-                </div>
-                <div class="card-tags">
-                    <span class="tag">格鬥</span>
-                    <span class="tag">策略</span>
-                    <span class="tag">文化</span>
-                </div>
-            </a>
-
-              <a href="game4.html" class="game-card color-board">
-                <div class="card-icon">🔢</div>
-                <div class="card-info">
-                    <h3>2048 · 數字合成</h3>
-                    <p>滑動方塊合併相同數字，透過邏輯規劃與空間管理挑戰 2048 甚至更高目標</p>
-                </div>
-                <div class="card-tags">
-                    <span class="tag">益智</span>
-                    <span class="tag">策略</span>
-                    <span class="tag">數字合成</span>
-                </div>
+        <!-- Stats Counter -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-24">
+            <div class="glass-card-light dark:glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+                <p class="text-primary-light dark:text-primary text-xs font-bold uppercase tracking-widest mb-2">活躍玩家</p>
+                <p class="text-3xl font-bold font-orbitron text-slate-800 dark:text-white">12.4K</p>
+            </div>
+            <div class="glass-card-light dark:glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+                <p class="text-primary-light dark:text-primary text-xs font-bold uppercase tracking-widest mb-2">遊戲數量</p>
+                <p class="text-3xl font-bold font-orbitron text-slate-800 dark:text-white">4</p>
+            </div>
+            <div class="glass-card-light dark:glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+                <p class="text-primary-light dark:text-primary text-xs font-bold uppercase tracking-widest mb-2">每日遊玩</p>
+                <p class="text-3xl font-bold font-orbitron text-slate-800 dark:text-white">85K+</p>
+            </div>
+            <div class="glass-card-light dark:glass-card p-6 rounded-xl flex flex-col items-center justify-center text-center">
+                <p class="text-primary-light dark:text-primary text-xs font-bold uppercase tracking-widest mb-2">總分數</p>
+                <p class="text-3xl font-bold font-orbitron text-slate-800 dark:text-white">2.5M</p>
+            </div>
+        </section>
+        
+        <!-- Game Grid Header -->
+        <div id="games" class="flex items-end justify-between mb-10 border-l-4 border-primary-light dark:border-primary pl-6">
+            <div>
+                <h2 class="font-orbitron text-3xl font-bold text-slate-800 dark:text-white uppercase tracking-tighter">精選遊戲世界</h2>
+                <p class="text-slate-600 dark:text-slate-400 mt-2 font-display">選擇一個入口開始你的旅程</p>
+            </div>
+            <a class="text-primary-light dark:text-primary text-sm font-bold flex items-center gap-2 hover:underline transition-all" href="#">
+                查看全部 <span class="material-symbols-outlined">arrow_forward</span>
             </a>
         </div>
-    </div>
-
-    <footer>
-        <p>© 2026 Game On: MiniVerse • 所有遊戲內容版權所有</p>
-        <p>本平台僅供教育與展示用途</p>
+        
+        <!-- Game Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Game 1: 卡通賽道賽車 -->
+            <div class="glass-card-light dark:glass-card group overflow-hidden flex flex-col rounded-xl">
+                <div class="relative aspect-video overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-white/50 dark:from-background-dark via-transparent to-transparent z-10"></div>
+                    <div class="w-full h-full game-bg-1-light dark:game-bg-1 transition-transform duration-700 group-hover:scale-110 flex items-center justify-center">
+                        <span class="text-6xl filter drop-shadow-md">🏎️</span>
+                    </div>
+                    <div class="absolute top-4 right-4 z-20 bg-accent-light/90 dark:bg-accent/90 text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
+                        熱門
+                    </div>
+                    <div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+                        <span class="text-4xl filter drop-shadow-md">🏎️</span>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-1 flex-col">
+                    <div class="flex gap-2 mb-4">
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary-light/40 dark:border-primary/40 bg-primary-light/10 dark:bg-primary/10 text-primary-light dark:text-primary font-bold uppercase tracking-wider">競速</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary-light/40 dark:border-primary/40 bg-primary-light/10 dark:bg-primary/10 text-primary-light dark:text-primary font-bold uppercase tracking-wider">動作</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary-light/40 dark:border-primary/40 bg-primary-light/10 dark:bg-primary/10 text-primary-light dark:text-primary font-bold uppercase tracking-wider">3D</span>
+                    </div>
+                    <h3 class="font-orbitron text-xl font-bold text-slate-800 dark:text-white mb-2 group-hover:text-primary-light dark:group-hover:text-primary transition-colors">卡通賽道賽車</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        體驗腎上腺素飆升的極速競速，征服各種賽道與天氣條件。使用方向鍵控制跑車，避開障礙物，爭取最高分數！
+                    </p>
+                    <a href="game1.html" class="mt-auto w-full border border-primary-light/30 dark:border-primary/30 group-hover:bg-primary-light dark:group-hover:bg-primary group-hover:text-white dark:group-hover:text-background-dark py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all text-center text-primary-light dark:text-primary">
+                        開始遊戲
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Game 2: 井字過三關 -->
+            <div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+                <div class="relative aspect-video overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+                    <div class="w-full h-full game-bg-2 transition-transform duration-700 group-hover:scale-110 flex items-center justify-center">
+                        <span class="text-6xl filter drop-shadow-md">⭕</span>
+                    </div>
+                    <div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+                        <span class="text-4xl filter drop-shadow-md">⭕</span>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-1 flex-col">
+                    <div class="flex gap-2 mb-4">
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">策略</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">棋盤</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">雙人</span>
+                    </div>
+                    <h3 class="font-orbitron text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">井字過三關</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        經典的井字遊戲，考驗你的策略思維。兩名玩家輪流在 3×3 的格子中放置自己的符號（X 或 O），第一個成功將三個相同符號連成一線的玩家獲勝。
+                    </p>
+                    <a href="game2.html" class="mt-auto w-full border border-primary/30 group-hover:bg-primary group-hover:text-background-dark py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all text-center">
+                        開始遊戲
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Game 3: 天下太平 - 飛機大砲 -->
+            <div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+                <div class="relative aspect-video overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+                    <div class="w-full h-full game-bg-3 transition-transform duration-700 group-hover:scale-110 flex items-center justify-center">
+                        <span class="text-6xl filter drop-shadow-md">⚔️</span>
+                    </div>
+                    <div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+                        <span class="text-4xl filter drop-shadow-md">⚔️</span>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-1 flex-col">
+                    <div class="flex gap-2 mb-4">
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">策略</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">猜拳</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">建設</span>
+                    </div>
+                    <h3 class="font-orbitron text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">天下太平 - 飛機大砲</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        傳統的猜拳策略遊戲，結合堡壘建設與攻擊。猜拳決定行動權，建設旗幟、保護罩和大砲，攻擊對手設施，成為最後的勝利者！
+                    </p>
+                    <a href="game3.html" class="mt-auto w-full border border-primary/30 group-hover:bg-primary group-hover:text-background-dark py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all text-center">
+                        開始遊戲
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Game 4: 2048 平滑動畫遊戲 -->
+            <div class="glass-card group overflow-hidden flex flex-col rounded-xl">
+                <div class="relative aspect-video overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent z-10"></div>
+                    <div class="w-full h-full game-bg-4 transition-transform duration-700 group-hover:scale-110 flex items-center justify-center">
+                        <span class="text-6xl filter drop-shadow-md">🧩</span>
+                    </div>
+                    <div class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
+                        <span class="text-4xl filter drop-shadow-md">🧩</span>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-1 flex-col">
+                    <div class="flex gap-2 mb-4">
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">益智</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">策略</span>
+                        <span class="text-[10px] px-2 py-1 rounded border border-primary/40 bg-primary/10 text-primary font-bold uppercase tracking-wider">數字</span>
+                    </div>
+                    <h3 class="font-orbitron text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">2048 平滑動畫遊戲</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6 font-display">
+                        經典數字合併益智遊戲，挑戰你的數學思維。滑動方塊將相同數字合併，目標是創造出 2048 方塊！
+                    </p>
+                    <a href="game4.html" class="mt-auto w-full border border-primary/30 group-hover:bg-primary group-hover:text-background-dark py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all text-center">
+                        開始遊戲
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Empty Slot Card for Future Games -->
+            <div class="border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center p-12 text-center opacity-40 hover:opacity-100 transition-opacity cursor-pointer group">
+                <div class="size-16 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    <span class="material-symbols-outlined text-4xl group-hover:text-primary">add_circle</span>
+                </div>
+                <h3 class="font-orbitron text-lg font-bold text-white">新遊戲宇宙</h3>
+                <p class="text-xs uppercase tracking-[0.2em] mt-2">即將推出</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="relative z-10 bg-sky-50 dark:bg-background-dark border-t border-sky-100 dark:border-white/5 py-12 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="flex flex-col items-center md:items-start">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="size-8 flex items-center justify-center bg-primary-light/20 dark:bg-primary/20 rounded-md border border-primary-light/30 dark:border-primary/30 text-primary-light dark:text-primary">
+                        <span class="material-symbols-outlined text-xl">rocket_launch</span>
+                    </div>
+                    <h2 class="font-orbitron text-lg font-black tracking-tighter text-slate-800 dark:text-white uppercase">MINIVERSE</h2>
+                </div>
+                <p class="text-slate-600 dark:text-slate-500 text-sm max-w-sm text-center md:text-left font-display">
+                    探索無限遊戲宇宙的邊界，為新一代玩家開發的遊戲平台。
+                </p>
+            </div>
+            <div class="flex flex-col items-center md:items-end">
+                <div class="flex gap-6 mb-6">
+                    <a class="text-slate-500 dark:text-slate-400 hover:text-primary-light dark:hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">hub</span>
+                    </a>
+                    <a class="text-slate-500 dark:text-slate-400 hover:text-primary-light dark:hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">forum</span>
+                    </a>
+                    <a class="text-slate-500 dark:text-slate-400 hover:text-primary-light dark:hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">description</span>
+                    </a>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-500 font-display">
+                    © 2026 Game On: MiniVerse. 精心打造。
+                </p>
+                <div class="mt-2 text-[10px] uppercase tracking-widest text-primary-light/50 dark:text-primary/50 font-bold">
+                    V 2.0.4-BETA // NODE-04
+                </div>
+            </div>
+        </div>
     </footer>
+
+    <!-- Theme Toggle JavaScript -->
+    <script>
+        // 檢查本地儲存的主題偏好
+        const getTheme = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) return savedTheme;
+            
+            // 檢查系統偏好
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        // 設置主題
+        const setTheme = (theme) => {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                themeIcon.textContent = 'light_mode';
+                themeIcon.setAttribute('title', '切換到明亮模式');
+            } else {
+                html.classList.remove('dark');
+                themeIcon.textContent = 'dark_mode';
+                themeIcon.setAttribute('title', '切換到深暗模式');
+            }
+            
+            localStorage.setItem('theme', theme);
+        };
+
+        // 初始化主題
+        const initTheme = () => {
+            const currentTheme = getTheme();
+            setTheme(currentTheme);
+        };
+
+        // 切換主題
+        const toggleTheme = () => {
+            const html = document.documentElement;
+            const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(newTheme);
+        };
+
+        // 事件監聽
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            // 監聽系統主題變化
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (!localStorage.getItem('theme')) {
+                    setTheme(e.matches ? 'dark' : 'light');
+                }
+            });
+        });
+
+        // 導出函數供全局使用
+        window.toggleTheme = toggleTheme;
+        window.setTheme = setTheme;
+        window.getTheme = getTheme;
+    </script>
 </body>
 </html>
